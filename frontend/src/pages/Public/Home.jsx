@@ -54,75 +54,82 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-primary text-white relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
-          <div className="absolute top-0 right-0 w-1/2 h-full">
-            <div className="w-full h-full bg-gradient-to-l from-white/10 to-transparent"></div>
-          </div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="space-y-6">
-                <h1 className="heading-1 text-white">
-                  Welcome to <span className="text-white font-bold">Greenfield HOA</span>
-                </h1>
-                <p className="text-large text-green-50 max-w-2xl">
-                  Experience premium community living with modern amenities, 
-                  beautiful landscapes, and a vibrant neighborhood atmosphere in Pleasant Valley.
-                </p>
-              </div>
-              
-              {!isAuthenticated ? (
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link
-                    to="/register"
-                    className="btn btn-large bg-white text-[#7CB342] hover:bg-gray-100 shadow-xl hover:shadow-2xl"
-                  >
-                    Join Our Community
-                  </Link>
-                  <Link
-                    to="/about"
-                    className="btn btn-large btn-outline border-white text-white hover:bg-white hover:text-[#7CB342]"
-                  >
-                    Learn More
-                  </Link>
-                </div>
-              ) : (
-                <Link
-                  to="/dashboard"
-                  className="btn btn-large bg-white text-[#7CB342] hover:bg-gray-100 shadow-xl hover:shadow-2xl"
-                >
-                  Go to Dashboard
-                </Link>
-              )}
+      {/* Hero Section with Image Background */}
+      <section className="bg-gray-50 py-4 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1400px] mx-auto">
+          <div 
+            className="relative rounded-3xl overflow-hidden min-h-[600px] lg:min-h-[700px] flex items-center"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}
+          >
+            {/* Green Overlay with 80% opacity */}
+            <div className="absolute inset-0 bg-[#358939] bg-opacity-80"></div>
+            
+            {/* Additional gradient overlays for depth */}
+            <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
+            <div className="absolute top-0 right-0 w-1/2 h-full">
+              <div className="w-full h-full bg-gradient-to-l from-white/10 to-transparent"></div>
             </div>
             
-            {/* Hero Image/Illustration Area */}
-            <div className="hidden lg:flex items-center justify-center">
-              <div className="w-full max-w-md">
-                <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
-                  <div className="text-center space-y-4">
-                    <div className="w-24 h-24 bg-white/20 rounded-full mx-auto flex items-center justify-center">
-                      <Home className="w-12 h-12 text-white" />
+            <div className="relative w-full px-8 sm:px-12 lg:px-16 py-20 lg:py-32">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div className="space-y-8">
+                  <div className="space-y-6">
+                    <h1 className="heading-1 text-white">
+                      Welcome to <span className="text-white font-bold">Greenfield HOA</span>
+                    </h1>
+                    <p className="text-large text-green-50 max-w-2xl">
+                      Experience premium community living with modern amenities, 
+                      beautiful landscapes, and a vibrant neighborhood atmosphere in Pleasant Valley.
+                    </p>
+                  </div>
+                  
+                  {!isAuthenticated ? (
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <Link
+                        to="/register"
+                        className="btn btn-large bg-white text-[#7CB342] hover:bg-gray-100 shadow-xl hover:shadow-2xl"
+                      >
+                        Join Our Community
+                      </Link>
+                      <Link
+                        to="/about"
+                        className="btn btn-large btn-outline border-white text-white hover:bg-white hover:text-[#7CB342]"
+                      >
+                        Learn More
+                      </Link>
                     </div>
-                    <h3 className="text-xl font-bold text-white">Your Community Portal</h3>
-                    <p className="text-green-100">Access all community services and amenities</p>
+                  ) : (
+                    <Link
+                      to="/dashboard"
+                      className="btn btn-large bg-white text-[#7CB342] hover:bg-gray-100 shadow-xl hover:shadow-2xl"
+                    >
+                      Go to Dashboard
+                    </Link>
+                  )}
+                </div>
+                
+                {/* Hero Image/Illustration Area */}
+                <div className="hidden lg:flex items-center justify-center">
+                  <div className="w-full max-w-md">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                      <div className="text-center space-y-4">
+                        <div className="w-24 h-24 bg-white/20 rounded-full mx-auto flex items-center justify-center">
+                          <Home className="w-12 h-12 text-white" />
+                        </div>
+                        <h3 className="text-xl font-bold text-white">Your Community Portal</h3>
+                        <p className="text-green-100">Access all community services and amenities</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        
-        {/* Bottom wave */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" className="w-full h-auto">
-            <path fill="#f9fafb" d="M0,0 C720,120 720,120 1440,0 L1440,120 L0,120 Z"></path>
-          </svg>
         </div>
       </section>
 
@@ -150,166 +157,15 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Featured News */}
+      {/* Quick Access Features */}
       <section className="section bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="heading-2 text-gray-900 mb-6">
-              Latest Community News
+              Community Services
             </h2>
             <p className="text-large text-gray-600 max-w-3xl mx-auto">
-              Stay updated with the latest announcements and happenings in our community.
-            </p>
-          </div>
-
-          {error ? (
-            <div className="alert alert-error max-w-md mx-auto">
-              {error}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              {loading ? (
-                Array.from({ length: 3 }).map((_, index) => (
-                  <div key={index} className="card">
-                    <div className="skeleton h-48 mb-6"></div>
-                    <div className="skeleton h-4 mb-4"></div>
-                    <div className="skeleton h-3 mb-2"></div>
-                    <div className="skeleton h-3 w-3/4"></div>
-                  </div>
-                ))
-              ) : featuredNews.length > 0 ? (
-                featuredNews.map((article) => (
-                  <div key={article.id} className="card hover:shadow-xl transition-all duration-300 group">
-                    {article.image && (
-                      <img
-                        src={article.image}
-                        alt={article.title}
-                        className="w-full h-48 object-cover rounded-2xl mb-6"
-                      />
-                    )}
-                    <div className="flex items-center mb-4">
-                      <Star className="w-5 h-5 text-yellow-500 mr-2" />
-                      <span className="text-xs font-semibold text-yellow-600 uppercase tracking-wide bg-yellow-50 px-3 py-1 rounded-full">
-                        Featured
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-[#7CB342] transition-colors">
-                      {article.title}
-                    </h3>
-                    <p className="text-gray-600 mb-6 leading-relaxed">
-                      {article.excerpt || article.content.substring(0, 120) + '...'}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">
-                        {new Date(article.created_at).toLocaleDateString()}
-                      </span>
-                      <Link
-                        to={`/news`}
-                        className="inline-flex items-center text-[#7CB342] hover:text-[#6BA93A] font-semibold text-sm group-hover:translate-x-1 transition-all"
-                      >
-                        Read More <ArrowRight className="w-4 h-4 ml-2" />
-                      </Link>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="col-span-3 text-center py-16">
-                  <FileText className="w-16 h-16 text-gray-400 mx-auto mb-6" />
-                  <p className="text-gray-500 text-lg">No featured news available at the moment.</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="text-center">
-            <Link
-              to="/news"
-              className="btn btn-outline btn-large"
-            >
-              View All News
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Upcoming Events */}
-      <section className="section bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="heading-2 text-gray-900 mb-6">
-              Upcoming Events
-            </h2>
-            <p className="text-large text-gray-600 max-w-3xl mx-auto">
-              Join us for exciting community events and activities.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {loading ? (
-              Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="card">
-                  <div className="skeleton h-6 w-32 mb-4"></div>
-                  <div className="skeleton h-6 mb-4"></div>
-                  <div className="skeleton h-3 mb-2"></div>
-                  <div className="skeleton h-3 w-2/3"></div>
-                </div>
-              ))
-            ) : upcomingEvents.length > 0 ? (
-              upcomingEvents.map((event) => (
-                <div key={event.id} className="card hover:shadow-xl transition-all duration-300 group">
-                  <div className="flex items-center mb-4">
-                    <Calendar className="w-5 h-5 text-[#7CB342] mr-2" />
-                    <span className="text-sm font-semibold text-[#7CB342] bg-green-50 px-3 py-1 rounded-full">
-                      {new Date(event.start_date).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-[#7CB342] transition-colors">
-                    {event.title}
-                  </h3>
-                  <p className="text-gray-600 mb-6 leading-relaxed">
-                    {event.description.substring(0, 120) + '...'}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500 flex items-center">
-                      📍 {event.location}
-                    </span>
-                    <Link
-                      to="/events"
-                      className="inline-flex items-center text-[#7CB342] hover:text-[#6BA93A] font-semibold text-sm group-hover:translate-x-1 transition-all"
-                    >
-                      Learn More <ArrowRight className="w-4 h-4 ml-2" />
-                    </Link>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="col-span-3 text-center py-16">
-                <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-6" />
-                <p className="text-gray-500 text-lg">No upcoming events scheduled.</p>
-              </div>
-            )}
-          </div>
-
-          <div className="text-center">
-            <Link
-              to="/events"
-              className="btn btn-outline btn-large"
-            >
-              View All Events
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Quick Links */}
-      <section className="section bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="heading-2 text-gray-900 mb-6">
-              Quick Access
-            </h2>
-            <p className="text-large text-gray-600">
-              Find what you need quickly and easily.
+              Everything you need for comfortable community living, all in one place.
             </p>
           </div>
 
@@ -360,6 +216,159 @@ const HomePage = () => {
               <p className="text-gray-600 leading-relaxed">
                 {isAuthenticated ? "Access your personal account and services" : "Login to access member services"}
               </p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured News */}
+      <section className="section bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="heading-2 text-gray-900 mb-6">
+              Latest Community News
+            </h2>
+            <p className="text-large text-gray-600 max-w-3xl mx-auto">
+              Stay updated with the latest announcements and happenings in our community.
+            </p>
+          </div>
+
+          {error ? (
+            <div className="alert alert-error max-w-md mx-auto">
+              {error}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {loading ? (
+                Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="card">
+                    <div className="skeleton h-48 mb-6"></div>
+                    <div className="skeleton h-4 mb-4"></div>
+                    <div className="skeleton h-3 mb-2"></div>
+                    <div className="skeleton h-3 w-3/4"></div>
+                  </div>
+                ))
+              ) : featuredNews.length > 0 ? (
+                featuredNews.map((article) => (
+                  <div key={article.id} className="card group hover:shadow-xl transition-all duration-300">
+                    {article.image && (
+                      <img
+                        src={article.image}
+                        alt={article.title}
+                        className="w-full h-48 object-cover rounded-2xl mb-6 group-hover:scale-105 transition-transform duration-300"
+                      />
+                    )}
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#7CB342] transition-colors line-clamp-2">
+                        {article.title}
+                      </h3>
+                      <p className="text-gray-600 leading-relaxed line-clamp-3">
+                        {article.excerpt || article.content}
+                      </p>
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <span>{new Date(article.created_at).toLocaleDateString()}</span>
+                        <Link
+                          to={`/news/${article.id}`}
+                          className="text-[#7CB342] hover:text-[#6BA93A] font-medium flex items-center gap-1"
+                        >
+                          Read More <ArrowRight className="w-4 h-4" />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <div className="text-gray-400 mb-4">
+                    <FileText className="w-16 h-16 mx-auto" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No News Yet</h3>
+                  <p className="text-gray-600">Check back soon for community updates and announcements.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="text-center">
+            <Link
+              to="/news"
+              className="btn btn-primary"
+            >
+              View All News
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Upcoming Events */}
+      <section className="section bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="heading-2 text-gray-900 mb-6">
+              Upcoming Events
+            </h2>
+            <p className="text-large text-gray-600 max-w-3xl mx-auto">
+              Join us for exciting community events and activities throughout the year.
+            </p>
+          </div>
+
+          {error ? (
+            <div className="alert alert-error max-w-md mx-auto">
+              {error}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {loading ? (
+                Array.from({ length: 3 }).map((_, index) => (
+                  <CardSkeleton key={index} />
+                ))
+              ) : upcomingEvents.length > 0 ? (
+                upcomingEvents.map((event) => (
+                  <div key={event.id} className="card group hover:shadow-xl transition-all duration-300">
+                    <div className="flex items-start space-x-4 mb-6">
+                      <div className="feature-icon-large">
+                        <Calendar className="w-8 h-8" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#7CB342] transition-colors mb-2">
+                          {event.title}
+                        </h3>
+                        <div className="text-sm text-gray-500 space-y-1">
+                          <p>📅 {new Date(event.date).toLocaleDateString()}</p>
+                          <p>🕒 {event.time}</p>
+                          {event.location && <p>📍 {event.location}</p>}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 leading-relaxed mb-4 line-clamp-3">
+                      {event.description}
+                    </p>
+                    <Link
+                      to={`/events/${event.id}`}
+                      className="text-[#7CB342] hover:text-[#6BA93A] font-medium flex items-center gap-1"
+                    >
+                      Learn More <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <div className="text-gray-400 mb-4">
+                    <Calendar className="w-16 h-16 mx-auto" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Events Scheduled</h3>
+                  <p className="text-gray-600">Check back soon for upcoming community events and activities.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="text-center">
+            <Link
+              to="/events"
+              className="btn btn-primary"
+            >
+              View All Events
             </Link>
           </div>
         </div>

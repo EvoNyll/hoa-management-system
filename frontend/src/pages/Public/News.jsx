@@ -1,403 +1,427 @@
+// File: frontend/src/pages/Public/News.jsx
 import React, { useState, useEffect } from 'react'
-import { useAuth } from '../../context/AuthContext'
-import { newsAPI } from '../../services/news'
-import { PageSpinner, CardSkeleton } from '../../components/common/LoadingSpinner'
-import { Calendar, User, Star, ChevronRight, Filter, Search } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { User, Calendar, Tag, Search, Filter, ArrowRight, Bell, ChevronLeft, ChevronRight } from 'lucide-react'
+import HeroSection from '../../components/common/HeroSection'
+import { usePagination } from '../../hooks/usePagination'
 
 const News = () => {
-  const { isAuthenticated, user } = useAuth()
+  const [allNews, setAllNews] = useState([])
   const [loading, setLoading] = useState(true)
-  const [news, setNews] = useState([])
-  const [filteredNews, setFilteredNews] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterType, setFilterType] = useState('all')
+  const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedArticle, setSelectedArticle] = useState(null)
 
-  useEffect(() => {
-    loadNews()
-  }, [isAuthenticated])
+  const categories = [
+    { id: 'all', name: 'All News', count: 12 },
+    { id: 'announcements', name: 'Announcements', count: 5 },
+    { id: 'events', name: 'Events', count: 3 },
+    { id: 'maintenance', name: 'Maintenance', count: 2 },
+    { id: 'community', name: 'Community', count: 2 }
+  ]
+
+  const featuredNews = [
+    {
+      id: 1,
+      title: 'New Community Garden Project Approved',
+      excerpt: 'The board has approved the new community garden project, which will begin construction next month.',
+      content: 'We are excited to announce that the board has unanimously approved the new community garden project...',
+      author: { full_name: 'HOA Board' },
+      created_at: '2024-01-15',
+      category: 'announcements',
+      is_featured: true,
+      image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+    },
+    {
+      id: 2,
+      title: 'Swimming Pool Maintenance Schedule',
+      excerpt: 'Please note the updated maintenance schedule for our community swimming pool during February.',
+      content: 'The swimming pool will undergo routine maintenance during the following dates...',
+      author: { full_name: 'Maintenance Team' },
+      created_at: '2024-01-12',
+      category: 'maintenance',
+      is_featured: false
+    },
+    {
+      id: 3,
+      title: 'Annual HOA Meeting - March 15th',
+      excerpt: 'Join us for our annual HOA meeting to discuss community updates and future plans.',
+      content: 'Our annual HOA meeting is scheduled for March 15th at 7:00 PM in the clubhouse...',
+      author: { full_name: 'Sarah Johnson' },
+      created_at: '2024-01-10',
+      category: 'events',
+      is_featured: true
+    },
+    {
+      id: 4,
+      title: 'Security Updates and New Protocols',
+      excerpt: 'Important security updates and new access protocols for all residents.',
+      content: 'We have implemented new security measures to ensure the safety of our community...',
+      author: { full_name: 'Security Team' },
+      created_at: '2024-01-08',
+      category: 'announcements',
+      is_featured: false
+    },
+    {
+      id: 5,
+      title: 'Holiday Decoration Contest Winners',
+      excerpt: 'Congratulations to our holiday decoration contest winners!',
+      content: 'Thank you to everyone who participated in our annual holiday decoration contest...',
+      author: { full_name: 'Events Committee' },
+      created_at: '2024-01-05',
+      category: 'community',
+      is_featured: true
+    },
+    {
+      id: 6,
+      title: 'Playground Equipment Upgrade Complete',
+      excerpt: 'The new playground equipment installation has been completed and is ready for use.',
+      content: 'We are pleased to announce that the playground equipment upgrade has been completed...',
+      author: { full_name: 'Maintenance Team' },
+      created_at: '2024-01-03',
+      category: 'maintenance',
+      is_featured: false
+    }
+  ]
 
   useEffect(() => {
-    filterNews()
-  }, [news, searchTerm, filterType])
-
-  const loadNews = async () => {
-    try {
-      setLoading(true)
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      // Mock news data
-      const mockNews = [
-        {
-          id: 1,
-          title: "Summer Pool Schedule Update",
-          content: "Dear Residents, We're excited to announce the updated summer pool schedule. The pool will now be open from 6 AM to 10 PM daily, with extended weekend hours. New pool furniture has been installed, and we've added more shade umbrellas for your comfort. Please remember to follow pool rules and supervise children at all times. Pool parties require advance booking through the HOA office. We look forward to seeing you enjoy our beautiful community pool this summer!",
-          excerpt: "Updated summer pool hours and new amenities for residents to enjoy.",
-          image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400",
-          is_public: true,
-          is_featured: true,
-          author: { full_name: "Sarah Johnson" },
-          created_at: "2024-07-25T10:00:00Z"
-        },
-        {
-          id: 2,
-          title: "Community BBQ Event - August 15th",
-          content: "Join us for our annual community BBQ on August 15th at the community center! This year's theme is 'Summer Celebration' and we'll have live music, games for kids, and delicious food. The event starts at 5 PM and runs until 9 PM. We're looking for volunteers to help with setup and cleanup. Please RSVP by August 10th so we can plan accordingly. Bring your appetite and get ready to meet your neighbors!",
-          excerpt: "Annual community BBQ event with live music and activities for the whole family.",
-          image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400",
-          is_public: true,
-          is_featured: true,
-          author: { full_name: "Mike Wilson" },
-          created_at: "2024-07-20T14:30:00Z"
-        },
-        {
-          id: 3,
-          title: "New Parking Regulations Effective August 1st",
-          content: "Important update regarding parking regulations in our community. Starting August 1st, all vehicles must display current registration stickers. Guest parking is limited to 3 consecutive days. Oversized vehicles (RVs, boats, commercial trucks) must be parked in designated areas only. Violations will result in towing at the owner's expense. Please review the complete parking guidelines in your resident handbook or contact the HOA office for clarification.",
-          excerpt: "Updated parking rules and regulations for all residents and guests.",
-          image: null,
-          is_public: true,
-          is_featured: false,
-          author: { full_name: "Administration" },
-          created_at: "2024-07-18T09:15:00Z"
-        },
-        {
-          id: 4,
-          title: "Landscaping Maintenance Schedule",
-          content: "Our landscaping team will be performing routine maintenance throughout the community over the next two weeks. Work will include tree trimming, hedge maintenance, and sprinkler system updates. Please be mindful of work crews and keep vehicles clear of marked areas. Any damage to personal property should be reported immediately to the HOA office. We appreciate your patience as we work to keep our community beautiful.",
-          excerpt: "Scheduled landscaping maintenance activities across the community.",
-          image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400",
-          is_public: false,
-          is_featured: false,
-          author: { full_name: "Maintenance Team" },
-          created_at: "2024-07-15T11:45:00Z"
-        },
-        {
-          id: 5,
-          title: "Board Meeting Minutes - July 2024",
-          content: "Minutes from the July board meeting are now available. Key topics discussed include budget approval for playground equipment upgrades, new security camera installation at the main entrance, and updates to the community website. The board approved a motion to increase the reserve fund contribution by 5% to ensure adequate funding for future capital improvements. Next board meeting is scheduled for August 20th at 7 PM in the community center.",
-          excerpt: "Summary of July board meeting decisions and upcoming items.",
-          image: null,
-          is_public: false,
-          is_featured: false,
-          author: { full_name: "Board Secretary" },
-          created_at: "2024-07-10T16:20:00Z"
-        }
-      ]
-
-      // Filter news based on authentication status
-      let filteredMockNews = mockNews
-      if (!isAuthenticated || user?.role === 'guest') {
-        filteredMockNews = mockNews.filter(article => article.is_public)
-      }
-
-      setNews(filteredMockNews)
-
-    } catch (error) {
-      console.error('Failed to load news:', error)
-    } finally {
+    // Simulate API call
+    setTimeout(() => {
+      setAllNews(featuredNews)
       setLoading(false)
+    }, 1000)
+  }, [])
+
+  const filteredNews = allNews.filter(article => {
+    const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         article.excerpt.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesCategory = selectedCategory === 'all' || article.category === selectedCategory
+    return matchesSearch && matchesCategory
+  })
+
+  // Use pagination hook with 6 items per page
+  const {
+    currentItems,
+    currentPage,
+    totalPages,
+    totalItems,
+    hasNextPage,
+    hasPrevPage,
+    startIndex,
+    endIndex,
+    goToPage,
+    goToNextPage,
+    goToPrevPage
+  } = usePagination(filteredNews, 6)
+
+  const getCategoryColor = (category) => {
+    const colors = {
+      announcements: 'bg-blue-100 text-blue-800',
+      events: 'bg-purple-100 text-purple-800',
+      maintenance: 'bg-orange-100 text-orange-800',
+      community: 'bg-green-100 text-green-800'
     }
-  }
-
-  const filterNews = () => {
-    let filtered = news
-
-    // Apply search filter
-    if (searchTerm) {
-      filtered = filtered.filter(article =>
-        article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        article.content.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    }
-
-    // Apply type filter
-    if (filterType === 'featured') {
-      filtered = filtered.filter(article => article.is_featured)
-    } else if (filterType === 'recent') {
-      filtered = filtered.filter(article => {
-        const articleDate = new Date(article.created_at)
-        const weekAgo = new Date()
-        weekAgo.setDate(weekAgo.getDate() - 7)
-        return articleDate >= weekAgo
-      })
-    }
-
-    setFilteredNews(filtered)
-  }
-
-  if (loading) {
-    return <PageSpinner text="Loading community news..." />
+    return colors[category] || 'bg-gray-100 text-gray-800'
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Community News & Announcements
-            </h1>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Stay informed about community updates, events, and important announcements
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search and Filter */}
-        <div className="mb-8 flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <HeroSection
+        title="Community News & Announcements"
+        subtitle="Stay informed with the latest updates, announcements, and important information from your HOA community."
+        backgroundImage="https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
+        breadcrumb={['Home', 'News']}
+        height="min-h-[400px]"
+      >
+        <div className="mt-8">
+          <div className="flex flex-col sm:flex-row gap-4 max-w-2xl">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search news and announcements..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+              />
             </div>
-            <input
-              type="text"
-              placeholder="Search news articles..."
-              className="form-input pl-10 w-full"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Filter className="h-5 w-5 text-gray-400" />
-            <select
-              className="form-select"
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-            >
-              <option value="all">All Articles</option>
-              <option value="featured">Featured</option>
-              <option value="recent">Recent (7 days)</option>
-            </select>
+            <button className="btn btn-large bg-white text-[#358939] hover:bg-gray-100 shadow-xl hover:shadow-2xl">
+              Search
+            </button>
           </div>
         </div>
+      </HeroSection>
 
-        {/* Authentication Notice */}
-        {!isAuthenticated && (
-          <div className="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-blue-800">
-                  Limited Access
-                </h3>
-                <div className="mt-2 text-sm text-blue-700">
-                  <p>
-                    You're viewing public announcements only. 
-                    <a href="/login" className="font-medium underline hover:text-blue-600 ml-1">
-                      Sign in
-                    </a> to access all community news and member-exclusive content.
+      {/* Category Filter */}
+      <section className="py-8 bg-white border-b border-gray-200">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap gap-4 items-center justify-center">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`px-6 py-3 rounded-full font-medium transition-all duration-200 ${
+                  selectedCategory === category.id
+                    ? 'bg-[#358939] text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {category.name} ({category.count})
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* News Grid */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="card">
+                  <div className="h-48 bg-gray-200 rounded-2xl mb-6 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-4 animate-pulse"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-2 animate-pulse"></div>
+                  <div className="h-3 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <>
+              {currentItems.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {currentItems.map((article) => (
+                      <article key={article.id} className="card group hover:shadow-xl transition-all duration-300">
+                        {article.image && (
+                          <div className="relative mb-6 overflow-hidden rounded-2xl">
+                            <img
+                              src={article.image}
+                              alt={article.title}
+                              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            {article.is_featured && (
+                              <div className="absolute top-4 left-4">
+                                <span className="inline-flex items-center px-3 py-1 bg-[#358939] text-white text-sm font-medium rounded-full">
+                                  <Bell className="w-4 h-4 mr-1" />
+                                  Featured
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(article.category)}`}>
+                              <Tag className="w-3 h-3 mr-1" />
+                              {article.category}
+                            </span>
+                            <time className="text-sm text-gray-500">
+                              {new Date(article.created_at).toLocaleDateString()}
+                            </time>
+                          </div>
+                          
+                          <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#358939] transition-colors line-clamp-2">
+                            {article.title}
+                          </h3>
+                          
+                          <p className="text-gray-600 leading-relaxed line-clamp-3">
+                            {article.excerpt}
+                          </p>
+                          
+                          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                            <div className="flex items-center text-sm text-gray-500">
+                              <User className="w-4 h-4 mr-2" />
+                              {article.author.full_name}
+                            </div>
+                            <button
+                              onClick={() => setSelectedArticle(article)}
+                              className="text-[#358939] hover:text-[#2d7230] font-medium flex items-center gap-1 text-sm group-hover:translate-x-1 transition-all"
+                            >
+                              Read More <ArrowRight className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="mt-12 flex items-center justify-between bg-white px-4 py-3 border border-gray-200 rounded-2xl sm:px-6">
+                      {/* Mobile Pagination */}
+                      <div className="flex-1 flex justify-between sm:hidden">
+                        <button
+                          onClick={goToPrevPage}
+                          disabled={!hasPrevPage}
+                          className="btn btn-outline disabled:opacity-50"
+                        >
+                          Previous
+                        </button>
+                        <span className="text-sm text-gray-700 flex items-center">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                          onClick={goToNextPage}
+                          disabled={!hasNextPage}
+                          className="btn btn-outline disabled:opacity-50"
+                        >
+                          Next
+                        </button>
+                      </div>
+                      
+                      {/* Desktop Pagination */}
+                      <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-sm text-gray-700">
+                            Showing <span className="font-medium">{startIndex}</span> to{' '}
+                            <span className="font-medium">{endIndex}</span> of{' '}
+                            <span className="font-medium">{totalItems}</span> articles
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                            <button
+                              onClick={goToPrevPage}
+                              disabled={!hasPrevPage}
+                              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                            >
+                              <ChevronLeft className="h-5 w-5" />
+                            </button>
+                            
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                              <button
+                                key={page}
+                                onClick={() => goToPage(page)}
+                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                                  page === currentPage
+                                    ? 'z-10 bg-[#358939] border-[#358939] text-white'
+                                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                                }`}
+                              >
+                                {page}
+                              </button>
+                            ))}
+                            
+                            <button
+                              onClick={goToNextPage}
+                              disabled={!hasNextPage}
+                              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                            >
+                              <ChevronRight className="h-5 w-5" />
+                            </button>
+                          </nav>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-16">
+                  <div className="text-gray-400 mb-4">
+                    <Bell className="w-16 h-16 mx-auto" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Articles Found</h3>
+                  <p className="text-gray-600">
+                    {searchTerm ? 'Try adjusting your search terms.' : 'Check back soon for community updates and announcements.'}
+                  </p>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* Newsletter Signup */}
+      <section className="py-16 bg-white">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-gradient-to-r from-[#358939] to-[#7CB342] rounded-3xl p-12 lg:p-16 text-center text-white">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-6">
+              Stay Updated
+            </h2>
+            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+              Never miss important community news and announcements. Subscribe to our newsletter for the latest updates.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+              <input
+                type="email"
+                placeholder="Enter your email address"
+                className="flex-1 px-6 py-3 rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-white/50 text-gray-900"
+              />
+              <button className="btn btn-large bg-white text-[#358939] hover:bg-gray-100 shadow-xl hover:shadow-2xl whitespace-nowrap">
+                Subscribe
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Article Modal */}
+      {selectedArticle && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="relative">
+              <div className="p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-4">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(selectedArticle.category)}`}>
+                      <Tag className="w-3 h-3 mr-1" />
+                      {selectedArticle.category}
+                    </span>
+                    {selectedArticle.is_featured && (
+                      <span className="inline-flex items-center px-3 py-1 bg-[#358939] text-white text-sm font-medium rounded-full">
+                        <Bell className="w-4 h-4 mr-1" />
+                        Featured
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setSelectedArticle(null)}
+                    className="p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {selectedArticle.image && (
+                  <img
+                    src={selectedArticle.image}
+                    alt={selectedArticle.title}
+                    className="w-full h-64 object-cover rounded-2xl mb-6"
+                  />
+                )}
+
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  {selectedArticle.title}
+                </h2>
+
+                <div className="flex items-center space-x-4 text-sm text-gray-500 mb-6">
+                  <div className="flex items-center">
+                    <User className="w-4 h-4 mr-1" />
+                    {selectedArticle.author.full_name}
+                  </div>
+                  <div className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-1" />
+                    {new Date(selectedArticle.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+
+                <div className="prose prose-gray max-w-none">
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-line text-lg">
+                    {selectedArticle.content}
                   </p>
                 </div>
               </div>
             </div>
           </div>
-        )}
-
-        {/* Featured Articles */}
-        {filteredNews.some(article => article.is_featured) && filterType === 'all' && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-              <Star className="w-6 h-6 text-yellow-500 mr-2" />
-              Featured News
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {filteredNews
-                .filter(article => article.is_featured)
-                .slice(0, 2)
-                .map((article) => (
-                  <div
-                    key={article.id}
-                    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => setSelectedArticle(article)}
-                  >
-                    {article.image && (
-                      <img
-                        src={article.image}
-                        alt={article.title}
-                        className="w-full h-48 object-cover"
-                      />
-                    )}
-                    <div className="p-6">
-                      <div className="flex items-center mb-2">
-                        <Star className="w-4 h-4 text-yellow-500 mr-2" />
-                        <span className="text-xs font-medium text-yellow-600 uppercase tracking-wide">
-                          Featured
-                        </span>
-                      </div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                        {article.title}
-                      </h3>
-                      <p className="text-gray-600 mb-4">
-                        {article.excerpt || article.content.substring(0, 150) + '...'}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center text-sm text-gray-500">
-                          <User className="w-4 h-4 mr-1" />
-                          {article.author.full_name}
-                        </div>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Calendar className="w-4 h-4 mr-1" />
-                          {new Date(article.created_at).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
-
-        {/* All Articles */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            {filterType === 'featured' ? 'Featured Articles' : 
-             filterType === 'recent' ? 'Recent Articles' : 'All Articles'}
-          </h2>
-          
-          {filteredNews.length > 0 ? (
-            <div className="space-y-6">
-              {filteredNews.map((article) => (
-                <div
-                  key={article.id}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => setSelectedArticle(article)}
-                >
-                  <div className="flex items-start space-x-4">
-                    {article.image && (
-                      <img
-                        src={article.image}
-                        alt={article.title}
-                        className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center mb-2">
-                        {article.is_featured && (
-                          <div className="flex items-center mr-3">
-                            <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                            <span className="text-xs font-medium text-yellow-600 uppercase tracking-wide">
-                              Featured
-                            </span>
-                          </div>
-                        )}
-                        {!article.is_public && (
-                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                            Members Only
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        {article.title}
-                      </h3>
-                      <p className="text-gray-600 mb-3">
-                        {article.excerpt || article.content.substring(0, 200) + '...'}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4 text-sm text-gray-500">
-                          <div className="flex items-center">
-                            <User className="w-4 h-4 mr-1" />
-                            {article.author.full_name}
-                          </div>
-                          <div className="flex items-center">
-                            <Calendar className="w-4 h-4 mr-1" />
-                            {new Date(article.created_at).toLocaleDateString()}
-                          </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-gray-400" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="text-gray-400 mb-4">
-                <svg className="w-12 h-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No articles found</h3>
-              <p className="text-gray-600">Try adjusting your search or filter criteria.</p>
-            </div>
-          )}
         </div>
-
-        {/* Article Modal */}
-        {selectedArticle && (
-          <div className="fixed inset-0 z-50 overflow-y-auto">
-            <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-              <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-                <div className="absolute inset-0 bg-gray-500 opacity-75" onClick={() => setSelectedArticle(null)}></div>
-              </div>
-
-              <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
-                <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-2">
-                      {selectedArticle.is_featured && (
-                        <div className="flex items-center">
-                          <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                          <span className="text-xs font-medium text-yellow-600 uppercase tracking-wide">
-                            Featured
-                          </span>
-                        </div>
-                      )}
-                      {!selectedArticle.is_public && (
-                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                          Members Only
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => setSelectedArticle(null)}
-                      className="text-gray-400 hover:text-gray-500"
-                    >
-                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  {selectedArticle.image && (
-                    <img
-                      src={selectedArticle.image}
-                      alt={selectedArticle.title}
-                      className="w-full h-64 object-cover rounded-lg mb-6"
-                    />
-                  )}
-
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    {selectedArticle.title}
-                  </h2>
-
-                  <div className="flex items-center space-x-4 text-sm text-gray-500 mb-6">
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 mr-1" />
-                      {selectedArticle.author.full_name}
-                    </div>
-                    <div className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      {new Date(selectedArticle.created_at).toLocaleDateString()}
-                    </div>
-                  </div>
-
-                  <div className="prose prose-gray max-w-none">
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                      {selectedArticle.content}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   )
 }

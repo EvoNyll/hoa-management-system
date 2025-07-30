@@ -1,30 +1,30 @@
+// File: frontend/src/pages/Public/Login.jsx
 import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { useAuth } from '../../context/AuthContext'
-import { useAlert } from '../../context/AlertContext'
+import { showError, showSuccess } from '../../utils/toast'
 import { InlineSpinner } from '../../components/common/LoadingSpinner'
-import { Mail, Lock, Eye, EyeOff, Home } from 'lucide-react'
-
-const validationSchema = Yup.object({
-  email: Yup.string()
-    .email('Invalid email address')
-    .required('Email is required'),
-  password: Yup.string()
-    .min(6, 'Password must be at least 6 characters')
-    .required('Password is required'),
-})
+import { Home, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
-  const { showError, showSuccess } = useAlert()
   const navigate = useNavigate()
   const location = useLocation()
+  const { login } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const from = location.state?.from?.pathname || '/dashboard'
+
+  const validationSchema = Yup.object({
+    email: Yup.string()
+      .email('Invalid email address')
+      .required('Email is required'),
+    password: Yup.string()
+      .min(6, 'Password must be at least 6 characters')
+      .required('Password is required'),
+  })
 
   const formik = useFormik({
     initialValues: {
@@ -36,7 +36,7 @@ const Login = () => {
       try {
         setLoading(true)
         await login(values)
-        showSuccess('Welcome back!')
+        showSuccess('Login successful!')
         navigate(from, { replace: true })
       } catch (error) {
         console.error('Login error:', error)
@@ -186,8 +186,8 @@ const Login = () => {
           <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <h4 className="text-sm font-medium text-blue-900 mb-2">Demo Credentials:</h4>
             <div className="text-xs text-blue-800 space-y-1">
-              <div><strong>Admin:</strong> admin@hoa.com / admin123</div>
-              <div><strong>Member:</strong> resident1@example.com / password123</div>
+              <div><strong>Admin:</strong> admin1@hoa.com / admin123</div>
+              <div><strong>Member:</strong> member1@hoa.com / member123</div>
             </div>
           </div>
         </form>
