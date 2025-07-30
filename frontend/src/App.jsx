@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext'
 import { AlertProvider } from './context/AlertContext'
 import AppRouter from './router'
 import Layout from './components/layout/Layout'
+import './styles/globals.css'
 
 function App() {
   return (
@@ -25,6 +26,8 @@ function App() {
             pauseOnFocusLoss
             draggable
             pauseOnHover
+            theme="light"
+            className="mt-16"
           />
         </AlertProvider>
       </AuthProvider>
