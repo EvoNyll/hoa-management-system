@@ -18,29 +18,29 @@ const Footer = () => {
   ]
 
   return (
-    <footer className="bg-[#39423B] text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="bg-gradient-dark text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand Section */}
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                <Home className="w-6 h-6 text-[#39423B]" />
+              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center">
+                <Home className="w-7 h-7 text-[#7CB342]" />
               </div>
-              <span className="text-xl font-bold">Greenfield HOA</span>
+              <span className="text-2xl font-bold">Greenfield HOA</span>
             </div>
-            <p className="text-gray-300 text-sm leading-relaxed">
+            <p className="text-green-100 leading-relaxed">
               A premier residential community dedicated to providing exceptional living experiences 
               for our residents through quality amenities and professional management.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              <a href="#" className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-green-100 hover:text-white hover:bg-white/20 transition-all">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              <a href="#" className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-green-100 hover:text-white hover:bg-white/20 transition-all">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              <a href="#" className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-green-100 hover:text-white hover:bg-white/20 transition-all">
                 <Instagram className="w-5 h-5" />
               </a>
             </div>
@@ -48,13 +48,13 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="text-xl font-bold mb-6">Quick Links</h3>
+            <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-gray-300 hover:text-white transition-colors text-sm"
+                    className="text-green-100 hover:text-white transition-colors font-medium"
                   >
                     {link.name}
                   </Link>
@@ -65,13 +65,13 @@ const Footer = () => {
 
           {/* Resources */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2">
+            <h3 className="text-xl font-bold mb-6">Resources</h3>
+            <ul className="space-y-3">
               {resources.map((resource) => (
                 <li key={resource.name}>
                   <Link
                     to={resource.href}
-                    className="text-gray-300 hover:text-white transition-colors text-sm"
+                    className="text-green-100 hover:text-white transition-colors font-medium"
                   >
                     {resource.name}
                   </Link>

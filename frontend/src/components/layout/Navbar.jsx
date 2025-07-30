@@ -50,8 +50,8 @@ const Navbar = () => {
           {/* Logo and brand */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-[#39423B] rounded-lg flex items-center justify-center">
-                <Home className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-[#7CB342] rounded-2xl flex items-center justify-center">
+                <Home className="w-6 h-6 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900">Greenfield HOA</span>
             </Link>
@@ -67,7 +67,7 @@ const Navbar = () => {
                       onClick={() => toggleDropdown(index)}
                       className={`inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors ${
                         item.dropdown.some(subItem => isActive(subItem.href))
-                          ? 'text-[#39423B] border-b-2 border-[#39423B]'
+                          ? 'text-[#7CB342] border-b-2 border-[#7CB342]'
                           : 'text-gray-500 hover:text-gray-700'
                       }`}
                     >
@@ -79,16 +79,16 @@ const Navbar = () => {
                     
                     {/* Dropdown Menu */}
                     {openDropdown === index && (
-                      <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
+                      <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-2xl shadow-lg border border-gray-100 py-2 z-50">
                         {item.dropdown.map((subItem) => (
                           <Link
                             key={subItem.name}
                             to={subItem.href}
                             onClick={() => setOpenDropdown(null)}
-                            className={`block px-4 py-2 text-sm transition-colors ${
+                            className={`block px-4 py-3 text-sm transition-colors rounded-xl mx-2 ${
                               isActive(subItem.href)
-                                ? 'text-[#39423B] bg-gray-50'
-                                : 'text-gray-700 hover:text-[#39423B] hover:bg-gray-50'
+                                ? 'text-[#7CB342] bg-green-50'
+                                : 'text-gray-700 hover:text-[#7CB342] hover:bg-gray-50'
                             }`}
                           >
                             {subItem.name}
@@ -106,7 +106,7 @@ const Navbar = () => {
                   to={item.href}
                   className={`inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors ${
                     isActive(item.href)
-                      ? 'text-[#39423B] border-b-2 border-[#39423B]'
+                      ? 'text-[#7CB342] border-b-2 border-[#7CB342]'
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
@@ -129,7 +129,7 @@ const Navbar = () => {
                 </Link>
                 <Link
                   to="/register"
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-[#39423B] hover:bg-[#2d332f] rounded-lg transition-colors"
+                  className="btn btn-primary"
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
                   Register
