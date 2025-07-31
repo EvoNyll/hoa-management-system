@@ -1,5 +1,5 @@
 // File: frontend/src/pages/Public/Login.jsx
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from '../../hooks/useForm'
 import { useAuth } from '../../context/AuthContext'
@@ -10,10 +10,22 @@ import { Home, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 const Login = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { login } = useAuth()
+  const { login, isAuthenticated, user, loading } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
 
   const from = location.state?.from?.pathname || '/dashboard'
+
+  // Debug logging
+  console.log('Login component render:', { isAuthenticated, user, loading })
+
+  // If user is already authenticated, redirect immediately
+  useEffect(() => {
+    console.log('Auth state changed:', { isAuthenticated, user: isAuthenticated ? 'present' : 'none' })
+    if (isAuthenticated) {
+      console.log('Navigating to:', from)
+      navigate(from, { replace: true })
+    }
+  }, [isAuthenticated, navigate, from])
 
   const validationRules = {
     email: {
@@ -53,11 +65,41 @@ const Login = () => {
     return hasRequiredValues && hasNoErrors
   }
 
+  const handleFormSubmit = async (e) => {
+    e.preventDefault()
+    
+    // Validate the form first
+    const isValid = Object.keys(validationRules).every(fieldName => {
+      const fieldValue = values[fieldName]
+      if (validationRules[fieldName]?.required && (!fieldValue || fieldValue.toString().trim() === '')) {
+        return false
+      }
+      if (validationRules[fieldName]?.email && fieldValue) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        return emailRegex.test(fieldValue)
+      }
+      if (validationRules[fieldName]?.minLength && fieldValue && fieldValue.length < validationRules[fieldName].minLength) {
+        return false
+      }
+      return true
+    })
+
+    if (isValid) {
+      await onSubmit(values)
+    }
+  }
+
   const onSubmit = async (formValues) => {
     try {
-      await login(formValues)
+      console.log('Attempting login with:', formValues)
+      const response = await login(formValues)
+      console.log('Login response:', response)
+      console.log('Auth tokens in localStorage:', {
+        access: localStorage.getItem('access_token'),
+        refresh: localStorage.getItem('refresh_token')
+      })
       showSuccess('Login successful!')
-      navigate(from, { replace: true })
+      // Navigation will be handled by the useEffect when isAuthenticated becomes true
     } catch (error) {
       console.error('Login error:', error)
       showError(error.response?.data?.message || 'Invalid email or password')
@@ -90,7 +132,7 @@ const Login = () => {
         </div>
 
         {/* Form */}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form className="mt-8 space-y-6" onSubmit={handleFormSubmit}>
           <div className="space-y-4">
             {/* Email */}
             <div className="form-group">
