@@ -1,8 +1,7 @@
 // File: frontend/src/pages/Public/Login.jsx
 import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { useFormik } from 'formik'
-import * as Yup from 'yup'
+import { useForm } from '../../hooks/useForm'
 import { useAuth } from '../../context/AuthContext'
 import { showError, showSuccess } from '../../utils/toast'
 import { InlineSpinner } from '../../components/common/LoadingSpinner'
@@ -12,40 +11,58 @@ const Login = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { login } = useAuth()
-  const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
   const from = location.state?.from?.pathname || '/dashboard'
 
-  const validationSchema = Yup.object({
-    email: Yup.string()
-      .email('Invalid email address')
-      .required('Email is required'),
-    password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required'),
-  })
+  const validationRules = {
+    email: {
+      required: 'Email is required',
+      email: true
+    },
+    password: {
+      required: 'Password is required',
+      minLength: 6
+    }
+  }
 
-  const formik = useFormik({
-    initialValues: {
+  const {
+    values,
+    errors,
+    touched,
+    isSubmitting,
+    handleChange,
+    handleBlur,
+    handleSubmit
+  } = useForm(
+    {
       email: '',
-      password: '',
+      password: ''
     },
-    validationSchema,
-    onSubmit: async (values) => {
-      try {
-        setLoading(true)
-        await login(values)
-        showSuccess('Login successful!')
-        navigate(from, { replace: true })
-      } catch (error) {
-        console.error('Login error:', error)
-        showError(error.response?.data?.message || 'Invalid email or password')
-      } finally {
-        setLoading(false)
-      }
-    },
-  })
+    validationRules
+  )
+
+  // Create our own isValid check that works properly
+  const isFormValid = () => {
+    // Check if required fields have values
+    const hasRequiredValues = values.email && values.password
+    
+    // Check if there are any current errors
+    const hasNoErrors = Object.keys(errors).every(key => !errors[key])
+    
+    return hasRequiredValues && hasNoErrors
+  }
+
+  const onSubmit = async (formValues) => {
+    try {
+      await login(formValues)
+      showSuccess('Login successful!')
+      navigate(from, { replace: true })
+    } catch (error) {
+      console.error('Login error:', error)
+      showError(error.response?.data?.message || 'Invalid email or password')
+    }
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -73,7 +90,7 @@ const Login = () => {
         </div>
 
         {/* Form */}
-        <form className="mt-8 space-y-6" onSubmit={formik.handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
             {/* Email */}
             <div className="form-group">
@@ -90,16 +107,18 @@ const Login = () => {
                   type="email"
                   autoComplete="email"
                   className={`form-input pl-10 ${
-                    formik.touched.email && formik.errors.email
+                    touched.email && errors.email
                       ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
                       : ''
                   }`}
                   placeholder="Enter your email"
-                  {...formik.getFieldProps('email')}
+                  value={values.email}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
                 />
               </div>
-              {formik.touched.email && formik.errors.email && (
-                <p className="form-error">{formik.errors.email}</p>
+              {touched.email && errors.email && (
+                <p className="form-error">{errors.email}</p>
               )}
             </div>
 
@@ -118,12 +137,14 @@ const Login = () => {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   className={`form-input pl-10 pr-10 ${
-                    formik.touched.password && formik.errors.password
+                    touched.password && errors.password
                       ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
                       : ''
                   }`}
                   placeholder="Enter your password"
-                  {...formik.getFieldProps('password')}
+                  value={values.password}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
                 />
                 <button
                   type="button"
@@ -137,8 +158,8 @@ const Login = () => {
                   )}
                 </button>
               </div>
-              {formik.touched.password && formik.errors.password && (
-                <p className="form-error">{formik.errors.password}</p>
+              {touched.password && errors.password && (
+                <p className="form-error">{errors.password}</p>
               )}
             </div>
           </div>
@@ -168,10 +189,10 @@ const Login = () => {
           <div>
             <button
               type="submit"
-              disabled={loading || !formik.isValid}
+              disabled={isSubmitting || !isFormValid()}
               className="btn btn-primary w-full py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? (
+              {isSubmitting ? (
                 <div className="flex items-center justify-center">
                   <InlineSpinner className="mr-2" />
                   Signing in...
