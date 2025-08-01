@@ -37,6 +37,8 @@ import PetsSection from '../../components/profile/PetsSection';
 import VehiclesSection from '../../components/profile/VehiclesSection';
 import ChangeLogsSection from '../../components/profile/ChangeLogsSection';
 
+import { exportProfileData } from '../../services/profileService'
+
 const Account = () => {
   const { user } = useAuth();
   const { profileData, loading, error, loadProfileData, clearError, exportProfileData } = useProfile();
@@ -65,12 +67,19 @@ const Account = () => {
   ];
 
   const handleExportData = async () => {
-    try {
-      await exportProfileData();
-    } catch (err) {
-      console.error('Failed to export data:', err);
-    }
-  };
+  try {
+    console.log('🔄 Starting direct CSV export...')
+    
+    // Call the CSV export function directly from profileService
+    await exportProfileData()
+    
+    console.log('✅ Direct CSV export completed')
+    
+  } catch (err) {
+    console.error('❌ Failed to export data:', err)
+    alert('Failed to export data. Please try again.')
+  }
+}
 
   const renderActiveSection = () => {
     switch (activeTab) {

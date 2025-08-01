@@ -4,8 +4,71 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import User, HouseholdMember, Pet, Vehicle, ProfileChangeLog
 import re
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """Custom token serializer to handle email-based authentication"""
+    
+    # Override the username field to use email
+    username_field = 'email'
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Remove username field and use email instead
+        if 'username' in self.fields:
+            self.fields.pop('username')
+        self.fields['email'] = serializers.EmailField(required=True)
+    
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Add custom claims
+        token['email'] = user.email
+        token['role'] = user.role
+        token['full_name'] = user.full_name
+        return token
+    
+    def validate(self, attrs):
+        # Get email and password from the request
+        email = attrs.get('email')
+        password = attrs.get('password')
+        
+        if not email or not password:
+            raise serializers.ValidationError('Email and password are required.')
+        
+        # Use our custom email authentication backend
+        user = authenticate(
+            request=self.context.get('request'),
+            email=email,
+            password=password
+        )
+        
+        if not user:
+            raise serializers.ValidationError('Invalid email or password.')
+        
+        if not user.is_active:
+            raise serializers.ValidationError('User account is disabled.')
+        
+        # Store user for token generation
+        self.user = user
+        
+        # Generate tokens
+        refresh = self.get_token(user)
+        
+        return {
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+            'user': {
+                'id': str(user.id),
+                'email': user.email,
+                'full_name': user.full_name,
+                'role': user.role,
+            }
+        }
 
 
 class HouseholdMemberSerializer(serializers.ModelSerializer):
@@ -211,8 +274,8 @@ class UserFinancialSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'auto_pay_enabled', 'preferred_payment_method',
-            'billing_address_different', 'billing_address'
+            'auto_pay_enabled', 'preferred_payment_method', 'billing_address_different',
+            'billing_address'
         ]
 
 
@@ -225,32 +288,6 @@ class UserNotificationSerializer(serializers.ModelSerializer):
             'email_notifications', 'sms_notifications', 'push_notifications',
             'notification_preferences'
         ]
-    
-    def validate_notification_preferences(self, value):
-        """Validate notification preferences JSON structure"""
-        if not isinstance(value, dict):
-            raise serializers.ValidationError("Notification preferences must be an object")
-        
-        # Define expected structure
-        expected_categories = [
-            'hoa_announcements', 'maintenance_alerts', 'emergency_notifications',
-            'event_invitations', 'payment_reminders', 'booking_confirmations',
-            'forum_activity'
-        ]
-        
-        for category in value:
-            if category not in expected_categories:
-                continue  # Allow additional categories
-            
-            if not isinstance(value[category], dict):
-                raise serializers.ValidationError(f"Category '{category}' must be an object")
-            
-            # Validate delivery methods for each category
-            valid_methods = ['email', 'sms', 'push', 'none']
-            if 'method' in value[category] and value[category]['method'] not in valid_methods:
-                raise serializers.ValidationError(f"Invalid notification method for {category}")
-        
-        return value
 
 
 class UserSystemPreferencesSerializer(serializers.ModelSerializer):
