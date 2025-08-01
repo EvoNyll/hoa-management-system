@@ -1,6 +1,4 @@
-// File: frontend/src/pages/Private/Account.jsx
-// Location: frontend/src/pages/Private/Account.jsx
-
+// frontend/src/pages/Private/Account.jsx
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { useAuth } from '../../context/AuthContext';
@@ -37,7 +35,7 @@ import PetsSection from '../../components/profile/PetsSection';
 import VehiclesSection from '../../components/profile/VehiclesSection';
 import ChangeLogsSection from '../../components/profile/ChangeLogsSection';
 
-import { exportProfileData } from '../../services/profileService'
+// Remove the duplicate import - use exportProfileData from context instead
 
 const Account = () => {
   const { user } = useAuth();
@@ -49,7 +47,7 @@ const Account = () => {
     if (user) {
       loadProfileData();
     }
-  }, [user]);
+  }, [user, loadProfileData]);
 
   const profileTabs = [
     { id: 'basic', label: 'Basic Info', icon: User, description: 'Personal information and contact details' },
@@ -67,19 +65,19 @@ const Account = () => {
   ];
 
   const handleExportData = async () => {
-  try {
-    console.log('🔄 Starting direct CSV export...')
-    
-    // Call the CSV export function directly from profileService
-    await exportProfileData()
-    
-    console.log('✅ Direct CSV export completed')
-    
-  } catch (err) {
-    console.error('❌ Failed to export data:', err)
-    alert('Failed to export data. Please try again.')
+    try {
+      console.log('🔄 Starting profile data export...')
+      
+      // Use the exportProfileData function from ProfileContext
+      await exportProfileData()
+      
+      console.log('✅ Profile data export completed')
+      
+    } catch (err) {
+      console.error('❌ Failed to export data:', err)
+      alert('Failed to export data. Please try again.')
+    }
   }
-}
 
   const renderActiveSection = () => {
     switch (activeTab) {
@@ -123,6 +121,26 @@ const Account = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => {
+              clearError();
+              loadProfileData();
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto p-6">
       {/* Header */}
@@ -136,10 +154,11 @@ const Account = () => {
           <div className="flex items-center space-x-4">
             <button
               onClick={handleExportData}
-              className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={loading}
+              className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Download className="w-4 h-4 mr-2" />
-              Export Data
+              {loading ? 'Exporting...' : 'Export Data'}
             </button>
           </div>
         </div>
@@ -158,157 +177,83 @@ const Account = () => {
                 </div>
                 <div className="ml-3">
                   <h3 className="text-sm font-medium text-gray-900">
-                    Profile {profileData.completionStatus.overall_percentage === 100 ? 'Complete' : 'In Progress'}
+                    Profile {profileData.completionStatus.overall_percentage === 100 ? 
+                      'Complete!' : 
+                      `${profileData.completionStatus.overall_percentage}% Complete`}
                   </h3>
                   <p className="text-sm text-gray-600 mt-1">
-                    Your profile is {profileData.completionStatus.overall_percentage}% complete
+                    {profileData.completionStatus.overall_percentage === 100 ? 
+                      'Your profile information is complete and up to date.' :
+                      'Complete your profile to get the most out of our community features.'
+                    }
                   </p>
-                  {profileData.completionStatus.suggestions?.length > 0 && (
-                    <ul className="mt-2 text-sm text-gray-600 list-disc list-inside">
-                      {profileData.completionStatus.suggestions.slice(0, 2).map((suggestion, index) => (
+                  {profileData.completionStatus.suggestions && profileData.completionStatus.suggestions.length > 0 && (
+                    <ul className="text-sm text-gray-600 mt-2 list-disc list-inside">
+                      {profileData.completionStatus.suggestions.slice(0, 3).map((suggestion, index) => (
                         <li key={index}>{suggestion}</li>
                       ))}
                     </ul>
                   )}
                 </div>
               </div>
-              
-              <div className="flex items-center">
-                <div className="w-16 h-2 bg-gray-200 rounded-full mr-3">
-                  <div 
-                    className="h-2 bg-blue-500 rounded-full transition-all duration-300"
-                    style={{ width: `${profileData.completionStatus.overall_percentage}%` }}
-                  />
-                </div>
-                <button
-                  onClick={() => setShowCompletionTip(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  ×
-                </button>
+              <button
+                onClick={() => setShowCompletionTip(false)}
+                className="ml-3 text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="mt-4">
+              <div className="bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${profileData.completionStatus.overall_percentage}%` }}
+                />
               </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Error Display */}
-      {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-          <div className="flex">
-            <AlertCircle className="w-5 h-5 text-red-400" />
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error</h3>
-              <p className="mt-1 text-sm text-red-700">{error}</p>
-              <button
-                onClick={clearError}
-                className="mt-2 text-sm text-red-600 hover:text-red-500 underline"
-              >
-                Dismiss
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Sidebar Navigation */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Profile Settings</h2>
-            </div>
-            
-            <nav className="space-y-1 p-2">
-              {profileTabs.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                      isActive
-                        ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <Icon className={`w-4 h-4 mr-3 ${isActive ? 'text-blue-600' : 'text-gray-400'}`} />
-                      <div>
-                        <div className="font-medium">{tab.label}</div>
-                        <div className={`text-xs mt-1 ${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
-                          {tab.description}
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">Quick Actions</h3>
-            <div className="space-y-2">
-              <button
-                onClick={() => setActiveTab('security')}
-                className="w-full text-left text-sm text-gray-600 hover:text-gray-900 py-1"
-              >
-                Change Password
-              </button>
-              <button
-                onClick={() => setActiveTab('notifications')}
-                className="w-full text-left text-sm text-gray-600 hover:text-gray-900 py-1"
-              >
-                Update Notifications
-              </button>
-              <button
-                onClick={() => setActiveTab('privacy')}
-                className="w-full text-left text-sm text-gray-600 hover:text-gray-900 py-1"
-              >
-                Privacy Settings
-              </button>
-              <button
-                onClick={handleExportData}
-                className="w-full text-left text-sm text-gray-600 hover:text-gray-900 py-1"
-              >
-                Download My Data
-              </button>
-            </div>
-          </div>
+      {/* Navigation Tabs */}
+      <div className="mb-8">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8 overflow-x-auto">
+            {profileTabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`
+                    whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2
+                    ${activeTab === tab.id
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }
+                  `}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Main Content */}
-        <div className="lg:col-span-3">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            {/* Section Header */}
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center">
-                {(() => {
-                  const activeTabData = profileTabs.find(tab => tab.id === activeTab);
-                  const Icon = activeTabData?.icon || User;
-                  return <Icon className="w-6 h-6 text-blue-600 mr-3" />;
-                })()}
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    {profileTabs.find(tab => tab.id === activeTab)?.label}
-                  </h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {profileTabs.find(tab => tab.id === activeTab)?.description}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Section Content */}
-            <div className="p-6">
-              {renderActiveSection()}
-            </div>
-          </div>
+        {/* Tab Description */}
+        <div className="mt-4">
+          <p className="text-sm text-gray-600">
+            {profileTabs.find(tab => tab.id === activeTab)?.description}
+          </p>
         </div>
+      </div>
+
+      {/* Active Section Content */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        {renderActiveSection()}
       </div>
     </div>
   );

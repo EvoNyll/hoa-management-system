@@ -1,7 +1,7 @@
-// frontend/src/services/profileService.js
+// frontend/src/services/profileService.js - FIXED VERSION
 import api from './api'
 
-// Profile Management
+// Basic Profile Management
 export const getBasicProfile = async () => {
   try {
     const response = await api.get('/users/profile/basic/')
@@ -38,6 +38,7 @@ export const updateBasicProfile = async (data) => {
   }
 }
 
+// Residence Information
 export const getResidenceInfo = async () => {
   try {
     const response = await api.get('/users/profile/residence/')
@@ -58,6 +59,7 @@ export const updateResidenceInfo = async (data) => {
   }
 }
 
+// Emergency Information
 export const getEmergencyInfo = async () => {
   try {
     const response = await api.get('/users/profile/emergency/')
@@ -78,6 +80,7 @@ export const updateEmergencyInfo = async (data) => {
   }
 }
 
+// Privacy Settings
 export const getPrivacySettings = async () => {
   try {
     const response = await api.get('/users/profile/privacy/')
@@ -98,234 +101,23 @@ export const updatePrivacySettings = async (data) => {
   }
 }
 
-export const getFinancialInfo = async () => {
+// Security Settings - FIXED URLs
+export const getSecuritySettings = async () => {
   try {
-    const response = await api.get('/users/profile/financial/')
+    const response = await api.get('/users/profile/security/')
     return response.data
   } catch (error) {
-    console.error('Get financial info error:', error)
+    console.error('Get security settings error:', error)
     throw error
   }
 }
 
-export const updateFinancialInfo = async (data) => {
+export const updateSecuritySettings = async (data) => {
   try {
-    const response = await api.put('/users/profile/financial/', data)
+    const response = await api.put('/users/profile/security/', data)
     return response.data
   } catch (error) {
-    console.error('Update financial info error:', error)
-    throw error
-  }
-}
-
-export const getNotificationSettings = async () => {
-  try {
-    const response = await api.get('/users/profile/notifications/')
-    return response.data
-  } catch (error) {
-    console.error('Get notification settings error:', error)
-    throw error
-  }
-}
-
-export const updateNotificationSettings = async (data) => {
-  try {
-    const response = await api.put('/users/profile/notifications/', data)
-    return response.data
-  } catch (error) {
-    console.error('Update notification settings error:', error)
-    throw error
-  }
-}
-
-export const getSystemPreferences = async () => {
-  try {
-    const response = await api.get('/users/profile/system/')
-    return response.data
-  } catch (error) {
-    console.error('Get system preferences error:', error)
-    throw error
-  }
-}
-
-export const updateSystemPreferences = async (data) => {
-  try {
-    const response = await api.put('/users/profile/system/', data)
-    return response.data
-  } catch (error) {
-    console.error('Update system preferences error:', error)
-    throw error
-  }
-}
-
-export const getCompleteProfile = async () => {
-  try {
-    const response = await api.get('/users/profile/complete/')
-    return response.data
-  } catch (error) {
-    console.error('Get complete profile error:', error)
-    throw error
-  }
-}
-
-export const getHouseholdMembers = async () => {
-  try {
-    const response = await api.get('/users/household-members/')
-    return response.data
-  } catch (error) {
-    console.error('Get household members error:', error)
-    throw error
-  }
-}
-
-export const createHouseholdMember = async (data) => {
-  try {
-    const response = await api.post('/users/household-members/', data)
-    return response.data
-  } catch (error) {
-    console.error('Create household member error:', error)
-    throw error
-  }
-}
-
-export const getHouseholdMember = async (id) => {
-  try {
-    const response = await api.get(`/users/household-members/${id}/`)
-    return response.data
-  } catch (error) {
-    console.error('Get household member error:', error)
-    throw error
-  }
-}
-
-export const updateHouseholdMember = async (id, data) => {
-  try {
-    const response = await api.put(`/users/household-members/${id}/`, data)
-    return response.data
-  } catch (error) {
-    console.error('Update household member error:', error)
-    throw error
-  }
-}
-
-export const deleteHouseholdMember = async (id) => {
-  try {
-    await api.delete(`/users/household-members/${id}/`)
-    return { success: true }
-  } catch (error) {
-    console.error('Delete household member error:', error)
-    throw error
-  }
-}
-
-export const getPets = async () => {
-  try {
-    const response = await api.get('/users/pets/')
-    return response.data
-  } catch (error) {
-    console.error('Get pets error:', error)
-    throw error
-  }
-}
-
-export const createPet = async (data) => {
-  try {
-    const formData = new FormData()
-    
-    Object.keys(data).forEach(key => {
-      if (data[key] !== null && data[key] !== undefined) {
-        if (key === 'photo' && data[key] instanceof File) {
-          formData.append(key, data[key])
-        } else {
-          formData.append(key, data[key])
-        }
-      }
-    })
-    
-    const response = await api.post('/users/pets/', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Create pet error:', error)
-    throw error
-  }
-}
-
-export const updatePet = async (id, data) => {
-  try {
-    const formData = new FormData()
-    
-    Object.keys(data).forEach(key => {
-      if (data[key] !== null && data[key] !== undefined) {
-        if (key === 'photo' && data[key] instanceof File) {
-          formData.append(key, data[key])
-        } else {
-          formData.append(key, data[key])
-        }
-      }
-    })
-    
-    const response = await api.put(`/users/pets/${id}/`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Update pet error:', error)
-    throw error
-  }
-}
-
-export const deletePet = async (id) => {
-  try {
-    await api.delete(`/users/pets/${id}/`)
-    return { success: true }
-  } catch (error) {
-    console.error('Delete pet error:', error)
-    throw error
-  }
-}
-
-export const getVehicles = async () => {
-  try {
-    const response = await api.get('/users/vehicles/')
-    return response.data
-  } catch (error) {
-    console.error('Get vehicles error:', error)
-    throw error
-  }
-}
-
-export const createVehicle = async (data) => {
-  try {
-    const response = await api.post('/users/vehicles/', data)
-    return response.data
-  } catch (error) {
-    console.error('Create vehicle error:', error)
-    throw error
-  }
-}
-
-export const updateVehicle = async (id, data) => {
-  try {
-    const response = await api.put(`/users/vehicles/${id}/`, data)
-    return response.data
-  } catch (error) {
-    console.error('Update vehicle error:', error)
-    throw error
-  }
-}
-
-export const deleteVehicle = async (id) => {
-  try {
-    await api.delete(`/users/vehicles/${id}/`)
-    return { success: true }
-  } catch (error) {
-    console.error('Delete vehicle error:', error)
+    console.error('Update security settings error:', error)
     throw error
   }
 }
@@ -380,6 +172,193 @@ export const verifyPhone = async (data) => {
   }
 }
 
+// Financial Information
+export const getFinancialInfo = async () => {
+  try {
+    const response = await api.get('/users/profile/financial/')
+    return response.data
+  } catch (error) {
+    console.error('Get financial info error:', error)
+    throw error
+  }
+}
+
+export const updateFinancialInfo = async (data) => {
+  try {
+    const response = await api.put('/users/profile/financial/', data)
+    return response.data
+  } catch (error) {
+    console.error('Update financial info error:', error)
+    throw error
+  }
+}
+
+// Notification Settings
+export const getNotificationSettings = async () => {
+  try {
+    const response = await api.get('/users/profile/notifications/')
+    return response.data
+  } catch (error) {
+    console.error('Get notification settings error:', error)
+    throw error
+  }
+}
+
+export const updateNotificationSettings = async (data) => {
+  try {
+    const response = await api.put('/users/profile/notifications/', data)
+    return response.data
+  } catch (error) {
+    console.error('Update notification settings error:', error)
+    throw error
+  }
+}
+
+// System Preferences
+export const getSystemPreferences = async () => {
+  try {
+    const response = await api.get('/users/profile/system/')
+    return response.data
+  } catch (error) {
+    console.error('Get system preferences error:', error)
+    throw error
+  }
+}
+
+export const updateSystemPreferences = async (data) => {
+  try {
+    const response = await api.put('/users/profile/system/', data)
+    return response.data
+  } catch (error) {
+    console.error('Update system preferences error:', error)
+    throw error
+  }
+}
+
+// Household Members - FIXED URLs
+export const getHouseholdMembers = async () => {
+  try {
+    const response = await api.get('/users/household-members/')
+    return response.data
+  } catch (error) {
+    console.error('Get household members error:', error)
+    throw error
+  }
+}
+
+export const addHouseholdMember = async (data) => {
+  try {
+    const response = await api.post('/users/household-members/', data)
+    return response.data
+  } catch (error) {
+    console.error('Add household member error:', error)
+    throw error
+  }
+}
+
+export const updateHouseholdMember = async (id, data) => {
+  try {
+    const response = await api.put(`/users/household-members/${id}/`, data)
+    return response.data
+  } catch (error) {
+    console.error('Update household member error:', error)
+    throw error
+  }
+}
+
+export const deleteHouseholdMember = async (id) => {
+  try {
+    const response = await api.delete(`/users/household-members/${id}/`)
+    return response.data
+  } catch (error) {
+    console.error('Delete household member error:', error)
+    throw error
+  }
+}
+
+// Pets - FIXED URLs
+export const getPets = async () => {
+  try {
+    const response = await api.get('/users/pets/')
+    return response.data
+  } catch (error) {
+    console.error('Get pets error:', error)
+    throw error
+  }
+}
+
+export const addPet = async (data) => {
+  try {
+    const response = await api.post('/users/pets/', data)
+    return response.data
+  } catch (error) {
+    console.error('Add pet error:', error)
+    throw error
+  }
+}
+
+export const updatePet = async (id, data) => {
+  try {
+    const response = await api.put(`/users/pets/${id}/`, data)
+    return response.data
+  } catch (error) {
+    console.error('Update pet error:', error)
+    throw error
+  }
+}
+
+export const deletePet = async (id) => {
+  try {
+    const response = await api.delete(`/users/pets/${id}/`)
+    return response.data
+  } catch (error) {
+    console.error('Delete pet error:', error)
+    throw error
+  }
+}
+
+// Vehicles - FIXED URLs
+export const getVehicles = async () => {
+  try {
+    const response = await api.get('/users/vehicles/')
+    return response.data
+  } catch (error) {
+    console.error('Get vehicles error:', error)
+    throw error
+  }
+}
+
+export const addVehicle = async (data) => {
+  try {
+    const response = await api.post('/users/vehicles/', data)
+    return response.data
+  } catch (error) {
+    console.error('Add vehicle error:', error)
+    throw error
+  }
+}
+
+export const updateVehicle = async (id, data) => {
+  try {
+    const response = await api.put(`/users/vehicles/${id}/`, data)
+    return response.data
+  } catch (error) {
+    console.error('Update vehicle error:', error)
+    throw error
+  }
+}
+
+export const deleteVehicle = async (id) => {
+  try {
+    const response = await api.delete(`/users/vehicles/${id}/`)
+    return response.data
+  } catch (error) {
+    console.error('Delete vehicle error:', error)
+    throw error
+  }
+}
+
+// Completion Status and Logs
 export const getCompletionStatus = async () => {
   try {
     const response = await api.get('/users/profile/completion-status/')
@@ -400,6 +379,7 @@ export const getChangeLogs = async () => {
   }
 }
 
+// Export Functions
 export const exportProfileData = async () => {
   try {
     console.log('📊 Exporting profile data as CSV...')
@@ -412,33 +392,32 @@ export const exportProfileData = async () => {
     
     // Header
     csvContent += 'HOA RESIDENT PROFILE DATA\n'
-    csvContent += 'Generated: ' + new Date().toLocaleString() + '\n\n'
+    csvContent += 'Generated: ' + new Date().toLocaleString() + '\n'
+    csvContent += '='.repeat(50) + '\n\n'
     
     // Basic Information
-    csvContent += 'BASIC INFORMATION\n'
-    csvContent += 'Field,Value\n'
-    csvContent += '"Full Name","' + (profileData.basic_info?.full_name || '') + '"\n'
-    csvContent += '"Email","' + (profileData.basic_info?.email || '') + '"\n'
-    csvContent += '"Phone","' + (profileData.basic_info?.phone || '') + '"\n'
-    csvContent += '"Role","' + (profileData.basic_info?.role || '') + '"\n'
-    csvContent += '"Unit Number","' + (profileData.basic_info?.unit_number || '') + '"\n'
-    csvContent += '"Move-in Date","' + (profileData.basic_info?.move_in_date || '') + '"\n'
-    csvContent += '"Property Type","' + (profileData.basic_info?.property_type || '') + '"\n'
-    csvContent += '"Parking Spaces","' + (profileData.basic_info?.parking_spaces || '') + '"\n'
-    csvContent += '"Mailbox Number","' + (profileData.basic_info?.mailbox_number || '') + '"\n\n'
-    
-    // Emergency Contacts
-    csvContent += 'EMERGENCY CONTACTS\n'
-    csvContent += 'Contact Type,Name,Phone,Relationship\n'
-    csvContent += '"Primary","' + (profileData.basic_info?.emergency_contact || '') + '","' + (profileData.basic_info?.emergency_phone || '') + '","' + (profileData.basic_info?.emergency_relationship || '') + '"\n'
-    csvContent += '"Secondary","' + (profileData.basic_info?.secondary_emergency_contact || '') + '","' + (profileData.basic_info?.secondary_emergency_phone || '') + '","' + (profileData.basic_info?.secondary_emergency_relationship || '') + '"\n\n'
+    if (profileData.basic_info) {
+      csvContent += 'BASIC INFORMATION\n'
+      csvContent += 'Field,Value\n'
+      csvContent += '"Full Name","' + (profileData.basic_info.full_name || '') + '"\n'
+      csvContent += '"Email","' + (profileData.basic_info.email || '') + '"\n'
+      csvContent += '"Phone","' + (profileData.basic_info.phone || '') + '"\n'
+      csvContent += '"Role","' + (profileData.basic_info.role || '') + '"\n'
+      csvContent += '"Unit Number","' + (profileData.basic_info.unit_number || '') + '"\n'
+      csvContent += '"Move-in Date","' + (profileData.basic_info.move_in_date || '') + '"\n'
+      csvContent += '"Property Type","' + (profileData.basic_info.property_type || '') + '"\n'
+      csvContent += '"Emergency Contact","' + (profileData.basic_info.emergency_contact || '') + '"\n'
+      csvContent += '"Emergency Phone","' + (profileData.basic_info.emergency_phone || '') + '"\n'
+      csvContent += '"Medical Conditions","' + (profileData.basic_info.medical_conditions || '') + '"\n'
+      csvContent += '\n'
+    }
     
     // Household Members
     if (profileData.household_members && profileData.household_members.length > 0) {
       csvContent += 'HOUSEHOLD MEMBERS\n'
-      csvContent += 'Full Name,Relationship,Date of Birth,Phone,Email,Is Minor,Has Key Access\n'
+      csvContent += 'Name,Relationship,Date of Birth,Contact Phone,Emergency Contact\n'
       profileData.household_members.forEach(member => {
-        csvContent += '"' + (member.full_name || '') + '","' + (member.relationship || '') + '","' + (member.date_of_birth || '') + '","' + (member.phone || '') + '","' + (member.email || '') + '","' + (member.is_minor ? 'Yes' : 'No') + '","' + (member.has_key_access ? 'Yes' : 'No') + '"\n'
+        csvContent += '"' + (member.full_name || '') + '","' + (member.relationship || '') + '","' + (member.date_of_birth || '') + '","' + (member.contact_phone || '') + '","' + (member.is_emergency_contact ? 'Yes' : 'No') + '"\n'
       })
       csvContent += '\n'
     }
@@ -497,142 +476,4 @@ export const exportProfileData = async () => {
     console.error('❌ Export profile data error:', error)
     throw error
   }
-}
-
-export const exportProfileDataAsText = async () => {
-  try {
-    console.log('📝 Exporting profile data as formatted text...')
-    const response = await api.post('/users/profile/export-data/')
-    
-    const profileData = response.data
-    
-    // Create formatted text content
-    let textContent = 'HOA RESIDENT PROFILE DATA\n'
-    textContent += 'Generated: ' + new Date().toLocaleString() + '\n'
-    textContent += '==================================================\n\n'
-    
-    // Basic Information
-    if (profileData.basic_info) {
-      textContent += 'BASIC INFORMATION\n'
-      textContent += '--------------------\n'
-      textContent += 'Full Name: ' + (profileData.basic_info.full_name || 'N/A') + '\n'
-      textContent += 'Email: ' + (profileData.basic_info.email || 'N/A') + '\n'
-      textContent += 'Phone: ' + (profileData.basic_info.phone || 'N/A') + '\n'
-      textContent += 'Role: ' + (profileData.basic_info.role || 'N/A') + '\n'
-      textContent += 'Unit Number: ' + (profileData.basic_info.unit_number || 'N/A') + '\n'
-      textContent += 'Move-in Date: ' + (profileData.basic_info.move_in_date || 'N/A') + '\n'
-      textContent += 'Property Type: ' + (profileData.basic_info.property_type || 'N/A') + '\n\n'
-    }
-    
-    // Emergency Contacts
-    textContent += 'EMERGENCY CONTACTS\n'
-    textContent += '--------------------\n'
-    if (profileData.basic_info?.emergency_contact) {
-      textContent += 'Primary Contact: ' + profileData.basic_info.emergency_contact + '\n'
-      textContent += 'Primary Phone: ' + (profileData.basic_info.emergency_phone || 'N/A') + '\n'
-      textContent += 'Primary Relationship: ' + (profileData.basic_info.emergency_relationship || 'N/A') + '\n'
-    }
-    if (profileData.basic_info?.secondary_emergency_contact) {
-      textContent += 'Secondary Contact: ' + profileData.basic_info.secondary_emergency_contact + '\n'
-      textContent += 'Secondary Phone: ' + (profileData.basic_info.secondary_emergency_phone || 'N/A') + '\n'
-      textContent += 'Secondary Relationship: ' + (profileData.basic_info.secondary_emergency_relationship || 'N/A') + '\n'
-    }
-    textContent += '\n'
-    
-    // Household Members
-    if (profileData.household_members && profileData.household_members.length > 0) {
-      textContent += 'HOUSEHOLD MEMBERS\n'
-      textContent += '--------------------\n'
-      profileData.household_members.forEach((member, index) => {
-        textContent += (index + 1) + '. ' + (member.full_name || 'N/A') + '\n'
-        textContent += '   Relationship: ' + (member.relationship || 'N/A') + '\n'
-        textContent += '   Phone: ' + (member.phone || 'N/A') + '\n'
-        textContent += '   Email: ' + (member.email || 'N/A') + '\n'
-        textContent += '   Is Minor: ' + (member.is_minor ? 'Yes' : 'No') + '\n\n'
-      })
-    }
-    
-    // Pets
-    if (profileData.pets && profileData.pets.length > 0) {
-      textContent += 'PETS\n'
-      textContent += '----------\n'
-      profileData.pets.forEach((pet, index) => {
-        textContent += (index + 1) + '. ' + (pet.name || 'N/A') + ' (' + (pet.pet_type || 'N/A') + ')\n'
-        textContent += '   Breed: ' + (pet.breed || 'N/A') + '\n'
-        textContent += '   Color: ' + (pet.color || 'N/A') + '\n'
-        textContent += '   Weight: ' + (pet.weight || 'N/A') + '\n'
-        textContent += '   Microchip: ' + (pet.microchip_number || 'N/A') + '\n\n'
-      })
-    }
-    
-    // Vehicles
-    if (profileData.vehicles && profileData.vehicles.length > 0) {
-      textContent += 'VEHICLES\n'
-      textContent += '----------\n'
-      profileData.vehicles.forEach((vehicle, index) => {
-        textContent += (index + 1) + '. ' + (vehicle.year || '') + ' ' + (vehicle.make || '') + ' ' + (vehicle.model || '') + '\n'
-        textContent += '   License Plate: ' + (vehicle.license_plate || 'N/A') + '\n'
-        textContent += '   Color: ' + (vehicle.color || 'N/A') + '\n'
-        textContent += '   Type: ' + (vehicle.vehicle_type || 'N/A') + '\n'
-        textContent += '   Primary Vehicle: ' + (vehicle.is_primary ? 'Yes' : 'No') + '\n\n'
-      })
-    }
-    
-    // Create and download the file
-    const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8;' })
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'HOA_Profile_Data_' + new Date().toISOString().split('T')[0] + '.txt'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-    
-    console.log('✅ Profile data exported as text file successfully')
-    return profileData
-  } catch (error) {
-    console.error('❌ Export profile data error:', error)
-    throw error
-  }
-}
-
-export default {
-  getBasicProfile,
-  updateBasicProfile,
-  getResidenceInfo,
-  updateResidenceInfo,
-  getEmergencyInfo,
-  updateEmergencyInfo,
-  getPrivacySettings,
-  updatePrivacySettings,
-  getFinancialInfo,
-  updateFinancialInfo,
-  getNotificationSettings,
-  updateNotificationSettings,
-  getSystemPreferences,
-  updateSystemPreferences,
-  getCompleteProfile,
-  getHouseholdMembers,
-  createHouseholdMember,
-  getHouseholdMember,
-  updateHouseholdMember,
-  deleteHouseholdMember,
-  getPets,
-  createPet,
-  updatePet,
-  deletePet,
-  getVehicles,
-  createVehicle,
-  updateVehicle,
-  deleteVehicle,
-  changePassword,
-  requestEmailVerification,
-  verifyEmail,
-  requestPhoneVerification,
-  verifyPhone,
-  getCompletionStatus,
-  getChangeLogs,
-  exportProfileData,
-  exportProfileDataAsText,
 }
