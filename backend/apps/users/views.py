@@ -795,3 +795,43 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     
     def get_object(self):
         return self.request.user
+    
+class LoginView(APIView):
+    
+    permission_classes = [permissions.AllowAny]
+    
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        
+        if not email or not password:
+            return Response({
+                'error': 'Email and password are required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Use our custom authentication backend
+        user = authenticate(request=request, email=email, password=password)
+        
+        if user is None:
+            return Response({
+                'error': 'Invalid email or password'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not user.is_active:
+            return Response({
+                'error': 'Account is disabled'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+            'user': {
+                'id': str(user.id),
+                'email': user.email,
+                'full_name': user.full_name,
+                'role': user.role,
+            }
+        }, status=status.HTTP_200_OK)
