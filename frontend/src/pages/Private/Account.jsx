@@ -15,7 +15,7 @@ import {
   Settings, 
   Users, 
   Car, 
-  PawPrint,
+  Heart,
   Download,
   History,
   CheckCircle,
@@ -59,7 +59,7 @@ const Account = () => {
     { id: 'notifications', label: 'Notifications', icon: Bell, description: 'Communication preferences' },
     { id: 'system', label: 'System', icon: Settings, description: 'Theme and interface preferences' },
     { id: 'household', label: 'Household', icon: Users, description: 'Family members and residents' },
-    { id: 'pets', label: 'Pets', icon: PawPrint, description: 'Pet registration and information' },
+    { id: 'pets', label: 'Pets', icon: Heart, description: 'Pet registration and information' },
     { id: 'vehicles', label: 'Vehicles', icon: Car, description: 'Vehicle registration and parking' },
     { id: 'activity', label: 'Activity', icon: History, description: 'Profile change history and logs' },
   ];
