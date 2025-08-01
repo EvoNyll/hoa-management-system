@@ -22,6 +22,11 @@ from .serializers import (
     EmailVerificationSerializer, PhoneVerificationSerializer
 )
 from .utils import log_profile_change, send_verification_email, send_verification_sms
+from django.contrib.auth import authenticate
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 User = get_user_model()
 
@@ -664,3 +669,129 @@ def profile_completion_status(request):
         completion_data['suggestions'].append('Customize your notification preferences')
     
     return Response(completion_data, status=status.HTTP_200_OK)
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """Custom token serializer to include user data"""
+    
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Add custom claims
+        token['email'] = user.email
+        token['role'] = user.role
+        return token
+    
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        # Add user info to response
+        data['user'] = {
+            'id': str(self.user.id),
+            'email': self.user.email,
+            'full_name': self.user.full_name,
+            'role': self.user.role,
+        }
+        return data
+
+
+class LoginView(TokenObtainPairView):
+    """Custom login view using JWT"""
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+class RegisterView(APIView):
+    """User registration view"""
+    permission_classes = [permissions.AllowAny]
+    
+    def post(self, request):
+        data = request.data
+        
+        # Basic validation
+        required_fields = ['email', 'password', 'full_name']
+        for field in required_fields:
+            if not data.get(field):
+                return Response(
+                    {'error': f'{field} is required'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
+        # Check if user already exists
+        if User.objects.filter(email=data['email']).exists():
+            return Response(
+                {'error': 'User with this email already exists'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            # Create user
+            user = User.objects.create_user(
+                email=data['email'],
+                password=data['password'],
+                full_name=data['full_name'],
+                role='member'  # Default role
+            )
+            
+            # Generate tokens
+            refresh = RefreshToken.for_user(user)
+            
+            # Log registration
+            log_profile_change(
+                user=user,
+                change_type='create',
+                field_name='account',
+                old_value='',
+                new_value='Account created',
+                request=request
+            )
+            
+            return Response({
+                'message': 'User registered successfully',
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+                'user': {
+                    'id': str(user.id),
+                    'email': user.email,
+                    'full_name': user.full_name,
+                    'role': user.role,
+                }
+            }, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            return Response(
+                {'error': 'Registration failed. Please try again.'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class LogoutView(APIView):
+    """Logout view - blacklist refresh token"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        try:
+            refresh_token = request.data.get('refresh')
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            
+            # Log logout
+            log_profile_change(
+                user=request.user,
+                change_type='login',
+                field_name='logout',
+                old_value='',
+                new_value='User logged out',
+                request=request
+            )
+            
+            return Response({'message': 'Successfully logged out'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': 'Logout failed'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProfileView(generics.RetrieveUpdateAPIView):
+    """Get and update user profile"""
+    serializer_class = UserCompleteProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_object(self):
+        return self.request.user
