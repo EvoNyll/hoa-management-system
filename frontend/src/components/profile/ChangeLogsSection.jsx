@@ -3,61 +3,286 @@
 
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../context/ProfileContext';
-import { History, Calendar, User, Edit, Trash2, Plus, Lock, Mail, Phone, Loader, RefreshCw, Filter, Search } from 'lucide-react';
+import { 
+  History, 
+  Search, 
+  Filter, 
+  Calendar, 
+  User, 
+  Shield, 
+  Key, 
+  Phone, 
+  Mail, 
+  Edit, 
+  Plus, 
+  Trash2,
+  RefreshCw,
+  ChevronDown,
+  Clock
+} from 'lucide-react';
 
-const ChangeLogsSection = () =            >
-              {changeTypes.map(type => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
+const ChangeLogsSection = () => {
+  const { profileData, loading, loadChangeLogs } = useProfile();
+  const [changeLogs, setChangeLogs] = useState([]);
+  const [filteredLogs, setFilteredLogs] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState('all');
+  const [selectedPeriod, setSelectedPeriod] = useState('all');
+  const [sortOrder, setSortOrder] = useState('desc');
+
+  const changeTypes = [
+    { value: 'all', label: 'All Changes' },
+    { value: 'create', label: 'Created' },
+    { value: 'update', label: 'Updated' },
+    { value: 'delete', label: 'Deleted' },
+    { value: 'login', label: 'Login' },
+    { value: 'password_change', label: 'Password Change' },
+    { value: 'email_verification', label: 'Email Verification' },
+    { value: 'phone_verification', label: 'Phone Verification' }
+  ];
+
+  const timePeriods = [
+    { value: 'all', label: 'All Time' },
+    { value: 'today', label: 'Today' },
+    { value: 'week', label: 'This Week' },
+    { value: 'month', label: 'This Month' },
+    { value: 'quarter', label: 'Last 3 Months' }
+  ];
+
+  useEffect(() => {
+    loadActivityLogs();
+  }, []);
+
+  useEffect(() => {
+    filterAndSortLogs();
+  }, [changeLogs, searchTerm, selectedType, selectedPeriod, sortOrder]);
+
+  const loadActivityLogs = async () => {
+    setIsLoading(true);
+    try {
+      const logs = await loadChangeLogs();
+      setChangeLogs(logs || []);
+    } catch (err) {
+      console.error('Failed to load change logs:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filterAndSortLogs = () => {
+    let filtered = [...changeLogs];
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(log =>
+        log.field_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.change_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.old_value?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.new_value?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by change type
+    if (selectedType !== 'all') {
+      filtered = filtered.filter(log => log.change_type === selectedType);
+    }
+
+    // Filter by time period
+    if (selectedPeriod !== 'all') {
+      const now = new Date();
+      const cutoffDate = new Date();
+      
+      switch (selectedPeriod) {
+        case 'today':
+          cutoffDate.setHours(0, 0, 0, 0);
+          break;
+        case 'week':
+          cutoffDate.setDate(now.getDate() - 7);
+          break;
+        case 'month':
+          cutoffDate.setMonth(now.getMonth() - 1);
+          break;
+        case 'quarter':
+          cutoffDate.setMonth(now.getMonth() - 3);
+          break;
+        default:
+          break;
+      }
+      
+      filtered = filtered.filter(log => new Date(log.timestamp) >= cutoffDate);
+    }
+
+    // Sort by timestamp
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.timestamp);
+      const dateB = new Date(b.timestamp);
+      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+    });
+
+    setFilteredLogs(filtered);
+  };
+
+  const getChangeTypeIcon = (changeType) => {
+    switch (changeType) {
+      case 'create': return <Plus className="w-4 h-4 text-green-500" />;
+      case 'update': return <Edit className="w-4 h-4 text-blue-500" />;
+      case 'delete': return <Trash2 className="w-4 h-4 text-red-500" />;
+      case 'login': return <User className="w-4 h-4 text-purple-500" />;
+      case 'password_change': return <Key className="w-4 h-4 text-orange-500" />;
+      case 'email_verification': return <Mail className="w-4 h-4 text-green-500" />;
+      case 'phone_verification': return <Phone className="w-4 h-4 text-green-500" />;
+      default: return <Shield className="w-4 h-4 text-gray-500" />;
+    }
+  };
+
+  const getChangeTypeLabel = (changeType) => {
+    const type = changeTypes.find(t => t.value === changeType);
+    return type ? type.label : changeType;
+  };
+
+  const formatFieldName = (fieldName) => {
+    return fieldName
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) {
+      return 'Just now';
+    } else if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    } else if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600);
+      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else if (diffInSeconds < 604800) {
+      const days = Math.floor(diffInSeconds / 86400);
+      return `${days} day${days > 1 ? 's' : ''} ago`;
+    } else {
+      return date.toLocaleDateString();
+    }
+  };
+
+  const truncateValue = (value, maxLength = 50) => {
+    if (!value) return '';
+    return value.length > maxLength ? `${value.substring(0, maxLength)}...` : value;
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedType('all');
+    setSelectedPeriod('all');
+    setSortOrder('desc');
+  };
+
+  const hasActiveFilters = searchTerm || selectedType !== 'all' || selectedPeriod !== 'all';
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Activity & Change Logs</h2>
+          <p className="text-gray-600 mt-1">
+            Track all changes and activities on your account for security and auditing
+          </p>
+        </div>
+        <button
+          onClick={loadActivityLogs}
+          disabled={isLoading}
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+        >
+          <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+          Refresh
+        </button>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-4">
+          {/* Search */}
+          <div className="flex-1 max-w-md">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search activity logs..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
 
-          {/* Time Period Filter */}
-          <div>
-            <label htmlFor="period-filter" className="block text-xs font-medium text-gray-700 mb-1">
-              Period
-            </label>
-            <select
-              id="period-filter"
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {timePeriods.map(period => (
-                <option key={period.value} value={period.value}>
-                  {period.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Filters */}
+          <div className="flex flex-wrap items-center space-x-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Change Type</label>
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                className="text-sm border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {changeTypes.map(type => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* Sort Order */}
-          <div>
-            <label htmlFor="sort-filter" className="block text-xs font-medium text-gray-700 mb-1">
-              Sort
-            </label>
-            <select
-              id="sort-filter"
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="desc">Newest First</option>
-              <option value="asc">Oldest First</option>
-            </select>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Time Period</label>
+              <select
+                value={selectedPeriod}
+                onChange={(e) => setSelectedPeriod(e.target.value)}
+                className="text-sm border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {timePeriods.map(period => (
+                  <option key={period.value} value={period.value}>
+                    {period.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Sort Order</label>
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                className="text-sm border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="desc">Newest First</option>
+                <option value="asc">Oldest First</option>
+              </select>
+            </div>
+
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="text-xs px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200 transition-colors"
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Activity List */}
+      {/* Loading State */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-8">
-          <Loader className="w-8 h-8 animate-spin text-blue-600" />
-          <span className="ml-2 text-gray-600">Loading activity...</span>
+        <div className="text-center py-8">
+          <RefreshCw className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-2" />
+          <p className="text-gray-600">Loading activity logs...</p>
         </div>
       ) : filteredLogs.length === 0 ? (
+        /* Empty State */
         <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
           <History className="w-12 h-12 text-gray-400 mx-auto mb-3" />
           <p className="text-gray-500 mb-2">
@@ -70,6 +295,7 @@ const ChangeLogsSection = () =            >
           </p>
         </div>
       ) : (
+        /* Activity Logs */
         <div className="space-y-3">
           {filteredLogs.map((log) => (
             <div key={log.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
@@ -202,282 +428,8 @@ const ChangeLogsSection = () =            >
           </div>
         </div>
       )}
-
-      {/* Data Export */}
-      <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
-        <h4 className="text-sm font-medium text-gray-800 mb-2">Data Management</h4>
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => {
-              const dataStr = JSON.stringify(changeLogs, null, 2);
-              const dataBlob = new Blob([dataStr], { type: 'application/json' });
-              const url = window.URL.createObjectURL(dataBlob);
-              const link = document.createElement('a');
-              link.href = url;
-              link.download = `profile-activity-${new Date().toISOString().split('T')[0]}.json`;
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              window.URL.revokeObjectURL(url);
-            }}
-            className="text-xs px-3 py-1 bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
-          >
-            Export Activity Log
-          </button>
-          <button
-            onClick={() => window.print()}
-            className="text-xs px-3 py-1 bg-gray-100 text-gray-800 rounded hover:bg-gray-200"
-          >
-            Print Activity
-          </button>
-          <button
-            onClick={() => {
-              if (window.confirm('This will clear your search filters. Continue?')) {
-                setSearchTerm('');
-                setSelectedType('all');
-                setSelectedPeriod('all');
-                setSortOrder('desc');
-              }
-            }}
-            className="text-xs px-3 py-1 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200"
-          >
-            Clear Filters
-          </button>
-        </div>
-      </div>
     </div>
   );
 };
 
-export default ChangeLogsSection; {
-  const { profileData, loading, loadChangeLogs } = useProfile();
-  const [changeLogs, setChangeLogs] = useState([]);
-  const [filteredLogs, setFilteredLogs] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedType, setSelectedType] = useState('all');
-  const [selectedPeriod, setSelectedPeriod] = useState('all');
-  const [sortOrder, setSortOrder] = useState('desc');
-
-  useEffect(() => {
-    loadActivityLogs();
-  }, []);
-
-  useEffect(() => {
-    filterAndSortLogs();
-  }, [changeLogs, searchTerm, selectedType, selectedPeriod, sortOrder]);
-
-  const loadActivityLogs = async () => {
-    setIsLoading(true);
-    try {
-      const logs = await loadChangeLogs();
-      setChangeLogs(logs || []);
-    } catch (err) {
-      console.error('Failed to load change logs:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const filterAndSortLogs = () => {
-    let filtered = [...changeLogs];
-
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(log =>
-        log.field_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.change_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.old_value?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.new_value?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Filter by change type
-    if (selectedType !== 'all') {
-      filtered = filtered.filter(log => log.change_type === selectedType);
-    }
-
-    // Filter by time period
-    if (selectedPeriod !== 'all') {
-      const now = new Date();
-      const cutoffDate = new Date();
-      
-      switch (selectedPeriod) {
-        case 'today':
-          cutoffDate.setHours(0, 0, 0, 0);
-          break;
-        case 'week':
-          cutoffDate.setDate(now.getDate() - 7);
-          break;
-        case 'month':
-          cutoffDate.setMonth(now.getMonth() - 1);
-          break;
-        case 'quarter':
-          cutoffDate.setMonth(now.getMonth() - 3);
-          break;
-      }
-      
-      filtered = filtered.filter(log => new Date(log.timestamp) >= cutoffDate);
-    }
-
-    // Sort by timestamp
-    filtered.sort((a, b) => {
-      const dateA = new Date(a.timestamp);
-      const dateB = new Date(b.timestamp);
-      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
-    });
-
-    setFilteredLogs(filtered);
-  };
-
-  const getChangeTypeIcon = (changeType) => {
-    switch (changeType) {
-      case 'create':
-        return <Plus className="w-4 h-4 text-green-500" />;
-      case 'update':
-        return <Edit className="w-4 h-4 text-blue-500" />;
-      case 'delete':
-        return <Trash2 className="w-4 h-4 text-red-500" />;
-      case 'login':
-        return <User className="w-4 h-4 text-purple-500" />;
-      case 'password_change':
-        return <Lock className="w-4 h-4 text-orange-500" />;
-      case 'email_verification':
-        return <Mail className="w-4 h-4 text-indigo-500" />;
-      case 'phone_verification':
-        return <Phone className="w-4 h-4 text-teal-500" />;
-      default:
-        return <History className="w-4 h-4 text-gray-500" />;
-    }
-  };
-
-  const getChangeTypeLabel = (changeType) => {
-    switch (changeType) {
-      case 'create':
-        return 'Created';
-      case 'update':
-        return 'Updated';
-      case 'delete':
-        return 'Deleted';
-      case 'login':
-        return 'Login';
-      case 'password_change':
-        return 'Password Change';
-      case 'email_verification':
-        return 'Email Verification';
-      case 'phone_verification':
-        return 'Phone Verification';
-      default:
-        return changeType;
-    }
-  };
-
-  const formatFieldName = (fieldName) => {
-    if (!fieldName) return 'General';
-    
-    return fieldName
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, l => l.toUpperCase());
-  };
-
-  const formatTimestamp = (timestamp) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffInHours = (now - date) / (1000 * 60 * 60);
-    
-    if (diffInHours < 1) {
-      return 'Just now';
-    } else if (diffInHours < 24) {
-      return `${Math.floor(diffInHours)} hour${Math.floor(diffInHours) > 1 ? 's' : ''} ago`;
-    } else if (diffInHours < 24 * 7) {
-      const days = Math.floor(diffInHours / 24);
-      return `${days} day${days > 1 ? 's' : ''} ago`;
-    } else {
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    }
-  };
-
-  const truncateValue = (value, maxLength = 50) => {
-    if (!value) return '-';
-    if (value.length <= maxLength) return value;
-    return `${value.substring(0, maxLength)}...`;
-  };
-
-  const changeTypes = [
-    { value: 'all', label: 'All Changes' },
-    { value: 'create', label: 'Created' },
-    { value: 'update', label: 'Updated' },
-    { value: 'delete', label: 'Deleted' },
-    { value: 'login', label: 'Login' },
-    { value: 'password_change', label: 'Password Change' },
-    { value: 'email_verification', label: 'Email Verification' },
-    { value: 'phone_verification', label: 'Phone Verification' }
-  ];
-
-  const timePeriods = [
-    { value: 'all', label: 'All Time' },
-    { value: 'today', label: 'Today' },
-    { value: 'week', label: 'Last Week' },
-    { value: 'month', label: 'Last Month' },
-    { value: 'quarter', label: 'Last 3 Months' }
-  ];
-
-  return (
-    <div className="space-y-6">
-      {/* Header with Filters */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center">
-          <History className="w-5 h-5 text-gray-500 mr-2" />
-          <h3 className="text-lg font-medium text-gray-900">Profile Activity</h3>
-          <span className="ml-2 bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">
-            {filteredLogs.length} entries
-          </span>
-        </div>
-        
-        <button
-          onClick={loadActivityLogs}
-          disabled={isLoading}
-          className="flex items-center px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
-        >
-          <RefreshCw className={`w-4 h-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Search */}
-          <div>
-            <label htmlFor="search" className="block text-xs font-medium text-gray-700 mb-1">
-              Search
-            </label>
-            <div className="relative">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-              <input
-                type="text"
-                id="search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Search activity..."
-              />
-            </div>
-          </div>
-
-          {/* Change Type Filter */}
-          <div>
-            <label htmlFor="type-filter" className="block text-xs font-medium text-gray-700 mb-1">
-              Type
-            </label>
-            <select
-              id="type-filter"
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+export default ChangeLogsSection;
