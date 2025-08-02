@@ -1,22 +1,27 @@
-// frontend/src/App.jsx
+// frontend/src/App.jsx - UPDATED WITH ERROR BOUNDARY
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ProfileProvider } from './context/ProfileContext'
 import AppRouter from './router'
 import Layout from './components/layout/Layout'
+import ErrorBoundary from './components/common/ErrorBoundary'
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ProfileProvider>
-          <Layout>
-            <AppRouter />
-          </Layout>
-        </ProfileProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <ProfileProvider>
+            <Layout>
+              <ErrorBoundary>
+                <AppRouter />
+              </ErrorBoundary>
+            </Layout>
+          </ProfileProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }
 

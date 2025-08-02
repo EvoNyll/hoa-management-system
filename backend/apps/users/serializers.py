@@ -1,5 +1,4 @@
-# File: backend/apps/users/serializers.py
-# Location: backend/apps/users/serializers.py
+# backend/apps/users/serializers.py - COMPLETE FIXED FILE
 
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
@@ -182,6 +181,14 @@ class UserResidenceSerializer(serializers.ModelSerializer):
             'unit_number', 'move_in_date', 'property_type', 'parking_spaces',
             'mailbox_number'
         ]
+        # Make optional fields not required
+        extra_kwargs = {
+            'move_in_date': {'required': False, 'allow_null': True},
+            'parking_spaces': {'required': False},
+            'mailbox_number': {'required': False, 'allow_blank': True, 'allow_null': True},
+            'unit_number': {'required': True, 'allow_blank': False},
+            'property_type': {'required': False, 'allow_blank': True},
+        }
     
     def validate_unit_number(self, value):
         if value:
@@ -189,6 +196,26 @@ class UserResidenceSerializer(serializers.ModelSerializer):
             if user and User.objects.filter(unit_number=value).exclude(id=user.id).exists():
                 raise serializers.ValidationError("Unit number already assigned to another resident")
         return value
+    
+    def validate_property_type(self, value):
+        """Validate that property type is one of the allowed values"""
+        if value and value not in ['townhouse', 'single_attached']:
+            raise serializers.ValidationError("Property type must be either 'townhouse' or 'single_attached'")
+        return value
+    
+    def update(self, instance, validated_data):
+        """Custom update method to handle null values properly"""
+        # Handle null values for optional fields
+        if 'move_in_date' in validated_data and validated_data['move_in_date'] is None:
+            validated_data['move_in_date'] = None
+        
+        if 'parking_spaces' in validated_data and validated_data['parking_spaces'] is None:
+            validated_data['parking_spaces'] = 0
+        
+        if 'mailbox_number' in validated_data and validated_data['mailbox_number'] is None:
+            validated_data['mailbox_number'] = ''
+        
+        return super().update(instance, validated_data)
 
 
 class UserEmergencySerializer(serializers.ModelSerializer):
@@ -274,8 +301,7 @@ class UserFinancialSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'auto_pay_enabled', 'preferred_payment_method', 'billing_address_different',
-            'billing_address'
+            'auto_pay_enabled', 'payment_method', 'billing_email'
         ]
 
 
@@ -286,6 +312,7 @@ class UserNotificationSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'email_notifications', 'sms_notifications', 'push_notifications',
+            'newsletter_subscription', 'event_reminders', 'maintenance_alerts',
             'notification_preferences'
         ]
 
@@ -321,8 +348,9 @@ class UserCompleteProfileSerializer(serializers.ModelSerializer):
             'is_directory_visible', 'directory_show_name', 'directory_show_unit',
             'directory_show_phone', 'directory_show_email', 'directory_show_household',
             'profile_visibility', 'two_factor_enabled', 'auto_pay_enabled',
-            'preferred_payment_method', 'billing_address_different', 'billing_address',
+            'payment_method', 'billing_email',
             'email_notifications', 'sms_notifications', 'push_notifications',
+            'newsletter_subscription', 'event_reminders', 'maintenance_alerts',
             'notification_preferences', 'theme_preference', 'role', 'is_active',
             'created_at', 'updated_at', 'last_profile_update', 'profile_completion',
             'household_members', 'pets', 'vehicles'

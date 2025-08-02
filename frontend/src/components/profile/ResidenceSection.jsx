@@ -1,5 +1,5 @@
-// frontend/src/components/profile/ResidenceSection.jsx - UPDATED VERSION
-import React, { useState } from 'react';
+// frontend/src/components/profile/ResidenceSection.jsx - FIXED VERSION
+import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { Home, Save, Loader, CheckCircle, AlertTriangle } from 'lucide-react';
 
@@ -7,26 +7,35 @@ const ResidenceSection = () => {
   const { profileData, loading, updateResidenceInfo } = useProfile();
   const [formData, setFormData] = useState({
     unit_number: '',
-    property_type: '',
-    ...profileData.residence
+    property_type: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errors, setErrors] = useState({});
 
-  React.useEffect(() => {
-    if (profileData.residence) {
-      setFormData(prev => ({
-        ...prev,
-        ...profileData.residence
-      }));
-    }
-  }, [profileData.residence]);
+  // 🔧 FIX: Better data loading from profile context
+  useEffect(() => {
+    console.log('📊 Profile data received:', profileData);
+    
+    // Handle different possible data structures
+    const residenceData = profileData?.residence || profileData?.basic || {};
+    
+    setFormData({
+      unit_number: residenceData.unit_number || '',
+      property_type: residenceData.property_type || ''
+    });
+    
+    console.log('📝 Form data set:', {
+      unit_number: residenceData.unit_number || '',
+      property_type: residenceData.property_type || ''
+    });
+  }, [profileData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
-    // 🚫 FIX: Allow any case for unit number, no processing needed
+    console.log(`📝 Field changed: ${name} = ${value}`);
+    
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -58,28 +67,42 @@ const ResidenceSection = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateForm()) return;
+    console.log('🚀 Form submission started');
+    console.log('📋 Current form data:', formData);
+    
+    if (!validateForm()) {
+      console.log('❌ Form validation failed:', errors);
+      return;
+    }
 
     setIsSubmitting(true);
     setSuccessMessage('');
     setErrors({});
 
     try {
-      // 🚫 FIX: Only send the required fields
-      const cleanData = {
-        unit_number: formData.unit_number?.trim() || '',
-        property_type: formData.property_type || '',
-        // Remove the fields that are no longer needed
-        move_in_date: null,
-        parking_spaces: 0,
-        mailbox_number: null
-      };
-
-      console.log('🔄 Sending residence data:', cleanData);
+      // 🔧 FIX: Send only the required fields without null values
+      const updateData = {};
       
-      await updateResidenceInfo(cleanData);
+      // Only include fields that have values
+      if (formData.unit_number?.trim()) {
+        updateData.unit_number = formData.unit_number.trim();
+      }
+      
+      if (formData.property_type) {
+        updateData.property_type = formData.property_type;
+      }
+
+      console.log('📤 Sending update data:', updateData);
+      
+      const result = await updateResidenceInfo(updateData);
+      
+      console.log('✅ Update successful:', result);
+      
       setSuccessMessage('Residence information updated successfully!');
+      
+      // Auto-hide success message after 5 seconds
       setTimeout(() => setSuccessMessage(''), 5000);
+      
     } catch (err) {
       console.error('❌ Update residence error:', err);
       
@@ -97,6 +120,7 @@ const ResidenceSection = () => {
             }
           });
           setErrors(fieldErrors);
+          console.log('🔥 Field errors:', fieldErrors);
         } else {
           setErrors({ submit: 'Failed to update residence information. Please try again.' });
         }
@@ -108,7 +132,7 @@ const ResidenceSection = () => {
     }
   };
 
-  // 🚫 FIX: Updated property types as requested
+  // Property type options - only Townhouse and Single Attached as requested
   const propertyTypes = [
     { value: '', label: 'Select Property Type' },
     { value: 'townhouse', label: 'Townhouse' },
@@ -148,12 +172,13 @@ const ResidenceSection = () => {
               type="text"
               id="unit_number"
               name="unit_number"
-              value={formData.unit_number || ''}
+              value={formData.unit_number}
               onChange={handleInputChange}
               className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.unit_number ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="e.g., 101, A-204, Building 3 Unit 2B, etc."
+              maxLength={50}
             />
             {errors.unit_number && (
               <p className="mt-1 text-sm text-red-600">{errors.unit_number}</p>
@@ -168,7 +193,7 @@ const ResidenceSection = () => {
             <select
               id="property_type"
               name="property_type"
-              value={formData.property_type || ''}
+              value={formData.property_type}
               onChange={handleInputChange}
               className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.property_type ? 'border-red-300' : 'border-gray-300'
