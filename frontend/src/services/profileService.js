@@ -289,23 +289,63 @@ export const getPets = async () => {
 
 export const addPet = async (data) => {
   try {
-    const response = await api.post('/users/pets/', data)
-    return response.data
+    console.log('🔄 Adding pet:', data instanceof FormData ? 'FormData' : data);
+    
+    let response;
+    
+    if (data instanceof FormData) {
+      // For file uploads, use FormData
+      response = await api.post('/users/pets/', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    } else {
+      // For regular data, use JSON
+      response = await api.post('/users/pets/', data, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+    
+    console.log('✅ Pet added successfully:', response.data);
+    return response.data;
   } catch (error) {
-    console.error('Add pet error:', error)
-    throw error
+    console.error('❌ Add pet error:', error.response?.data || error.message);
+    throw error;
   }
-}
+};
 
 export const updatePet = async (id, data) => {
   try {
-    const response = await api.put(`/users/pets/${id}/`, data)
-    return response.data
+    console.log('🔄 Updating pet:', id, data instanceof FormData ? 'FormData' : data);
+    
+    let response;
+    
+    if (data instanceof FormData) {
+      // For file uploads, use FormData
+      response = await api.put(`/users/pets/${id}/`, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    } else {
+      // For regular data, use JSON
+      response = await api.put(`/users/pets/${id}/`, data, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+    
+    console.log('✅ Pet updated successfully:', response.data);
+    return response.data;
   } catch (error) {
-    console.error('Update pet error:', error)
-    throw error
+    console.error('❌ Update pet error:', error.response?.data || error.message);
+    throw error;
   }
-}
+};
 
 export const deletePet = async (id) => {
   try {

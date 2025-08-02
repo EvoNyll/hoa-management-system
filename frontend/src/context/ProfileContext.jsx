@@ -1,5 +1,5 @@
-// frontend/src/context/ProfileContext.jsx
-import React, { createContext, useContext, useState, useEffect } from 'react'
+// frontend/src/context/ProfileContext.jsx - FIXED VERSION TO STOP INFINITE LOOP
+import React, { createContext, useContext, useState, useCallback } from 'react'
 import { useAuth } from './AuthContext'
 import { 
   exportProfileData,
@@ -65,9 +65,9 @@ export const ProfileProvider = ({ children }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // Load all profile data
-  const loadProfileData = async () => {
-    if (!user) return
+  // 🚫 FIX INFINITE LOOP: Use useCallback to memoize functions
+  const loadProfileData = useCallback(async () => {
+    if (!user || !isAuthenticated) return
 
     try {
       setLoading(true)
@@ -75,22 +75,8 @@ export const ProfileProvider = ({ children }) => {
       
       console.log('🔄 Loading profile data...')
 
-      // Load all profile sections
-      const [
-        basicData,
-        residenceData,
-        emergencyData,
-        privacyData,
-        securityData,
-        financialData,
-        notificationData,
-        systemData,
-        householdData,
-        petsData,
-        vehiclesData,
-        completionData,
-        changeLogsData
-      ] = await Promise.allSettled([
+      // Load all profile sections with error handling
+      const results = await Promise.allSettled([
         getBasicProfile().catch(() => ({})),
         getResidenceInfo().catch(() => ({})),
         getEmergencyInfo().catch(() => ({})),
@@ -107,19 +93,19 @@ export const ProfileProvider = ({ children }) => {
       ])
 
       setProfileData({
-        basic: basicData.status === 'fulfilled' ? basicData.value : {},
-        residence: residenceData.status === 'fulfilled' ? residenceData.value : {},
-        emergency: emergencyData.status === 'fulfilled' ? emergencyData.value : {},
-        privacy: privacyData.status === 'fulfilled' ? privacyData.value : {},
-        security: securityData.status === 'fulfilled' ? securityData.value : {},
-        financial: financialData.status === 'fulfilled' ? financialData.value : {},
-        notifications: notificationData.status === 'fulfilled' ? notificationData.value : {},
-        system: systemData.status === 'fulfilled' ? systemData.value : {},
-        household: householdData.status === 'fulfilled' ? householdData.value : [],
-        pets: petsData.status === 'fulfilled' ? petsData.value : [],
-        vehicles: vehiclesData.status === 'fulfilled' ? vehiclesData.value : [],
-        changeLogs: changeLogsData.status === 'fulfilled' ? changeLogsData.value : [],
-        completionStatus: completionData.status === 'fulfilled' ? completionData.value : null
+        basic: results[0].status === 'fulfilled' ? results[0].value : {},
+        residence: results[1].status === 'fulfilled' ? results[1].value : {},
+        emergency: results[2].status === 'fulfilled' ? results[2].value : {},
+        privacy: results[3].status === 'fulfilled' ? results[3].value : {},
+        security: results[4].status === 'fulfilled' ? results[4].value : {},
+        financial: results[5].status === 'fulfilled' ? results[5].value : {},
+        notifications: results[6].status === 'fulfilled' ? results[6].value : {},
+        system: results[7].status === 'fulfilled' ? results[7].value : {},
+        household: results[8].status === 'fulfilled' ? results[8].value : [],
+        pets: results[9].status === 'fulfilled' ? results[9].value : [],
+        vehicles: results[10].status === 'fulfilled' ? results[10].value : [],
+        completionStatus: results[11].status === 'fulfilled' ? results[11].value : null,
+        changeLogs: results[12].status === 'fulfilled' ? results[12].value : []
       })
 
       console.log('✅ Profile data loaded successfully')
@@ -129,10 +115,10 @@ export const ProfileProvider = ({ children }) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user, isAuthenticated]) // 🚫 IMPORTANT: Only depend on user and isAuthenticated
 
-  // Update functions with local state updates
-  const handleUpdateBasicProfile = async (data) => {
+  // 🚫 FIX: Memoize all update functions to prevent infinite loops
+  const handleUpdateBasicProfile = useCallback(async (data) => {
     try {
       const updatedData = await updateBasicProfile(data)
       setProfileData(prev => ({
@@ -143,9 +129,9 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const handleUpdateResidenceInfo = async (data) => {
+  const handleUpdateResidenceInfo = useCallback(async (data) => {
     try {
       const updatedData = await updateResidenceInfo(data)
       setProfileData(prev => ({
@@ -156,9 +142,9 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const handleUpdateEmergencyInfo = async (data) => {
+  const handleUpdateEmergencyInfo = useCallback(async (data) => {
     try {
       const updatedData = await updateEmergencyInfo(data)
       setProfileData(prev => ({
@@ -169,9 +155,9 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const handleUpdatePrivacySettings = async (data) => {
+  const handleUpdatePrivacySettings = useCallback(async (data) => {
     try {
       const updatedData = await updatePrivacySettings(data)
       setProfileData(prev => ({
@@ -182,9 +168,9 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const handleUpdateSecuritySettings = async (data) => {
+  const handleUpdateSecuritySettings = useCallback(async (data) => {
     try {
       const updatedData = await updateSecuritySettings(data)
       setProfileData(prev => ({
@@ -195,9 +181,9 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const handleUpdateFinancialInfo = async (data) => {
+  const handleUpdateFinancialInfo = useCallback(async (data) => {
     try {
       const updatedData = await updateFinancialInfo(data)
       setProfileData(prev => ({
@@ -208,9 +194,9 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const handleUpdateNotificationSettings = async (data) => {
+  const handleUpdateNotificationSettings = useCallback(async (data) => {
     try {
       const updatedData = await updateNotificationSettings(data)
       setProfileData(prev => ({
@@ -221,9 +207,9 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const handleUpdateSystemPreferences = async (data) => {
+  const handleUpdateSystemPreferences = useCallback(async (data) => {
     try {
       const updatedData = await updateSystemPreferences(data)
       setProfileData(prev => ({
@@ -234,10 +220,10 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
   // Household Members
-  const handleAddHouseholdMember = async (data) => {
+  const handleAddHouseholdMember = useCallback(async (data) => {
     try {
       const newMember = await addHouseholdMember(data)
       setProfileData(prev => ({
@@ -248,9 +234,9 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const handleUpdateHouseholdMember = async (id, data) => {
+  const handleUpdateHouseholdMember = useCallback(async (id, data) => {
     try {
       const updatedMember = await updateHouseholdMember(id, data)
       setProfileData(prev => ({
@@ -263,9 +249,9 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const handleDeleteHouseholdMember = async (id) => {
+  const handleDeleteHouseholdMember = useCallback(async (id) => {
     try {
       await deleteHouseholdMember(id)
       setProfileData(prev => ({
@@ -275,10 +261,10 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
   // Pets
-  const handleAddPet = async (data) => {
+  const handleAddPet = useCallback(async (data) => {
     try {
       const newPet = await addPet(data)
       setProfileData(prev => ({
@@ -289,9 +275,9 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const handleUpdatePet = async (id, data) => {
+  const handleUpdatePet = useCallback(async (id, data) => {
     try {
       const updatedPet = await updatePet(id, data)
       setProfileData(prev => ({
@@ -302,9 +288,9 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const handleDeletePet = async (id) => {
+  const handleDeletePet = useCallback(async (id) => {
     try {
       await deletePet(id)
       setProfileData(prev => ({
@@ -314,10 +300,10 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
   // Vehicles
-  const handleAddVehicle = async (data) => {
+  const handleAddVehicle = useCallback(async (data) => {
     try {
       const newVehicle = await addVehicle(data)
       setProfileData(prev => ({
@@ -328,9 +314,9 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const handleUpdateVehicle = async (id, data) => {
+  const handleUpdateVehicle = useCallback(async (id, data) => {
     try {
       const updatedVehicle = await updateVehicle(id, data)
       setProfileData(prev => ({
@@ -343,9 +329,9 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const handleDeleteVehicle = async (id) => {
+  const handleDeleteVehicle = useCallback(async (id) => {
     try {
       await deleteVehicle(id)
       setProfileData(prev => ({
@@ -355,10 +341,25 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error
     }
-  }
+  }, [])
+
+  // Load change logs
+  const loadChangeLogs = useCallback(async () => {
+    try {
+      const logs = await getChangeLogs()
+      setProfileData(prev => ({
+        ...prev,
+        changeLogs: logs
+      }))
+      return logs
+    } catch (error) {
+      console.error('Failed to load change logs:', error)
+      return []
+    }
+  }, [])
 
   // Export function
-  const handleExportProfileData = async () => {
+  const handleExportProfileData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -374,11 +375,12 @@ export const ProfileProvider = ({ children }) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const clearError = () => setError(null)
+  const clearError = useCallback(() => setError(null), [])
 
-  const value = {
+  // 🚫 IMPORTANT: Memoize the context value to prevent unnecessary re-renders
+  const value = React.useMemo(() => ({
     // State
     profileData,
     loading,
@@ -413,9 +415,37 @@ export const ProfileProvider = ({ children }) => {
     updateVehicle: handleUpdateVehicle,
     deleteVehicle: handleDeleteVehicle,
     
+    // Change logs
+    loadChangeLogs,
+    
     // Export
     exportProfileData: handleExportProfileData
-  }
+  }), [
+    profileData,
+    loading,
+    error,
+    loadProfileData,
+    clearError,
+    handleUpdateBasicProfile,
+    handleUpdateResidenceInfo,
+    handleUpdateEmergencyInfo,
+    handleUpdatePrivacySettings,
+    handleUpdateSecuritySettings,
+    handleUpdateFinancialInfo,
+    handleUpdateNotificationSettings,
+    handleUpdateSystemPreferences,
+    handleAddHouseholdMember,
+    handleUpdateHouseholdMember,
+    handleDeleteHouseholdMember,
+    handleAddPet,
+    handleUpdatePet,
+    handleDeletePet,
+    handleAddVehicle,
+    handleUpdateVehicle,
+    handleDeleteVehicle,
+    loadChangeLogs,
+    handleExportProfileData
+  ])
 
   return (
     <ProfileContext.Provider value={value}>
