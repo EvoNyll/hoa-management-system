@@ -1,16 +1,20 @@
-# File: backend/apps/users/utils.py
-# Location: backend/apps/users/utils.py
+# backend/apps/users/utils.py - COMPLETE FILE
 
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.utils import timezone
-from .models import ProfileChangeLog
+from datetime import timedelta
+import html
+import re
+import secrets
 
 
 def get_client_ip(request):
     """Get client IP address from request"""
+    if not request:
+        return None
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
         ip = x_forwarded_for.split(',')[0]
@@ -21,12 +25,14 @@ def get_client_ip(request):
 
 def log_profile_change(user, change_type, field_name, old_value, new_value, request=None):
     """Log profile changes for audit trail"""
+    from .models import ProfileChangeLog
+    
     ProfileChangeLog.objects.create(
         user=user,
         change_type=change_type,
         field_name=field_name,
-        old_value=old_value,
-        new_value=new_value,
+        old_value=str(old_value) if old_value else '',
+        new_value=str(new_value) if new_value else '',
         ip_address=get_client_ip(request) if request else None,
         user_agent=request.META.get('HTTP_USER_AGENT', '') if request else ''
     )
@@ -37,41 +43,56 @@ def send_verification_email(email, token):
     subject = 'HOA Portal - Verify Your New Email Address'
     
     # Create verification URL
-    verification_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
+    frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
+    verification_url = f"{frontend_url}/verify-email?token={token}"
     
-    # Render email template
-    html_message = render_to_string('emails/verify_email.html', {
-        'verification_url': verification_url,
-        'site_name': 'HOA Management Portal'
-    })
-    plain_message = strip_tags(html_message)
+    # Simple text message (you can create HTML templates later)
+    message = f"""
+    Please verify your new email address by clicking the link below:
     
-    send_mail(
-        subject=subject,
-        message=plain_message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[email],
-        html_message=html_message,
-        fail_silently=False
-    )
+    {verification_url}
+    
+    This link will expire in 24 hours.
+    
+    If you did not request this change, please ignore this email.
+    
+    Best regards,
+    HOA Management Team
+    """
+    
+    try:
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@hoa.com'),
+            recipient_list=[email],
+            fail_silently=False
+        )
+        return True
+    except Exception as e:
+        print(f"Failed to send verification email: {e}")
+        return False
 
 
 def send_verification_sms(phone, code):
     """Send SMS verification code"""
-    # This is a mock implementation - replace with actual SMS service
-    # Example using Twilio:
+    # This is a mock implementation for development
+    # In production, you would integrate with SMS services like Twilio
+    
+    message = f"Your HOA Portal verification code is: {code}. Valid for 10 minutes."
+    
+    # For development, log to console
+    print(f"SMS to {phone}: {message}")
+    
+    # In production, use something like:
     # from twilio.rest import Client
     # client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-    # message = client.messages.create(
-    #     body=f"Your HOA Portal verification code is: {code}",
+    # client.messages.create(
+    #     body=message,
     #     from_=settings.TWILIO_PHONE_NUMBER,
     #     to=phone
     # )
     
-    # For development, you could log to console or use a test service
-    print(f"SMS to {phone}: Your HOA Portal verification code is: {code}")
-    
-    # Mock success response
     return True
 
 
@@ -79,106 +100,194 @@ def send_profile_change_notification(user, change_summary):
     """Send email notification about profile changes"""
     subject = 'HOA Portal - Profile Updated'
     
-    html_message = render_to_string('emails/profile_changed.html', {
-        'user': user,
-        'change_summary': change_summary,
-        'site_name': 'HOA Management Portal'
-    })
-    plain_message = strip_tags(html_message)
+    message = f"""
+    Dear {user.full_name},
     
-    send_mail(
-        subject=subject,
-        message=plain_message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email],
-        html_message=html_message,
-        fail_silently=True  # Don't fail if email can't be sent
-    )
-
-
-def validate_profile_photo(photo):
-    """Validate uploaded profile photo"""
-    # Check file size (max 5MB)
-    if photo.size > 5 * 1024 * 1024:
-        raise ValueError("Profile photo must be less than 5MB")
+    Your HOA Portal profile has been updated:
     
-    # Check file type
-    allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-    if photo.content_type not in allowed_types:
-        raise ValueError("Profile photo must be JPEG, PNG, GIF, or WebP format")
+    {change_summary}
     
-    return True
+    If you did not make these changes, please contact us immediately.
+    
+    Best regards,
+    HOA Management Team
+    """
+    
+    try:
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@hoa.com'),
+            recipient_list=[user.email],
+            fail_silently=False
+        )
+    except Exception as e:
+        print(f"Failed to send profile change notification: {e}")
 
 
-def generate_username(email, full_name):
-    """Generate a unique username from email and name"""
+def get_profile_completion_requirements(user):
+    """Get profile completion requirements for various features"""
+    
+    requirements = {
+        'directory_listing': {
+            'required': ['full_name', 'unit_number'],
+            'missing': []
+        },
+        'amenity_booking': {
+            'required': ['full_name', 'phone', 'unit_number'],
+            'missing': []
+        },
+        'forum_posting': {
+            'required': ['full_name'],
+            'missing': []
+        },
+        'payment_portal': {
+            'required': ['full_name', 'unit_number', 'phone'],
+            'missing': []
+        }
+    }
+    
+    # Check each requirement
+    for feature, req_data in requirements.items():
+        for field in req_data['required']:
+            if not getattr(user, field, None):
+                req_data['missing'].append(field)
+    
+    return requirements
+
+
+def sanitize_user_input(text):
+    """Sanitize user input to prevent XSS and other issues"""
+    if not text:
+        return text
+    
+    # HTML escape
+    text = html.escape(text)
+    
+    # Remove potential script tags and other dangerous content
+    text = re.sub(r'<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'javascript:', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'on\w+\s*=', '', text, flags=re.IGNORECASE)
+    
+    return text.strip()
+
+
+def format_phone_number(phone):
+    """Format phone number to standard format"""
+    if not phone:
+        return phone
+    
+    # Remove all non-digit characters
+    digits = re.sub(r'\D', '', phone)
+    
+    # Handle US phone numbers
+    if len(digits) == 10:
+        return f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
+    elif len(digits) == 11 and digits[0] == '1':
+        return f"({digits[1:4]}) {digits[4:7]}-{digits[7:]}"
+    
+    # Return original if not standard US format
+    return phone
+
+
+def validate_unit_number_format(unit_number):
+    """Validate unit number format - Updated to allow longer unit numbers"""
+    if not unit_number:
+        return True
+    
+    # Allow alphanumeric with common separators, no length restriction
+    if re.match(r'^[A-Za-z0-9\-#\s\.\/\\]+$', unit_number.strip()):
+        return True
+    
+    raise ValueError("Unit number can only contain letters, numbers, hyphens, spaces, periods, and slashes")
+
+
+def get_user_activity_summary(user, days=30):
+    """Get user activity summary for the last N days"""
+    cutoff_date = timezone.now() - timedelta(days=days)
+    
+    activity = {
+        'profile_changes': user.change_logs.filter(timestamp__gte=cutoff_date).count(),
+        'login_count': user.change_logs.filter(
+            change_type='login',
+            timestamp__gte=cutoff_date
+        ).count(),
+        'last_login': user.last_login,
+        'total_pets': user.pets.count(),
+        'total_vehicles': user.vehicles.count(),
+        'total_household_members': user.household_members.count(),
+    }
+    
+    return activity
+
+
+def validate_user_permissions(user, required_role='member'):
+    """Validate if user has required permissions"""
+    role_hierarchy = {
+        'guest': 0,
+        'member': 1,
+        'admin': 2,
+    }
+    
+    user_level = role_hierarchy.get(user.role, 0)
+    required_level = role_hierarchy.get(required_role, 1)
+    
+    return user_level >= required_level
+
+
+def format_unit_number_display(unit_number):
+    """Format unit number for consistent display"""
+    if not unit_number:
+        return ''
+    
+    # Clean and format the unit number for display
+    cleaned = unit_number.strip()
+    
+    # If it's all digits, format as numeric
+    if cleaned.isdigit():
+        return f"Unit {cleaned}"
+    
+    # Otherwise, return as-is but cleaned
+    return cleaned
+
+
+def check_unit_number_availability(unit_number, exclude_user_id=None):
+    """Check if unit number is available (not assigned to another user)"""
     from django.contrib.auth import get_user_model
     User = get_user_model()
     
-    # Try email prefix first
-    base_username = email.split('@')[0]
+    if not unit_number:
+        return True
     
-    # If that exists, try with full name
-    if User.objects.filter(username=base_username).exists():
-        name_parts = full_name.lower().split()
-        if len(name_parts) >= 2:
-            base_username = f"{name_parts[0]}.{name_parts[-1]}"
-        else:
-            base_username = name_parts[0] if name_parts else email.split('@')[0]
+    query = User.objects.filter(unit_number=unit_number.strip())
     
-    # Clean username (remove special characters)
-    import re
-    base_username = re.sub(r'[^a-zA-Z0-9._-]', '', base_username)
+    if exclude_user_id:
+        query = query.exclude(id=exclude_user_id)
     
-    # Ensure uniqueness
-    username = base_username
-    counter = 1
-    while User.objects.filter(username=username).exists():
-        username = f"{base_username}{counter}"
-        counter += 1
-    
-    return username
+    return not query.exists()
 
 
-def resize_profile_photo(photo):
-    """Resize profile photo to standard size"""
-    try:
-        from PIL import Image
-        from io import BytesIO
-        from django.core.files.uploadedfile import InMemoryUploadedFile
-        import sys
-        
-        # Open image
-        img = Image.open(photo)
-        
-        # Convert to RGB if necessary
-        if img.mode in ("RGBA", "P"):
-            img = img.convert("RGB")
-        
-        # Resize to 300x300 while maintaining aspect ratio
-        img.thumbnail((300, 300), Image.Resampling.LANCZOS)
-        
-        # Create a new square image with white background
-        new_img = Image.new("RGB", (300, 300), (255, 255, 255))
-        
-        # Paste the resized image in the center
-        x = (300 - img.width) // 2
-        y = (300 - img.height) // 2
-        new_img.paste(img, (x, y))
-        
-        # Save to BytesIO
-        output = BytesIO()
-        new_img.save(output, format='JPEG', quality=85)
-        output.seek(0)
-        
-        # Create new uploaded file
-        return InMemoryUploadedFile(
-            output, 'ImageField', f"{photo.name.split('.')[0]}.jpg",
-            'image/jpeg', sys.getsizeof(output), None
-        )
-    except ImportError:
-        # If PIL is not installed, return original photo
-        return photo
+def generate_activity_report(user, start_date=None, end_date=None):
+    """Generate detailed activity report for a user"""
+    if not start_date:
+        start_date = timezone.now() - timedelta(days=30)
+    if not end_date:
+        end_date = timezone.now()
+    
+    logs = user.change_logs.filter(
+        timestamp__gte=start_date,
+        timestamp__lte=end_date
+    ).order_by('-timestamp')
+    
+    summary = {
+        'total_changes': logs.count(),
+        'profile_updates': logs.filter(change_type='update').count(),
+        'login_sessions': logs.filter(change_type='login').count(),
+        'password_changes': logs.filter(change_type='password_change').count(),
+        'recent_activities': logs[:10],  # Last 10 activities
+    }
+    
+    return summary
 
 
 def get_notification_preferences_default():
@@ -244,173 +353,33 @@ def merge_notification_preferences(existing_prefs, new_prefs):
     return merged
 
 
+def generate_secure_token(length=32):
+    """Generate a secure random token"""
+    return secrets.token_urlsafe(length)
+
+
+def validate_password_strength(password):
+    """Validate password strength"""
+    errors = []
+    
+    if len(password) < 8:
+        errors.append("Password must be at least 8 characters long")
+    
+    if not re.search(r'[A-Z]', password):
+        errors.append("Password must contain at least one uppercase letter")
+    
+    if not re.search(r'[a-z]', password):
+        errors.append("Password must contain at least one lowercase letter")
+    
+    if not re.search(r'\d', password):
+        errors.append("Password must contain at least one number")
+    
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        errors.append("Password must contain at least one special character")
+    
+    return errors
+
+
 def check_profile_completion_requirements(user):
     """Check if user meets profile completion requirements for certain features"""
-    requirements = {
-        'directory_listing': {
-            'required': ['full_name', 'unit_number'],
-            'missing': []
-        },
-        'amenity_booking': {
-            'required': ['full_name', 'phone', 'unit_number'],
-            'missing': []
-        },
-        'forum_posting': {
-            'required': ['full_name'],
-            'missing': []
-        },
-        'payment_portal': {
-            'required': ['full_name', 'unit_number', 'phone'],
-            'missing': []
-        }
-    }
-    
-    # Check each requirement
-    for feature, req_data in requirements.items():
-        for field in req_data['required']:
-            if not getattr(user, field, None):
-                req_data['missing'].append(field)
-    
-    return requirements
-
-
-def sanitize_user_input(text):
-    """Sanitize user input to prevent XSS and other issues"""
-    import html
-    
-    if not text:
-        return text
-    
-    # HTML escape
-    text = html.escape(text)
-    
-    # Remove potential script tags and other dangerous content
-    import re
-    text = re.sub(r'<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>', '', text, flags=re.IGNORECASE)
-    text = re.sub(r'javascript:', '', text, flags=re.IGNORECASE)
-    text = re.sub(r'on\w+\s*=', '', text, flags=re.IGNORECASE)
-    
-    return text.strip()
-
-
-def format_phone_number(phone):
-    """Format phone number to standard format"""
-    if not phone:
-        return phone
-    
-    # Remove all non-digit characters
-    import re
-    digits = re.sub(r'\D', '', phone)
-    
-    # Handle US phone numbers
-    if len(digits) == 10:
-        return f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
-    elif len(digits) == 11 and digits[0] == '1':
-        return f"({digits[1:4]}) {digits[4:7]}-{digits[7:]}"
-    
-    # Return original if not standard US format
-    return phone
-
-
-def validate_unit_number_format(unit_number):
-    """Validate unit number format"""
-    if not unit_number:
-        return True
-    
-    # Allow alphanumeric with common separators
-    import re
-    if re.match(r'^[A-Za-z0-9\-#\s]{1,10}$', unit_number):
-        return True
-    
-    raise ValueError("Unit number can only contain letters, numbers, hyphens, and spaces")
-
-
-def get_user_activity_summary(user, days=30):
-    """Get user activity summary for the last N days"""
-    from datetime import timedelta
-    
-    cutoff_date = timezone.now() - timedelta(days=days)
-    
-    activity = {
-        'profile_changes': user.change_logs.filter(timestamp__gte=cutoff_date).count(),
-        'last_login': user.last_login,
-        'last_profile_update': user.last_profile_update,
-        'total_household_members': user.household_members.count(),
-        'total_pets': user.pets.count(),
-        'total_vehicles': user.vehicles.count(),
-    }
-    
-    return activity
-
-
-def send_welcome_email(user):
-    """Send welcome email to new users"""
-    subject = 'Welcome to HOA Management Portal'
-    
-    html_message = render_to_string('emails/welcome.html', {
-        'user': user,
-        'site_name': 'HOA Management Portal',
-        'login_url': f"{settings.FRONTEND_URL}/login"
-    })
-    plain_message = strip_tags(html_message)
-    
-    send_mail(
-        subject=subject,
-        message=plain_message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email],
-        html_message=html_message,
-        fail_silently=True
-    )
-
-
-def backup_user_data(user):
-    """Create a backup of user data before major changes"""
-    from .serializers import UserCompleteProfileSerializer
-    import json
-    
-    backup_data = {
-        'user_id': str(user.id),
-        'backup_date': timezone.now().isoformat(),
-        'profile_data': UserCompleteProfileSerializer(user).data
-    }
-    
-    # In a real implementation, you might save this to a secure backup storage
-    # For now, we'll just return the data structure
-    return backup_data
-
-
-def check_data_privacy_compliance(user_data):
-    """Check if user data handling complies with privacy regulations"""
-    compliance_checks = {
-        'has_consent': True,  # Assume consent given during registration
-        'data_minimization': True,  # Only collect necessary data
-        'purpose_limitation': True,  # Data used only for stated purposes
-        'retention_period': True,  # Data retained only as long as necessary
-        'user_rights': {
-            'access': True,  # User can access their data
-            'rectification': True,  # User can correct their data
-            'erasure': True,  # User can request data deletion
-            'portability': True,  # User can export their data
-        }
-    }
-    
-    return compliance_checks
-
-
-def anonymize_user_data(user):
-    """Anonymize user data for GDPR compliance when account is deleted"""
-    # Keep essential data for legal/financial reasons but anonymize PII
-    anonymized_data = {
-        'id': user.id,  # Keep for referential integrity
-        'email': f"deleted-user-{str(user.id)[:8]}@anonymized.local",
-        'full_name': f"Deleted User {str(user.id)[:8]}",
-        'phone': None,
-        'unit_number': user.unit_number,  # May need to keep for property records
-        'role': user.role,
-        'created_at': user.created_at,
-        'deleted_at': timezone.now(),
-        'is_active': False
-    }
-    
-    return anonymized_data
+    return get_profile_completion_requirements(user)

@@ -1,5 +1,4 @@
-# File: backend/apps/users/models.py
-# Location: backend/apps/users/models.py
+# backend/apps/users/models.py - COMPLETE FINAL VERSION
 
 import uuid
 from django.contrib.auth.models import AbstractUser
@@ -31,10 +30,8 @@ class User(AbstractUser):
     ]
     
     PROPERTY_TYPE_CHOICES = [
-        ('apartment', 'Apartment'),
         ('townhouse', 'Townhouse'),
-        ('single_family', 'Single Family Home'),
-        ('condo', 'Condominium'),
+        ('single_attached', 'Single Attached'),
     ]
     
     # Primary fields
@@ -61,8 +58,8 @@ class User(AbstractUser):
     language_preference = models.CharField(max_length=10, default='en')
     timezone_setting = models.CharField(max_length=50, default='UTC')
     
-    # Residence information
-    unit_number = models.CharField(max_length=10, blank=True)
+    # Residence information - Fixed unit_number max_length from 10 to 50
+    unit_number = models.CharField(max_length=50, blank=True)
     move_in_date = models.DateField(blank=True, null=True)
     property_type = models.CharField(
         max_length=20, 
@@ -72,23 +69,21 @@ class User(AbstractUser):
     parking_spaces = models.PositiveIntegerField(default=0)
     mailbox_number = models.CharField(max_length=10, blank=True)
     
-    # Emergency contacts
+    # Emergency contact information
     emergency_contact = models.CharField(max_length=255, blank=True)
     emergency_phone = models.CharField(max_length=20, blank=True)
     emergency_relationship = models.CharField(max_length=50, blank=True)
     secondary_emergency_contact = models.CharField(max_length=255, blank=True)
     secondary_emergency_phone = models.CharField(max_length=20, blank=True)
     secondary_emergency_relationship = models.CharField(max_length=50, blank=True)
-    
-    # Medical and safety information
     medical_conditions = models.TextField(blank=True)
     special_needs = models.TextField(blank=True)
     veterinarian_contact = models.CharField(max_length=255, blank=True)
     insurance_company = models.CharField(max_length=255, blank=True)
     insurance_policy_number = models.CharField(max_length=100, blank=True)
     
-    # Privacy and directory settings
-    is_directory_visible = models.BooleanField(default=False)
+    # Privacy settings
+    is_directory_visible = models.BooleanField(default=True)
     directory_show_name = models.BooleanField(default=True)
     directory_show_unit = models.BooleanField(default=True)
     directory_show_phone = models.BooleanField(default=False)
@@ -97,104 +92,55 @@ class User(AbstractUser):
     profile_visibility = models.CharField(
         max_length=20,
         choices=[
-            ('all', 'All Residents'),
-            ('members', 'Members Only'),
-            ('admin', 'Admin Only'),
+            ('public', 'Public'),
+            ('residents_only', 'Residents Only'),
+            ('private', 'Private'),
         ],
-        default='members'
+        default='residents_only'
     )
+    
+    # Communication preferences
+    email_notifications = models.BooleanField(default=True)
+    sms_notifications = models.BooleanField(default=False)
+    push_notifications = models.BooleanField(default=True)
+    newsletter_subscription = models.BooleanField(default=True)
+    event_reminders = models.BooleanField(default=True)
+    maintenance_alerts = models.BooleanField(default=True)
     
     # Security settings
     two_factor_enabled = models.BooleanField(default=False)
     security_question = models.CharField(max_length=255, blank=True)
-    security_answer_hash = models.CharField(max_length=255, blank=True)
+    last_password_change = models.DateTimeField(default=timezone.now)
+    failed_login_attempts = models.PositiveIntegerField(default=0)
+    account_locked_until = models.DateTimeField(blank=True, null=True)
     
-    # Financial preferences
-    auto_pay_enabled = models.BooleanField(default=False)
-    preferred_payment_method = models.CharField(
-        max_length=20,
-        choices=[
-            ('credit_card', 'Credit Card'),
-            ('bank_account', 'Bank Account'),
-            ('check', 'Check'),
-        ],
-        default='credit_card'
-    )
-    billing_address_different = models.BooleanField(default=False)
-    billing_address = models.TextField(blank=True)
-    
-    # System preferences
-    theme_preference = models.CharField(
-        max_length=10,
-        choices=[
-            ('light', 'Light'),
-            ('dark', 'Dark'),
-            ('auto', 'Auto'),
-        ],
-        default='light'
-    )
-    email_notifications = models.BooleanField(default=True)
-    sms_notifications = models.BooleanField(default=False)
-    push_notifications = models.BooleanField(default=True)
-    
-    # JSON field for complex notification preferences
-    notification_preferences = models.JSONField(default=dict)
-    
-    # Timestamps
+    # Activity tracking
+    last_profile_update = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    last_profile_update = models.DateTimeField(default=timezone.now)
     
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = 'Users'
     
     def __str__(self):
-        return f"{self.full_name} ({self.email})"
-    
-    @property
-    def is_resident(self):
-        """Check if user is a member or admin (has residence access)"""
-        return self.role in ['member', 'admin']
+        return self.email
     
     @property
     def profile_completion_percentage(self):
         """Calculate profile completion percentage"""
-        total_fields = 15  # Key fields to check
-        completed_fields = 0
-        
-        if self.full_name:
-            completed_fields += 1
-        if self.email:
-            completed_fields += 1
-        if self.phone:
-            completed_fields += 1
-        if self.unit_number:
-            completed_fields += 1
-        if self.move_in_date:
-            completed_fields += 1
-        if self.emergency_contact:
-            completed_fields += 1
-        if self.emergency_phone:
-            completed_fields += 1
-        if self.profile_photo:
-            completed_fields += 1
-        if self.preferred_contact_method:
-            completed_fields += 1
-        if self.property_type:
-            completed_fields += 1
-        if self.parking_spaces > 0:
-            completed_fields += 1
-        if self.is_directory_visible is not None:
-            completed_fields += 1
-        if self.auto_pay_enabled is not None:
-            completed_fields += 1
-        if self.notification_preferences:
-            completed_fields += 1
-        if self.theme_preference:
-            completed_fields += 1
-            
-        return round((completed_fields / total_fields) * 100)
+        required_fields = [
+            'full_name', 'email', 'phone', 'unit_number', 
+            'property_type', 'emergency_contact', 'emergency_phone'
+        ]
+        completed = sum(1 for field in required_fields if getattr(self, field))
+        return round((completed / len(required_fields)) * 100)
+    
+    def save(self, *args, **kwargs):
+        # Create username from email if not provided
+        if not self.username:
+            self.username = self.email
+        super().save(*args, **kwargs)
 
 
 class HouseholdMember(models.Model):
