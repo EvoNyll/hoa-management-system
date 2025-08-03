@@ -4,7 +4,6 @@ from django.db import transaction
 User = get_user_model()
 
 def fix_user_roles():
-    """Fix user roles and ensure proper access"""
     
     print("🔧 Fixing user roles...")
     
@@ -67,7 +66,6 @@ def fix_user_roles():
             print(f"   📧 {user.email}")
 
 def create_additional_test_users():
-    """Create additional test users if needed"""
     
     print("\n🆕 Creating additional test users...")
     

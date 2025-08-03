@@ -1,4 +1,3 @@
-// frontend/src/components/profile/ChangeLogsSection.jsx
 import React from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { History, Clock, User, FileText } from 'lucide-react';

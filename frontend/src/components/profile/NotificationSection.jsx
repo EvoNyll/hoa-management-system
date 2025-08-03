@@ -1,4 +1,3 @@
-// frontend/src/components/profile/NotificationSection.jsx
 import React, { useState } from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { Bell, Save, Loader, CheckCircle } from 'lucide-react';

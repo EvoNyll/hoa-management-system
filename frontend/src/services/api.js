@@ -1,7 +1,5 @@
-// frontend/src/services/api.js - COMPLETE REPLACEMENT
 import axios from 'axios'
 
-// Fix the API URL construction
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 console.log('🔧 API Configuration:', {

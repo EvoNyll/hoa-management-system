@@ -1,5 +1,3 @@
-# backend/apps/users/migrations/0004_update_property_type_choices.py
-
 from django.db import migrations, models
 
 

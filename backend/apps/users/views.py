@@ -1,6 +1,3 @@
-# File: backend/apps/users/views.py
-# Location: backend/apps/users/views.py
-
 from rest_framework import generics, status, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -31,7 +28,6 @@ User = get_user_model()
 
 # Authentication Views
 class LoginView(TokenObtainPairView):
-    """Custom login view using email-based JWT authentication"""
     serializer_class = CustomTokenObtainPairSerializer
     
     def post(self, request, *args, **kwargs):
@@ -64,7 +60,6 @@ class LoginView(TokenObtainPairView):
 
 
 class RegisterView(APIView):
-    """User registration view"""
     permission_classes = [permissions.AllowAny]
     
     def post(self, request):
@@ -91,7 +86,7 @@ class RegisterView(APIView):
                 email=data['email'],
                 password=data['password'],
                 full_name=data['full_name'],
-                role=data.get('role', 'member')  # Default to member
+                role=data.get('role', 'member')  
             )
             
             # Generate tokens
@@ -127,7 +122,6 @@ class RegisterView(APIView):
 
 
 class LogoutView(APIView):
-    """Logout view with proper token blacklisting"""
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
@@ -159,7 +153,6 @@ class LogoutView(APIView):
 
 
 class ProfileView(generics.RetrieveUpdateAPIView):
-    """Get and update user profile"""
     serializer_class = UserCompleteProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -178,7 +171,6 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
 # Profile Management Views
 class ProfileBasicView(generics.RetrieveUpdateAPIView):
-    """View for basic profile information"""
     serializer_class = UserBasicProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
@@ -205,7 +197,6 @@ class ProfileBasicView(generics.RetrieveUpdateAPIView):
 
 
 class ProfileResidenceView(generics.RetrieveUpdateAPIView):
-    """View for residence information"""
     serializer_class = UserResidenceSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -231,7 +222,6 @@ class ProfileResidenceView(generics.RetrieveUpdateAPIView):
 
 
 class ProfileEmergencyView(generics.RetrieveUpdateAPIView):
-    """View for emergency contact information"""
     serializer_class = UserEmergencySerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -257,7 +247,6 @@ class ProfileEmergencyView(generics.RetrieveUpdateAPIView):
 
 
 class ProfilePrivacyView(generics.RetrieveUpdateAPIView):
-    """View for privacy and directory settings"""
     serializer_class = UserPrivacySerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -283,7 +272,6 @@ class ProfilePrivacyView(generics.RetrieveUpdateAPIView):
 
 
 class ProfileSecurityView(generics.RetrieveUpdateAPIView):
-    """View for security settings"""
     serializer_class = UserSecuritySerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -316,7 +304,6 @@ class ProfileSecurityView(generics.RetrieveUpdateAPIView):
 
 
 class ProfileFinancialView(generics.RetrieveUpdateAPIView):
-    """View for financial preferences"""
     serializer_class = UserFinancialSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -342,7 +329,6 @@ class ProfileFinancialView(generics.RetrieveUpdateAPIView):
 
 
 class ProfileNotificationView(generics.RetrieveUpdateAPIView):
-    """View for notification preferences"""
     serializer_class = UserNotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -368,7 +354,6 @@ class ProfileNotificationView(generics.RetrieveUpdateAPIView):
 
 
 class ProfileSystemPreferencesView(generics.RetrieveUpdateAPIView):
-    """View for system preferences"""
     serializer_class = UserSystemPreferencesSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -394,7 +379,6 @@ class ProfileSystemPreferencesView(generics.RetrieveUpdateAPIView):
 
 
 class ProfileCompleteView(generics.RetrieveAPIView):
-    """View for complete profile information (read-only)"""
     serializer_class = UserCompleteProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -404,7 +388,6 @@ class ProfileCompleteView(generics.RetrieveAPIView):
 
 # Household Members Management
 class HouseholdMemberListCreateView(generics.ListCreateAPIView):
-    """View for listing and creating household members"""
     serializer_class = HouseholdMemberSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -424,7 +407,6 @@ class HouseholdMemberListCreateView(generics.ListCreateAPIView):
 
 
 class HouseholdMemberDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """View for household member details"""
     serializer_class = HouseholdMemberSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -457,7 +439,6 @@ class HouseholdMemberDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 # Pet Management
 class PetListCreateView(generics.ListCreateAPIView):
-    """View for listing and creating pets"""
     serializer_class = PetSerializer
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
@@ -478,7 +459,6 @@ class PetListCreateView(generics.ListCreateAPIView):
 
 
 class PetDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """View for pet details"""
     serializer_class = PetSerializer
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
@@ -512,7 +492,6 @@ class PetDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 # Vehicle Management
 class VehicleListCreateView(generics.ListCreateAPIView):
-    """View for listing and creating vehicles"""
     serializer_class = VehicleSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -532,7 +511,6 @@ class VehicleListCreateView(generics.ListCreateAPIView):
 
 
 class VehicleDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """View for vehicle details"""
     serializer_class = VehicleSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -566,7 +544,6 @@ class VehicleDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 # Profile Change Logs
 class ProfileChangeLogView(generics.ListAPIView):
-    """View for profile change logs"""
     serializer_class = ProfileChangeLogSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -578,7 +555,6 @@ class ProfileChangeLogView(generics.ListAPIView):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def change_password(request):
-    """Change user password"""
     serializer = PasswordChangeSerializer(data=request.data, context={'request': request})
     
     if serializer.is_valid():
@@ -604,7 +580,6 @@ def change_password(request):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def request_email_verification(request):
-    """Request email verification for new email"""
     serializer = EmailVerificationSerializer(data=request.data)
     
     if serializer.is_valid():
@@ -676,7 +651,6 @@ def verify_email(request):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def request_phone_verification(request):
-    """Request phone verification for new phone number"""
     serializer = PhoneVerificationSerializer(data=request.data)
     
     if serializer.is_valid():
@@ -705,7 +679,6 @@ def request_phone_verification(request):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def verify_phone(request):
-    """Verify new phone number with code"""
     code = request.data.get('code')
     
     if not code:
@@ -752,7 +725,6 @@ def verify_phone(request):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def export_profile_data(request):
-    """Export user profile data (GDPR compliance)"""
     user = request.user
     
     # Compile user data
@@ -781,7 +753,6 @@ def export_profile_data(request):
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def profile_completion_status(request):
-    """Get profile completion status"""
     user = request.user
     
     # Calculate completion details

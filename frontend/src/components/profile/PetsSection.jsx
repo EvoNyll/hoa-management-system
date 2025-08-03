@@ -1,4 +1,3 @@
-// frontend/src/components/profile/PetsSection.jsx - FIXED VERSION
 import React, { useState, useRef } from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { Heart, Plus, Edit2, Trash2, Save, X, CheckCircle, AlertTriangle, Camera, Upload } from 'lucide-react';
@@ -29,7 +28,6 @@ const PetsSection = () => {
 
   const pets = profileData.pets || [];
 
-  // 🚫 FIX: Match backend PET_TYPE_CHOICES exactly
   const petTypes = [
     { value: '', label: 'Select Pet Type', emoji: '🐾' },
     { value: 'dog', label: 'Dog', emoji: '🐕' },
@@ -143,7 +141,6 @@ const PetsSection = () => {
     setErrors({});
     
     try {
-      // 🚫 FIX: Proper data preparation for backend
       let submitData;
       
       if (formData.photo && formData.photo instanceof File) {
@@ -210,7 +207,6 @@ const PetsSection = () => {
     } catch (error) {
       console.error('❌ Pet submit error:', error);
       
-      // 🚫 FIX: Better error handling
       if (error.response?.data) {
         const backendErrors = error.response.data;
         

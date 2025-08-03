@@ -1,5 +1,3 @@
-# backend/apps/users/utils.py - COMPLETE FILE
-
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -12,7 +10,6 @@ import secrets
 
 
 def get_client_ip(request):
-    """Get client IP address from request"""
     if not request:
         return None
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -24,7 +21,6 @@ def get_client_ip(request):
 
 
 def log_profile_change(user, change_type, field_name, old_value, new_value, request=None):
-    """Log profile changes for audit trail"""
     from .models import ProfileChangeLog
     
     ProfileChangeLog.objects.create(
@@ -39,14 +35,11 @@ def log_profile_change(user, change_type, field_name, old_value, new_value, requ
 
 
 def send_verification_email(email, token):
-    """Send email verification email"""
     subject = 'HOA Portal - Verify Your New Email Address'
     
-    # Create verification URL
     frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
     verification_url = f"{frontend_url}/verify-email?token={token}"
     
-    # Simple text message (you can create HTML templates later)
     message = f"""
     Please verify your new email address by clicking the link below:
     
@@ -75,29 +68,15 @@ def send_verification_email(email, token):
 
 
 def send_verification_sms(phone, code):
-    """Send SMS verification code"""
-    # This is a mock implementation for development
-    # In production, you would integrate with SMS services like Twilio
     
     message = f"Your HOA Portal verification code is: {code}. Valid for 10 minutes."
     
-    # For development, log to console
     print(f"SMS to {phone}: {message}")
-    
-    # In production, use something like:
-    # from twilio.rest import Client
-    # client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-    # client.messages.create(
-    #     body=message,
-    #     from_=settings.TWILIO_PHONE_NUMBER,
-    #     to=phone
-    # )
     
     return True
 
 
 def send_profile_change_notification(user, change_summary):
-    """Send email notification about profile changes"""
     subject = 'HOA Portal - Profile Updated'
     
     message = f"""
@@ -126,7 +105,6 @@ def send_profile_change_notification(user, change_summary):
 
 
 def get_profile_completion_requirements(user):
-    """Get profile completion requirements for various features"""
     
     requirements = {
         'directory_listing': {
@@ -147,7 +125,6 @@ def get_profile_completion_requirements(user):
         }
     }
     
-    # Check each requirement
     for feature, req_data in requirements.items():
         for field in req_data['required']:
             if not getattr(user, field, None):
@@ -157,14 +134,11 @@ def get_profile_completion_requirements(user):
 
 
 def sanitize_user_input(text):
-    """Sanitize user input to prevent XSS and other issues"""
     if not text:
         return text
     
-    # HTML escape
     text = html.escape(text)
     
-    # Remove potential script tags and other dangerous content
     text = re.sub(r'<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>', '', text, flags=re.IGNORECASE)
     text = re.sub(r'javascript:', '', text, flags=re.IGNORECASE)
     text = re.sub(r'on\w+\s*=', '', text, flags=re.IGNORECASE)
@@ -173,29 +147,23 @@ def sanitize_user_input(text):
 
 
 def format_phone_number(phone):
-    """Format phone number to standard format"""
     if not phone:
         return phone
     
-    # Remove all non-digit characters
     digits = re.sub(r'\D', '', phone)
     
-    # Handle US phone numbers
     if len(digits) == 10:
         return f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
     elif len(digits) == 11 and digits[0] == '1':
         return f"({digits[1:4]}) {digits[4:7]}-{digits[7:]}"
     
-    # Return original if not standard US format
     return phone
 
 
 def validate_unit_number_format(unit_number):
-    """Validate unit number format - Updated to allow longer unit numbers"""
     if not unit_number:
         return True
     
-    # Allow alphanumeric with common separators, no length restriction
     if re.match(r'^[A-Za-z0-9\-#\s\.\/\\]+$', unit_number.strip()):
         return True
     
@@ -203,7 +171,6 @@ def validate_unit_number_format(unit_number):
 
 
 def get_user_activity_summary(user, days=30):
-    """Get user activity summary for the last N days"""
     cutoff_date = timezone.now() - timedelta(days=days)
     
     activity = {
@@ -222,7 +189,6 @@ def get_user_activity_summary(user, days=30):
 
 
 def validate_user_permissions(user, required_role='member'):
-    """Validate if user has required permissions"""
     role_hierarchy = {
         'guest': 0,
         'member': 1,
@@ -236,23 +202,18 @@ def validate_user_permissions(user, required_role='member'):
 
 
 def format_unit_number_display(unit_number):
-    """Format unit number for consistent display"""
     if not unit_number:
         return ''
     
-    # Clean and format the unit number for display
     cleaned = unit_number.strip()
     
-    # If it's all digits, format as numeric
     if cleaned.isdigit():
         return f"Unit {cleaned}"
     
-    # Otherwise, return as-is but cleaned
     return cleaned
 
 
 def check_unit_number_availability(unit_number, exclude_user_id=None):
-    """Check if unit number is available (not assigned to another user)"""
     from django.contrib.auth import get_user_model
     User = get_user_model()
     
@@ -268,7 +229,6 @@ def check_unit_number_availability(unit_number, exclude_user_id=None):
 
 
 def generate_activity_report(user, start_date=None, end_date=None):
-    """Generate detailed activity report for a user"""
     if not start_date:
         start_date = timezone.now() - timedelta(days=30)
     if not end_date:
@@ -284,14 +244,13 @@ def generate_activity_report(user, start_date=None, end_date=None):
         'profile_updates': logs.filter(change_type='update').count(),
         'login_sessions': logs.filter(change_type='login').count(),
         'password_changes': logs.filter(change_type='password_change').count(),
-        'recent_activities': logs[:10],  # Last 10 activities
+        'recent_activities': logs[:10],  
     }
     
     return summary
 
 
 def get_notification_preferences_default():
-    """Get default notification preferences structure"""
     return {
         'hoa_announcements': {
             'enabled': True,
@@ -332,7 +291,6 @@ def get_notification_preferences_default():
 
 
 def merge_notification_preferences(existing_prefs, new_prefs):
-    """Merge new notification preferences with existing ones"""
     default_prefs = get_notification_preferences_default()
     
     # Start with defaults
@@ -354,12 +312,10 @@ def merge_notification_preferences(existing_prefs, new_prefs):
 
 
 def generate_secure_token(length=32):
-    """Generate a secure random token"""
     return secrets.token_urlsafe(length)
 
 
 def validate_password_strength(password):
-    """Validate password strength"""
     errors = []
     
     if len(password) < 8:
@@ -381,5 +337,4 @@ def validate_password_strength(password):
 
 
 def check_profile_completion_requirements(user):
-    """Check if user meets profile completion requirements for certain features"""
     return get_profile_completion_requirements(user)

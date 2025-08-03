@@ -10,13 +10,10 @@ const Layout = ({ children }) => {
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  // Determine if we should show the sidebar
   const showSidebar = isAuthenticated && user?.role !== 'guest'
   
-  // Determine if we should show the navbar
   const showNavbar = !isAuthenticated || location.pathname === '/login' || location.pathname === '/register'
 
-  // Public pages that should show navbar even when authenticated
   const publicPages = ['/', '/about', '/board-members', '/community-map', '/news', '/events', '/contact-directory', '/documents', '/contact']
   const isPublicPage = publicPages.includes(location.pathname)
 

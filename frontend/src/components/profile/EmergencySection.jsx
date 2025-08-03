@@ -1,4 +1,3 @@
-// frontend/src/components/profile/EmergencySection.jsx - FIXED VERSION
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { Phone, Save, Loader, CheckCircle, AlertTriangle, UserPlus } from 'lucide-react';
@@ -22,7 +21,6 @@ const EmergencySection = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errors, setErrors] = useState({});
 
-  // 🔧 FIX: Better data loading from profile context
   useEffect(() => {
     console.log('📊 Emergency data received:', profileData);
     

@@ -1,4 +1,3 @@
-// frontend/src/components/profile/SystemPreferencesSection.jsx
 import React, { useState } from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { Settings, Save, Loader, CheckCircle, Monitor, Globe, Clock } from 'lucide-react';

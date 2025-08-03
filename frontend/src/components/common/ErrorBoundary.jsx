@@ -1,4 +1,3 @@
-// frontend/src/components/common/ErrorBoundary.jsx
 import React from 'react';
 
 class ErrorBoundary extends React.Component {
@@ -35,13 +34,12 @@ class ErrorBoundary extends React.Component {
         errorInfo: errorInfo
       });
 
-      // In production, you might want to send this to an error reporting service
-      // Example: Sentry.captureException(error, { extra: errorInfo });
+      
     } else {
-      // Just log ignored errors as warnings
+      
       console.warn('⚠️ Ignored non-critical error:', error.message);
       
-      // Reset error state so the app continues working
+      
       this.setState({ hasError: false, error: null, errorInfo: null });
     }
   }

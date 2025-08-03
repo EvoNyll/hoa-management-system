@@ -5,7 +5,6 @@ import django
 from datetime import datetime, timedelta
 from django.utils import timezone
 
-# Setup Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hoa_backend.settings')
 sys.path.append('/app')
 django.setup()
@@ -15,10 +14,8 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 def create_users():
-    """Create sample users"""
     print("Creating users...")
     
-    # Create admin user
     admin, created = User.objects.get_or_create(
         email='admin@hoa.com',
         defaults={
@@ -106,7 +103,6 @@ def create_users():
             print(f"Created resident: {member.email}")
 
 def main():
-    """Run all seed data creation functions"""
     print("Starting seed data creation...")
     
     try:

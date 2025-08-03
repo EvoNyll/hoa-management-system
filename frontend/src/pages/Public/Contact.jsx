@@ -1,4 +1,3 @@
-// File: frontend/src/pages/Public/Contact.jsx
 import React, { useState } from 'react'
 import { 
   Phone, Mail, MapPin, Clock, Send, User, MessageSquare, 

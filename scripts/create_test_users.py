@@ -4,7 +4,6 @@ from django.db import transaction
 User = get_user_model()
 
 def create_test_users():
-    """Create test users for development"""
     
     # Test users data
     users_data = [

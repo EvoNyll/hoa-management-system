@@ -1,5 +1,3 @@
-# backend/apps/users/models.py - COMPLETE FINAL VERSION
-
 import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -7,7 +5,6 @@ from django.utils import timezone
 from django.core.validators import RegexValidator
 
 class User(AbstractUser):
-    """Extended User model for HOA residents"""
     
     ROLE_CHOICES = [
         ('guest', 'Guest'),
@@ -41,10 +38,8 @@ class User(AbstractUser):
     phone = models.CharField(max_length=20, blank=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='guest')
     
-    # Profile photo
     profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
     
-    # Contact preferences
     preferred_contact_method = models.CharField(
         max_length=10, 
         choices=CONTACT_METHOD_CHOICES, 
@@ -58,7 +53,6 @@ class User(AbstractUser):
     language_preference = models.CharField(max_length=10, default='en')
     timezone_setting = models.CharField(max_length=50, default='UTC')
     
-    # Residence information - Fixed unit_number max_length from 10 to 50
     unit_number = models.CharField(max_length=50, blank=True)
     move_in_date = models.DateField(blank=True, null=True)
     property_type = models.CharField(
@@ -69,7 +63,6 @@ class User(AbstractUser):
     parking_spaces = models.PositiveIntegerField(default=0)
     mailbox_number = models.CharField(max_length=10, blank=True)
     
-    # Emergency contact information
     emergency_contact = models.CharField(max_length=255, blank=True)
     emergency_phone = models.CharField(max_length=20, blank=True)
     emergency_relationship = models.CharField(max_length=50, blank=True)
@@ -82,7 +75,6 @@ class User(AbstractUser):
     insurance_company = models.CharField(max_length=255, blank=True)
     insurance_policy_number = models.CharField(max_length=100, blank=True)
     
-    # Privacy settings
     is_directory_visible = models.BooleanField(default=True)
     directory_show_name = models.BooleanField(default=True)
     directory_show_unit = models.BooleanField(default=True)
@@ -99,7 +91,6 @@ class User(AbstractUser):
         default='residents_only'
     )
     
-    # Communication preferences
     email_notifications = models.BooleanField(default=True)
     sms_notifications = models.BooleanField(default=False)
     push_notifications = models.BooleanField(default=True)
@@ -107,14 +98,12 @@ class User(AbstractUser):
     event_reminders = models.BooleanField(default=True)
     maintenance_alerts = models.BooleanField(default=True)
     
-    # Security settings
     two_factor_enabled = models.BooleanField(default=False)
     security_question = models.CharField(max_length=255, blank=True)
     last_password_change = models.DateTimeField(default=timezone.now)
     failed_login_attempts = models.PositiveIntegerField(default=0)
     account_locked_until = models.DateTimeField(blank=True, null=True)
     
-    # Activity tracking
     last_profile_update = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -128,7 +117,6 @@ class User(AbstractUser):
     
     @property
     def profile_completion_percentage(self):
-        """Calculate profile completion percentage"""
         required_fields = [
             'full_name', 'email', 'phone', 'unit_number', 
             'property_type', 'emergency_contact', 'emergency_phone'
@@ -137,14 +125,12 @@ class User(AbstractUser):
         return round((completed / len(required_fields)) * 100)
     
     def save(self, *args, **kwargs):
-        # Create username from email if not provided
         if not self.username:
             self.username = self.email
         super().save(*args, **kwargs)
 
 
 class HouseholdMember(models.Model):
-    """Model for household family members"""
     
     RELATIONSHIP_CHOICES = [
         ('spouse', 'Spouse'),
@@ -180,7 +166,6 @@ class HouseholdMember(models.Model):
 
 
 class Pet(models.Model):
-    """Model for pet registration"""
     
     PET_TYPE_CHOICES = [
         ('dog', 'Dog'),
@@ -217,7 +202,6 @@ class Pet(models.Model):
 
 
 class Vehicle(models.Model):
-    """Model for vehicle registration"""
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vehicles')
@@ -255,7 +239,6 @@ class Vehicle(models.Model):
 
 
 class ProfileChangeLog(models.Model):
-    """Audit log for profile changes"""
     
     CHANGE_TYPE_CHOICES = [
         ('create', 'Created'),

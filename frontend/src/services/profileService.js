@@ -1,8 +1,5 @@
-// frontend/src/services/profileService.js - COMPLETE FILE WITH ONLY updateResidenceInfo FIXED
-
 import api from './api'
 
-// Basic Profile Management
 export const getBasicProfile = async () => {
   try {
     const response = await api.get('/users/profile/basic/')
@@ -50,7 +47,6 @@ export const getResidenceInfo = async () => {
   }
 }
 
-// 🔧 FIXED: Only this function has been updated for the network error
 export const updateResidenceInfo = async (data) => {
   try {
     console.log('🔄 Updating residence info with data:', data);

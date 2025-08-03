@@ -1,5 +1,3 @@
-# backend/apps/users/serializers.py - COMPLETE FIXED FILE
-
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -10,14 +8,11 @@ import re
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    """Custom token serializer to handle email-based authentication"""
     
-    # Override the username field to use email
     username_field = 'email'
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Remove username field and use email instead
         if 'username' in self.fields:
             self.fields.pop('username')
         self.fields['email'] = serializers.EmailField(required=True)
@@ -25,21 +20,18 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        # Add custom claims
         token['email'] = user.email
         token['role'] = user.role
         token['full_name'] = user.full_name
         return token
     
     def validate(self, attrs):
-        # Get email and password from the request
         email = attrs.get('email')
         password = attrs.get('password')
         
         if not email or not password:
             raise serializers.ValidationError('Email and password are required.')
         
-        # Use our custom email authentication backend
         user = authenticate(
             request=self.context.get('request'),
             email=email,
@@ -52,10 +44,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not user.is_active:
             raise serializers.ValidationError('User account is disabled.')
         
-        # Store user for token generation
         self.user = user
         
-        # Generate tokens
         refresh = self.get_token(user)
         
         return {
@@ -71,7 +61,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 class HouseholdMemberSerializer(serializers.ModelSerializer):
-    """Serializer for household members"""
     
     class Meta:
         model = HouseholdMember
@@ -89,7 +78,6 @@ class HouseholdMemberSerializer(serializers.ModelSerializer):
 
 
 class PetSerializer(serializers.ModelSerializer):
-    """Serializer for pets"""
     
     class Meta:
         model = Pet
@@ -108,7 +96,6 @@ class PetSerializer(serializers.ModelSerializer):
 
 
 class VehicleSerializer(serializers.ModelSerializer):
-    """Serializer for vehicles"""
     
     class Meta:
         model = Vehicle
@@ -132,7 +119,6 @@ class VehicleSerializer(serializers.ModelSerializer):
 
 
 class ProfileChangeLogSerializer(serializers.ModelSerializer):
-    """Serializer for profile change logs"""
     
     class Meta:
         model = ProfileChangeLog
@@ -144,7 +130,6 @@ class ProfileChangeLogSerializer(serializers.ModelSerializer):
 
 
 class UserBasicProfileSerializer(serializers.ModelSerializer):
-    """Serializer for basic profile information"""
     
     profile_completion = serializers.SerializerMethodField()
     
@@ -173,7 +158,6 @@ class UserBasicProfileSerializer(serializers.ModelSerializer):
 
 
 class UserResidenceSerializer(serializers.ModelSerializer):
-    """Serializer for residence information"""
     
     class Meta:
         model = User
@@ -181,7 +165,6 @@ class UserResidenceSerializer(serializers.ModelSerializer):
             'unit_number', 'move_in_date', 'property_type', 'parking_spaces',
             'mailbox_number'
         ]
-        # Make optional fields not required
         extra_kwargs = {
             'move_in_date': {'required': False, 'allow_null': True},
             'parking_spaces': {'required': False},
@@ -198,14 +181,11 @@ class UserResidenceSerializer(serializers.ModelSerializer):
         return value
     
     def validate_property_type(self, value):
-        """Validate that property type is one of the allowed values"""
         if value and value not in ['townhouse', 'single_attached']:
             raise serializers.ValidationError("Property type must be either 'townhouse' or 'single_attached'")
         return value
     
     def update(self, instance, validated_data):
-        """Custom update method to handle null values properly"""
-        # Handle null values for optional fields
         if 'move_in_date' in validated_data and validated_data['move_in_date'] is None:
             validated_data['move_in_date'] = None
         
@@ -219,7 +199,6 @@ class UserResidenceSerializer(serializers.ModelSerializer):
 
 
 class UserEmergencySerializer(serializers.ModelSerializer):
-    """Serializer for emergency contact information"""
     
     class Meta:
         model = User
@@ -243,7 +222,6 @@ class UserEmergencySerializer(serializers.ModelSerializer):
 
 
 class UserPrivacySerializer(serializers.ModelSerializer):
-    """Serializer for privacy and directory settings"""
     
     class Meta:
         model = User
@@ -255,7 +233,6 @@ class UserPrivacySerializer(serializers.ModelSerializer):
 
 
 class UserSecuritySerializer(serializers.ModelSerializer):
-    """Serializer for security settings"""
     
     new_password = serializers.CharField(write_only=True, required=False)
     current_password = serializers.CharField(write_only=True, required=False)
@@ -296,7 +273,6 @@ class UserSecuritySerializer(serializers.ModelSerializer):
 
 
 class UserFinancialSerializer(serializers.ModelSerializer):
-    """Serializer for financial preferences"""
     
     class Meta:
         model = User
@@ -306,7 +282,6 @@ class UserFinancialSerializer(serializers.ModelSerializer):
 
 
 class UserNotificationSerializer(serializers.ModelSerializer):
-    """Serializer for notification preferences"""
     
     class Meta:
         model = User
@@ -318,7 +293,6 @@ class UserNotificationSerializer(serializers.ModelSerializer):
 
 
 class UserSystemPreferencesSerializer(serializers.ModelSerializer):
-    """Serializer for system preferences"""
     
     class Meta:
         model = User
@@ -328,7 +302,6 @@ class UserSystemPreferencesSerializer(serializers.ModelSerializer):
 
 
 class UserCompleteProfileSerializer(serializers.ModelSerializer):
-    """Complete profile serializer for viewing all user data"""
     
     household_members = HouseholdMemberSerializer(many=True, read_only=True)
     pets = PetSerializer(many=True, read_only=True)
@@ -365,7 +338,6 @@ class UserCompleteProfileSerializer(serializers.ModelSerializer):
 
 
 class PasswordChangeSerializer(serializers.Serializer):
-    """Serializer for password change"""
     
     current_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
@@ -388,7 +360,6 @@ class PasswordChangeSerializer(serializers.Serializer):
 
 
 class EmailVerificationSerializer(serializers.Serializer):
-    """Serializer for email verification"""
     
     new_email = serializers.EmailField(required=True)
     
@@ -399,7 +370,6 @@ class EmailVerificationSerializer(serializers.Serializer):
 
 
 class PhoneVerificationSerializer(serializers.Serializer):
-    """Serializer for phone verification"""
     
     new_phone = serializers.CharField(required=True)
     verification_code = serializers.CharField(required=False)

@@ -1,6 +1,3 @@
-# File: backend/apps/users/migrations/0002_profile_extensions.py
-# Location: backend/apps/users/migrations/0002_profile_extensions.py
-
 from django.db import migrations, models
 import django.db.models.deletion
 import uuid

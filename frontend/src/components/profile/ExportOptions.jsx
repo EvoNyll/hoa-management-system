@@ -1,6 +1,3 @@
-// frontend/src/components/profile/ExportOptions.jsx
-// Create this new component for better export options
-
 import React, { useState } from 'react'
 import { Download, FileText, FileSpreadsheet, File } from 'lucide-react'
 import { useProfile } from '../../context/ProfileContext'

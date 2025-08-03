@@ -1,4 +1,3 @@
-// frontend/src/components/profile/SecuritySection.jsx
 import React, { useState } from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { Lock, Save, Loader, CheckCircle, Shield, Key } from 'lucide-react';

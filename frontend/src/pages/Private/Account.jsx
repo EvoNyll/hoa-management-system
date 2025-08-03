@@ -1,4 +1,3 @@
-// frontend/src/pages/Private/Account.jsx - FIXED TO STOP INFINITE LOOP
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { useAuth } from '../../context/AuthContext';
@@ -43,12 +42,11 @@ const Account = () => {
   const [activeTab, setActiveTab] = useState('basic');
   const [showCompletionTip, setShowCompletionTip] = useState(true);
 
-  // 🚫 FIX INFINITE LOOP: Only run once when user becomes available
   useEffect(() => {
     if (user && isAuthenticated) {
       loadProfileData();
     }
-  }, [user?.id, isAuthenticated]); // 🚫 IMPORTANT: Only depend on user.id, not the entire user object
+  }, [user?.id, isAuthenticated]); 
 
   const profileTabs = [
     { id: 'basic', label: 'Basic Info', icon: User, description: 'Personal information and contact details' },
@@ -107,7 +105,6 @@ const Account = () => {
     }
   };
 
-  // 🚫 LOADING STATE: Only show loading if we don't have any profile data yet
   if (loading && !profileData?.basic && Object.keys(profileData || {}).length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">

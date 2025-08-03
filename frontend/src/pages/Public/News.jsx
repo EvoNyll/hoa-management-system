@@ -1,4 +1,3 @@
-// File: frontend/src/pages/Public/News.jsx
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { User, Calendar, Tag, Search, Filter, ArrowRight, Bell, ChevronLeft, ChevronRight } from 'lucide-react'

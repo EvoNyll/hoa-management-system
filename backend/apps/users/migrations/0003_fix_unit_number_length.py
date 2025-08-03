@@ -1,5 +1,3 @@
-# backend/apps/users/migrations/0003_fix_unit_number_length.py
-
 from django.db import migrations, models
 
 

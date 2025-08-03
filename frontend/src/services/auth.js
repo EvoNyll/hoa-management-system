@@ -1,4 +1,3 @@
-// frontend/src/services/auth.js - COMPLETE REPLACEMENT
 import api from './api'
 
 export const authAPI = {
@@ -15,7 +14,6 @@ export const authAPI = {
         hasPassword: !!loginData.password 
       })
       
-      // Use clean URL without any extra characters
       const response = await api.post('/users/login/', loginData)
       
       console.log('✅ Login successful:', {

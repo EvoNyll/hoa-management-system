@@ -1,5 +1,3 @@
-# frontend/Dockerfile - UPDATED VERSION
-
 FROM node:20-alpine
 
 WORKDIR /app

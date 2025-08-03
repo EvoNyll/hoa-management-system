@@ -1,4 +1,3 @@
-// frontend/src/components/profile/ResidenceSection.jsx - FIXED VERSION
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { Home, Save, Loader, CheckCircle, AlertTriangle } from 'lucide-react';
@@ -13,7 +12,6 @@ const ResidenceSection = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errors, setErrors] = useState({});
 
-  // 🔧 FIX: Better data loading from profile context
   useEffect(() => {
     console.log('📊 Profile data received:', profileData);
     
@@ -80,7 +78,7 @@ const ResidenceSection = () => {
     setErrors({});
 
     try {
-      // 🔧 FIX: Send only the required fields without null values
+      
       const updateData = {};
       
       // Only include fields that have values
@@ -132,7 +130,6 @@ const ResidenceSection = () => {
     }
   };
 
-  // Property type options - only Townhouse and Single Attached as requested
   const propertyTypes = [
     { value: '', label: 'Select Property Type' },
     { value: 'townhouse', label: 'Townhouse' },

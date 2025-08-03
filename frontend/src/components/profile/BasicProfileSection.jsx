@@ -1,6 +1,3 @@
-// File: frontend/src/components/profile/BasicProfileSection.jsx
-// Location: frontend/src/components/profile/BasicProfileSection.jsx
-
 import React, { useState, useRef } from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { Camera, User, Save, X, Loader, CheckCircle } from 'lucide-react';
@@ -41,7 +38,7 @@ const BasicProfileSection = () => {
       [name]: value
     }));
     
-    // Clear error for this field
+    
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -54,7 +51,7 @@ const BasicProfileSection = () => {
     const file = e.target.files[0];
     if (file) {
       // Validate file
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 5 * 1024 * 1024) { 
         setErrors(prev => ({
           ...prev,
           profile_photo: 'Profile photo must be less than 5MB'

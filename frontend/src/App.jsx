@@ -1,4 +1,3 @@
-// frontend/src/App.jsx - UPDATED WITH ERROR BOUNDARY
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'

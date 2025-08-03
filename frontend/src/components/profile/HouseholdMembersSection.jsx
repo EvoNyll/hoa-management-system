@@ -1,4 +1,3 @@
-// frontend/src/components/profile/HouseholdMembersSection.jsx
 import React, { useState } from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { Users, Plus, Edit2, Trash2, Save, X, CheckCircle, User } from 'lucide-react';

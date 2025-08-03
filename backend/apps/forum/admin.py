@@ -1,6 +1,3 @@
-# ===========================================
-# FILE: backend/apps/forum/admin.py
-# ===========================================
 from django.contrib import admin
 from .models import ForumCategory, ForumPost, ForumReply
 

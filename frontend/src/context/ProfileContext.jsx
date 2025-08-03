@@ -1,4 +1,3 @@
-// frontend/src/context/ProfileContext.jsx - FIXED VERSION TO STOP INFINITE LOOP
 import React, { createContext, useContext, useState, useCallback } from 'react'
 import { useAuth } from './AuthContext'
 import { 
@@ -115,9 +114,8 @@ export const ProfileProvider = ({ children }) => {
     } finally {
       setLoading(false)
     }
-  }, [user, isAuthenticated]) // 🚫 IMPORTANT: Only depend on user and isAuthenticated
+  }, [user, isAuthenticated]) // 
 
-  // 🚫 FIX: Memoize all update functions to prevent infinite loops
   const handleUpdateBasicProfile = useCallback(async (data) => {
     try {
       const updatedData = await updateBasicProfile(data)
@@ -379,7 +377,6 @@ export const ProfileProvider = ({ children }) => {
 
   const clearError = useCallback(() => setError(null), [])
 
-  // 🚫 IMPORTANT: Memoize the context value to prevent unnecessary re-renders
   const value = React.useMemo(() => ({
     // State
     profileData,

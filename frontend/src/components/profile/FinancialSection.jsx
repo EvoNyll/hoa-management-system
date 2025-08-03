@@ -1,6 +1,3 @@
-// File: frontend/src/components/profile/FinancialSection.jsx
-// Location: frontend/src/components/profile/FinancialSection.jsx
-
 import React, { useState } from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { CreditCard, DollarSign, MapPin, Save, Loader, CheckCircle, Shield, AlertTriangle } from 'lucide-react';

@@ -1,6 +1,3 @@
-// File: frontend/src/components/profile/PrivacySection.jsx
-// Location: frontend/src/components/profile/PrivacySection.jsx
-
 import React, { useState } from 'react';
 import { useProfile } from '../../context/ProfileContext';
 import { Shield, Eye, Users, Save, Loader, CheckCircle, Info } from 'lucide-react';
