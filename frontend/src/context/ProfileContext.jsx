@@ -33,16 +33,13 @@ import {
   getCompletionStatus,
   getChangeLogs,
   changePassword,
-  enableTwoFactor,
-  disableTwoFactor,
-  generateTwoFactorBackupCodes,
-  terminateSession,
-  terminateAllSessions,
   requestEmailVerification,
   verifyEmail,
-  toggleTwoFactor,
+  updateTwoFactorSetting,
+  generateMockBackupCodes,
   getLoginActivity,
-  generateMockBackupCodes
+  terminateSession,
+  terminateAllSessions
 } from '../services/profileService'
 
 const ProfileContext = createContext({})
@@ -75,7 +72,7 @@ export const ProfileProvider = ({ children }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // 🚫 FIX INFINITE LOOP: Use useCallback to memoize functions
+  // Load profile data
   const loadProfileData = useCallback(async () => {
     if (!user || !isAuthenticated) return
 
@@ -125,8 +122,9 @@ export const ProfileProvider = ({ children }) => {
     } finally {
       setLoading(false)
     }
-  }, [user, isAuthenticated]) // 
+  }, [user, isAuthenticated])
 
+  // Update functions
   const handleUpdateBasicProfile = useCallback(async (data) => {
     try {
       const updatedData = await updateBasicProfile(data)
@@ -218,6 +216,20 @@ export const ProfileProvider = ({ children }) => {
     }
   }, [])
 
+  const handleUpdateSystemPreferences = useCallback(async (data) => {
+    try {
+      const updatedData = await updateSystemPreferences(data)
+      setProfileData(prev => ({
+        ...prev,
+        system: updatedData
+      }))
+      return updatedData
+    } catch (error) {
+      throw error
+    }
+  }, [])
+
+  // Security functions
   const handleChangePassword = useCallback(async (data) => {
     try {
       const result = await changePassword(data);
@@ -235,20 +247,92 @@ export const ProfileProvider = ({ children }) => {
     } catch (error) {
       throw error;
     }
-  }, [])
+  }, []);
 
-  const handleUpdateSystemPreferences = useCallback(async (data) => {
+  const handleRequestEmailVerification = useCallback(async (newEmail) => {
     try {
-      const updatedData = await updateSystemPreferences(data)
+      const result = await requestEmailVerification(newEmail);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const handleVerifyEmail = useCallback(async (token) => {
+    try {
+      const result = await verifyEmail(token);
+      
+      // Reload basic profile to get updated email
+      try {
+        const updatedBasic = await getBasicProfile();
+        setProfileData(prev => ({
+          ...prev,
+          basic: updatedBasic
+        }));
+      } catch (err) {
+        console.log('Failed to reload profile after email verification');
+      }
+      
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const handleUpdateTwoFactorSetting = useCallback(async (enabled) => {
+    try {
+      const result = await updateTwoFactorSetting(enabled);
+      
+      // Update security settings in context
       setProfileData(prev => ({
         ...prev,
-        system: updatedData
-      }))
-      return updatedData
+        security: {
+          ...prev.security,
+          two_factor_enabled: enabled
+        }
+      }));
+      
+      return result;
     } catch (error) {
-      throw error
+      throw error;
     }
-  }, [])
+  }, []);
+
+  const handleGenerateMockBackupCodes = useCallback(() => {
+    try {
+      const codes = generateMockBackupCodes();
+      return codes;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const handleGetLoginActivity = useCallback(async () => {
+    try {
+      const result = await getLoginActivity();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const handleTerminateSession = useCallback(async (sessionId) => {
+    try {
+      const result = await terminateSession(sessionId);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const handleTerminateAllSessions = useCallback(async () => {
+    try {
+      const result = await terminateAllSessions();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
 
   // Household Members
   const handleAddHouseholdMember = useCallback(async (data) => {
@@ -286,6 +370,7 @@ export const ProfileProvider = ({ children }) => {
         ...prev,
         household: prev.household.filter(member => member.id !== id)
       }))
+      return { id }
     } catch (error) {
       throw error
     }
@@ -310,7 +395,9 @@ export const ProfileProvider = ({ children }) => {
       const updatedPet = await updatePet(id, data)
       setProfileData(prev => ({
         ...prev,
-        pets: prev.pets.map(pet => pet.id === id ? updatedPet : pet)
+        pets: prev.pets.map(pet => 
+          pet.id === id ? updatedPet : pet
+        )
       }))
       return updatedPet
     } catch (error) {
@@ -325,6 +412,7 @@ export const ProfileProvider = ({ children }) => {
         ...prev,
         pets: prev.pets.filter(pet => pet.id !== id)
       }))
+      return { id }
     } catch (error) {
       throw error
     }
@@ -366,112 +454,13 @@ export const ProfileProvider = ({ children }) => {
         ...prev,
         vehicles: prev.vehicles.filter(vehicle => vehicle.id !== id)
       }))
+      return { id }
     } catch (error) {
       throw error
     }
   }, [])
 
-   // Email Verification
-   const handleRequestEmailVerification = useCallback(async (newEmail) => {
-    try {
-      const result = await requestEmailVerification(newEmail);
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }, []);
-
-  const handleVerifyEmail = useCallback(async (token) => {
-    try {
-      const result = await verifyEmail(token);
-      
-      // Reload basic profile to get updated email
-      try {
-        const updatedBasic = await getBasicProfile();
-        setProfileData(prev => ({
-          ...prev,
-          basic: updatedBasic
-        }));
-      } catch (err) {
-        console.log('Failed to reload profile after email verification');
-      }
-      
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }, []);
-
-  // Two-Factor Authentication
-  const handleToggleTwoFactor = useCallback(async (enabled) => {
-    try {
-      const result = await toggleTwoFactor(enabled);
-      
-      // Update security settings in context
-      setProfileData(prev => ({
-        ...prev,
-        security: {
-          ...prev.security,
-          two_factor_enabled: enabled
-        }
-      }));
-      
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }, []);
-
-  const handleGenerateMockBackupCodes = useCallback(() => {
-    try {
-      const codes = generateMockBackupCodes();
-      return { backup_codes: codes };
-    } catch (error) {
-      throw error;
-    }
-  }, []);
-
-  const handleGenerateTwoFactorBackupCodes = useCallback(async () => {
-    try {
-      const result = await generateTwoFactorBackupCodes();
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }, []);
-
-  // Login Activity
-  const handleGetLoginActivity = useCallback(async () => {
-    try {
-      const result = await getLoginActivity();
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }, []);
-
-  // Mock session management functions
-  const handleTerminateSession = useCallback(async (sessionId) => {
-    try {
-      // Call a backend endpoint to terminate the session in official app
-      console.log('Mock: Terminating session', sessionId);
-      return { message: 'Session terminated (mock)' };
-    } catch (error) {
-      throw error;
-    }
-  }, []);
-
-  const handleTerminateAllSessions = useCallback(async () => {
-    try {
-      // This is a mock implementation
-      console.log('Mock: Terminating all sessions');
-      return { message: 'All sessions terminated (mock)' };
-    } catch (error) {
-      throw error;
-    }
-  }, []);
-
-  // Load change logs
+  // Change logs
   const loadChangeLogs = useCallback(async () => {
     try {
       const logs = await getChangeLogs()
@@ -481,21 +470,17 @@ export const ProfileProvider = ({ children }) => {
       }))
       return logs
     } catch (error) {
-      console.error('Failed to load change logs:', error)
-      return []
+      throw error
     }
   }, [])
 
-  // Export function
+  // Export
   const handleExportProfileData = useCallback(async () => {
     try {
-      setLoading(true)
-      setError(null)
-      
-      console.log('🔄 Starting CSV export from ProfileContext...')
-      await exportProfileData()
-      console.log('✅ CSV export completed successfully')
-      
+      console.log('🔄 Starting profile data export...')
+      const result = await exportProfileData()
+      console.log('✅ Profile data export completed')
+      return result
     } catch (err) {
       console.error('❌ Failed to export profile data:', err)
       setError('Failed to export profile data')
@@ -507,6 +492,7 @@ export const ProfileProvider = ({ children }) => {
 
   const clearError = useCallback(() => setError(null), [])
 
+  // Memoize the context value to prevent unnecessary re-renders
   const value = React.useMemo(() => ({
     // State
     profileData,
@@ -526,19 +512,13 @@ export const ProfileProvider = ({ children }) => {
     updateFinancialInfo: handleUpdateFinancialInfo,
     updateNotificationSettings: handleUpdateNotificationSettings,
     updateSystemPreferences: handleUpdateSystemPreferences,
-
+    
     // Security actions
     changePassword: handleChangePassword,
-
-    // Email verification
     requestEmailVerification: handleRequestEmailVerification,
     verifyEmail: handleVerifyEmail,
-    
-    // Two-Factor Authentication
-    toggleTwoFactor: handleToggleTwoFactor,
+    updateTwoFactorSetting: handleUpdateTwoFactorSetting,
     generateMockBackupCodes: handleGenerateMockBackupCodes,
-    
-    // Login Activity
     getLoginActivity: handleGetLoginActivity,
     terminateSession: handleTerminateSession,
     terminateAllSessions: handleTerminateAllSessions,
@@ -580,7 +560,7 @@ export const ProfileProvider = ({ children }) => {
     handleChangePassword,
     handleRequestEmailVerification,
     handleVerifyEmail,
-    handleToggleTwoFactor,
+    handleUpdateTwoFactorSetting,
     handleGenerateMockBackupCodes,
     handleGetLoginActivity,
     handleTerminateSession,

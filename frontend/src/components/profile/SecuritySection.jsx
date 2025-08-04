@@ -3,8 +3,8 @@ import { useProfile } from '../../context/ProfileContext';
 import { useAuth } from '../../context/AuthContext';
 import { 
   Lock, Save, Loader, CheckCircle, Shield, Key, AlertTriangle, 
-  Mail, Smartphone, Monitor, MapPin, Copy, Download, X, Eye, EyeOff,
-  Globe, Clock, Trash2, LogOut, QrCode
+  Mail, Smartphone, Monitor, MapPin, Copy, Download, X, Info,
+  Globe, Clock, Trash2, LogOut
 } from 'lucide-react';
 
 const SecuritySection = () => {
@@ -15,9 +15,8 @@ const SecuritySection = () => {
     changePassword,
     requestEmailVerification,
     verifyEmail,
-    enableTwoFactor,
-    disableTwoFactor,
-    generateTwoFactorBackupCodes,
+    updateTwoFactorSetting,
+    generateMockBackupCodes,
     getLoginActivity,
     terminateSession,
     terminateAllSessions
@@ -35,8 +34,7 @@ const SecuritySection = () => {
 
   // Email Verification State
   const [emailData, setEmailData] = useState({
-    new_email: '',
-    verification_code: ''
+    new_email: ''
   });
   const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
   const [emailSuccess, setEmailSuccess] = useState('');
@@ -47,11 +45,8 @@ const SecuritySection = () => {
   const [isSubmitting2FA, setIsSubmitting2FA] = useState(false);
   const [twoFactorSuccess, setTwoFactorSuccess] = useState('');
   const [twoFactorErrors, setTwoFactorErrors] = useState({});
-  const [qrCode, setQrCode] = useState('');
   const [backupCodes, setBackupCodes] = useState([]);
   const [showBackupCodes, setShowBackupCodes] = useState(false);
-  const [disablePassword, setDisablePassword] = useState('');
-  const [showDisablePassword, setShowDisablePassword] = useState(false);
 
   // Login Activity State
   const [loginActivity, setLoginActivity] = useState([]);
@@ -165,9 +160,14 @@ const SecuritySection = () => {
     setEmailErrors({});
 
     try {
-      await requestEmailVerification(emailData.new_email);
-      setEmailSuccess('Verification email sent! Please check your inbox.');
+      const result = await requestEmailVerification(emailData.new_email);
+      setEmailSuccess(result.message || 'Verification email sent! Please check your inbox.');
       setEmailVerificationSent(true);
+      
+      // Show additional note if it's a mock response
+      if (result.note) {
+        setEmailSuccess(result.message + ' Note: ' + result.note);
+      }
     } catch (error) {
       setEmailErrors({ general: error.message || 'Failed to send verification email' });
     } finally {
@@ -176,51 +176,37 @@ const SecuritySection = () => {
   };
 
   // Two-Factor Authentication Functions
-  const handleEnable2FA = async () => {
+  const handleToggle2FA = async (enabled) => {
     setIsSubmitting2FA(true);
     setTwoFactorSuccess('');
     setTwoFactorErrors({});
 
     try {
-      const result = await enableTwoFactor();
-      setQrCode(result.qr_code);
-      setBackupCodes(result.backup_codes || []);
-      setTwoFactorSuccess('Two-factor authentication enabled successfully!');
-      setShowBackupCodes(true);
+      await updateTwoFactorSetting(enabled);
+      
+      if (enabled) {
+        // Generate mock backup codes for demo
+        const codesResult = generateMockBackupCodes();
+        setBackupCodes(codesResult.backup_codes || []);
+        setShowBackupCodes(true);
+        setTwoFactorSuccess('Two-factor authentication enabled successfully!');
+      } else {
+        setTwoFactorSuccess('Two-factor authentication disabled successfully!');
+        setBackupCodes([]);
+        setShowBackupCodes(false);
+      }
     } catch (error) {
-      setTwoFactorErrors({ general: error.message || 'Failed to enable two-factor authentication' });
+      setTwoFactorErrors({ general: error.message || 'Failed to update two-factor authentication' });
     } finally {
       setIsSubmitting2FA(false);
     }
   };
 
-  const handleDisable2FA = async () => {
-    if (!disablePassword.trim()) {
-      setTwoFactorErrors({ password: 'Password is required to disable 2FA' });
-      return;
-    }
-
-    setIsSubmitting2FA(true);
-    setTwoFactorSuccess('');
-    setTwoFactorErrors({});
-
-    try {
-      await disableTwoFactor(disablePassword);
-      setTwoFactorSuccess('Two-factor authentication disabled successfully!');
-      setShowDisablePassword(false);
-      setDisablePassword('');
-    } catch (error) {
-      setTwoFactorErrors({ general: error.message || 'Failed to disable two-factor authentication' });
-    } finally {
-      setIsSubmitting2FA(false);
-    }
-  };
-
-  const handleGenerateBackupCodes = async () => {
+  const handleGenerateNewBackupCodes = async () => {
     setIsSubmitting2FA(true);
     
     try {
-      const result = await generateTwoFactorBackupCodes();
+      const result = generateMockBackupCodes();
       setBackupCodes(result.backup_codes || []);
       setTwoFactorSuccess('New backup codes generated successfully!');
       setShowBackupCodes(true);
@@ -275,7 +261,7 @@ const SecuritySection = () => {
   };
 
   const downloadBackupCodes = () => {
-    const content = backupCodes.join('\n');
+    const content = `HOA Portal - Two-Factor Authentication Backup Codes\n\nGenerated: ${new Date().toLocaleString()}\n\n${backupCodes.join('\n')}\n\nImportant: Keep these codes secure and do not share them.`;
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -579,81 +565,60 @@ const SecuritySection = () => {
                   <p className="text-sm font-medium text-gray-900">Two-Factor Authentication</p>
                   <p className="text-sm text-gray-600">
                     {profileData.security?.two_factor_enabled 
-                      ? 'Add an extra layer of security to your account' 
-                      : 'Protect your account with an authenticator app'}
+                      ? 'Your account is protected with two-factor authentication' 
+                      : 'Add an extra layer of security to your account'}
                   </p>
                 </div>
-                <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                  profileData.security?.two_factor_enabled
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {profileData.security?.two_factor_enabled ? 'Enabled' : 'Disabled'}
-                </span>
+                <div className="flex items-center space-x-3">
+                  <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                    profileData.security?.two_factor_enabled
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {profileData.security?.two_factor_enabled ? 'Enabled' : 'Disabled'}
+                  </span>
+                  <button
+                    onClick={() => handleToggle2FA(!profileData.security?.two_factor_enabled)}
+                    disabled={isSubmitting2FA}
+                    className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      profileData.security?.two_factor_enabled
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'bg-purple-600 text-white hover:bg-purple-700'
+                    } focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {isSubmitting2FA ? (
+                      <Loader className="w-4 h-4 animate-spin" />
+                    ) : profileData.security?.two_factor_enabled ? (
+                      'Disable'
+                    ) : (
+                      'Enable'
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* 2FA Controls */}
-            {!profileData.security?.two_factor_enabled ? (
-              <div className="space-y-4">
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h5 className="text-sm font-medium text-blue-900 mb-2">How it works:</h5>
-                  <ol className="text-sm text-blue-700 space-y-1">
-                    <li>1. Install an authenticator app (Google Authenticator, Authy, etc.)</li>
-                    <li>2. Scan the QR code with your app</li>
-                    <li>3. Enter the verification code to complete setup</li>
-                    <li>4. Save your backup codes in a secure location</li>
-                  </ol>
+            {/* Information Box */}
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex">
+                <Info className="w-5 h-5 text-blue-400 mr-2 mt-0.5" />
+                <div className="text-sm text-blue-700">
+                  <p className="font-medium mb-1">About Two-Factor Authentication:</p>
+                  <ul className="space-y-1">
+                    <li>• Adds an extra layer of security to your account</li>
+                    <li>• Requires both your password and a verification code</li>
+                    <li>• Protects against unauthorized access even if your password is compromised</li>
+                    <li>• Works with authenticator apps like Google Authenticator or Authy</li>
+                  </ul>
                 </div>
-
-                <button
-                  onClick={handleEnable2FA}
-                  disabled={isSubmitting2FA}
-                  className="flex items-center px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {isSubmitting2FA ? (
-                    <Loader className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Shield className="w-4 h-4 mr-2" />
-                  )}
-                  {isSubmitting2FA ? 'Enabling...' : 'Enable Two-Factor Authentication'}
-                </button>
-
-                {/* QR Code Display */}
-                {qrCode && (
-                  <div className="p-4 bg-white border border-gray-200 rounded-lg">
-                    <div className="flex items-center gap-3 mb-3">
-                      <QrCode className="w-5 h-5 text-purple-600" />
-                      <h5 className="font-medium text-gray-900">Scan QR Code</h5>
-                    </div>
-                    <div className="flex justify-center mb-4">
-                      <img src={qrCode} alt="QR Code" className="w-48 h-48" />
-                    </div>
-                    <p className="text-sm text-gray-600 text-center">
-                      Scan this QR code with your authenticator app
-                    </p>
-                  </div>
-                )}
               </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center">
-                    <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
-                    <span className="text-sm font-medium text-green-800">
-                      Two-factor authentication is active
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => setShowDisablePassword(true)}
-                    className="text-sm text-red-600 hover:text-red-700 underline"
-                  >
-                    Disable
-                  </button>
-                </div>
+            </div>
 
+            {/* Generate New Backup Codes (if 2FA is enabled) */}
+            {profileData.security?.two_factor_enabled && (
+              <div className="mb-6">
                 <button
-                  onClick={handleGenerateBackupCodes}
+                  onClick={handleGenerateNewBackupCodes}
                   disabled={isSubmitting2FA}
                   className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
@@ -664,61 +629,6 @@ const SecuritySection = () => {
                   )}
                   Generate New Backup Codes
                 </button>
-
-                {/* Disable 2FA Modal */}
-                {showDisablePassword && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <h5 className="text-sm font-medium text-red-900 mb-3">Disable Two-Factor Authentication</h5>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Enter your password to confirm
-                        </label>
-                        <div className="flex space-x-3">
-                          <div className="relative flex-1">
-                            <input
-                              type={showDisablePassword ? 'text' : 'password'}
-                              value={disablePassword}
-                              onChange={(e) => setDisablePassword(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                              placeholder="Enter your password"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowDisablePassword(!showDisablePassword)}
-                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                            >
-                              {showDisablePassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                            </button>
-                          </div>
-                          <button
-                            onClick={handleDisable2FA}
-                            disabled={isSubmitting2FA}
-                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                          >
-                            {isSubmitting2FA ? (
-                              <Loader className="w-4 h-4 animate-spin" />
-                            ) : (
-                              'Disable'
-                            )}
-                          </button>
-                          <button
-                            onClick={() => {
-                              setShowDisablePassword(false);
-                              setDisablePassword('');
-                            }}
-                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                        {twoFactorErrors.password && (
-                          <p className="mt-1 text-sm text-red-600">{twoFactorErrors.password}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
 
@@ -738,7 +648,7 @@ const SecuritySection = () => {
                   </button>
                 </div>
                 <p className="text-sm text-yellow-800 mb-3">
-                  Save these backup codes in a secure location. Each code can only be used once.
+                  Save these backup codes in a secure location. Each code can only be used once if you lose access to your authenticator app.
                 </p>
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   {backupCodes.map((code, index) => (
@@ -835,7 +745,8 @@ const SecuritySection = () => {
               ) : loginActivity.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <Monitor className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                  <p>No active sessions found</p>
+                  <p>No recent login activity found</p>
+                  <p className="text-sm mt-1">Login events will appear here</p>
                 </div>
               ) : (
                 loginActivity.map((session, index) => (
@@ -863,18 +774,23 @@ const SecuritySection = () => {
                           </div>
                           <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
                             <div className="flex items-center">
-                              <MapPin className="w-3 h-3 mr-1" />
-                              {session.location || 'Unknown Location'}
+                              <Globe className="w-3 h-3 mr-1" />
+                              {session.browser || 'Unknown Browser'}
                             </div>
                             <div className="flex items-center">
-                              <Globe className="w-3 h-3 mr-1" />
-                              {session.ip_address}
+                              <MapPin className="w-3 h-3 mr-1" />
+                              {session.location || 'Unknown Location'}
                             </div>
                             <div className="flex items-center">
                               <Clock className="w-3 h-3 mr-1" />
                               {formatDate(session.created_at)}
                             </div>
                           </div>
+                          {session.ip_address && (
+                            <div className="mt-1 text-xs text-gray-400">
+                              IP: {session.ip_address} • {session.activity_type}
+                            </div>
+                          )}
                         </div>
                       </div>
                       {!session.is_current && (
@@ -900,6 +816,7 @@ const SecuritySection = () => {
                 <li>• End sessions on devices you no longer use</li>
                 <li>• If you see unrecognized activity, change your password immediately</li>
                 <li>• Use two-factor authentication for additional security</li>
+                <li>• Always log out from shared or public computers</li>
               </ul>
             </div>
           </div>
