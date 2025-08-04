@@ -31,7 +31,8 @@ import {
   updateVehicle,
   deleteVehicle,
   getCompletionStatus,
-  getChangeLogs
+  getChangeLogs,
+  changePassword
 } from '../services/profileService'
 
 const ProfileContext = createContext({})
@@ -204,6 +205,25 @@ export const ProfileProvider = ({ children }) => {
       return updatedData
     } catch (error) {
       throw error
+    }
+  }, [])
+
+  const handleChangePassword = useCallback(async (data) => {
+    try {
+      const result = await changePassword(data);
+      
+      // Optionally update any relevant profile data
+      setProfileData(prev => ({
+        ...prev,
+        security: {
+          ...prev.security,
+          last_password_change: new Date().toISOString()
+        }
+      }));
+      
+      return result;
+    } catch (error) {
+      throw error;
     }
   }, [])
 
@@ -396,6 +416,9 @@ export const ProfileProvider = ({ children }) => {
     updateFinancialInfo: handleUpdateFinancialInfo,
     updateNotificationSettings: handleUpdateNotificationSettings,
     updateSystemPreferences: handleUpdateSystemPreferences,
+
+    // Security actions
+    changePassword: handleChangePassword,
     
     // Household members
     addHouseholdMember: handleAddHouseholdMember,

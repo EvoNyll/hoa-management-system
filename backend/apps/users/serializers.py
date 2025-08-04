@@ -206,8 +206,7 @@ class UserEmergencySerializer(serializers.ModelSerializer):
             'emergency_contact', 'emergency_phone', 'emergency_relationship',
             'secondary_emergency_contact', 'secondary_emergency_phone',
             'secondary_emergency_relationship', 'medical_conditions',
-            'special_needs', 'veterinarian_contact', 'insurance_company',
-            'insurance_policy_number'
+            'special_needs'
         ]
     
     def validate_emergency_phone(self, value):
@@ -317,7 +316,6 @@ class UserCompleteProfileSerializer(serializers.ModelSerializer):
             'parking_spaces', 'mailbox_number', 'emergency_contact', 'emergency_phone',
             'emergency_relationship', 'secondary_emergency_contact', 'secondary_emergency_phone',
             'secondary_emergency_relationship', 'medical_conditions', 'special_needs',
-            'veterinarian_contact', 'insurance_company', 'insurance_policy_number',
             'is_directory_visible', 'directory_show_name', 'directory_show_unit',
             'directory_show_phone', 'directory_show_email', 'directory_show_household',
             'profile_visibility', 'two_factor_enabled', 'auto_pay_enabled',

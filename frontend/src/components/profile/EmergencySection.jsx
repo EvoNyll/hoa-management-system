@@ -12,15 +12,27 @@ const EmergencySection = () => {
     secondary_emergency_phone: '',
     secondary_emergency_relationship: '',
     medical_conditions: '',
-    special_needs: '',
-    veterinarian_contact: '',
-    insurance_company: '',
-    insurance_policy_number: ''
+    special_needs: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errors, setErrors] = useState({});
 
+  // Relationship options for dropdown
+  const relationshipOptions = [
+    { value: '', label: 'Select relationship...' },
+    { value: 'spouse', label: 'Spouse' },
+    { value: 'partner', label: 'Partner' },
+    { value: 'parent', label: 'Parent' },
+    { value: 'child', label: 'Child' },
+    { value: 'sibling', label: 'Sibling' },
+    { value: 'friend', label: 'Friend' },
+    { value: 'neighbor', label: 'Neighbor' },
+    { value: 'relative', label: 'Other Relative' },
+    { value: 'other', label: 'Other' }
+  ];
+
+  // Load data from profile context
   useEffect(() => {
     console.log('📊 Emergency data received:', profileData);
     
@@ -35,10 +47,7 @@ const EmergencySection = () => {
       secondary_emergency_phone: emergencyData.secondary_emergency_phone || '',
       secondary_emergency_relationship: emergencyData.secondary_emergency_relationship || '',
       medical_conditions: emergencyData.medical_conditions || '',
-      special_needs: emergencyData.special_needs || '',
-      veterinarian_contact: emergencyData.veterinarian_contact || '',
-      insurance_company: emergencyData.insurance_company || '',
-      insurance_policy_number: emergencyData.insurance_policy_number || ''
+      special_needs: emergencyData.special_needs || ''
     });
     
     console.log('📝 Emergency form data set:', emergencyData);
@@ -93,7 +102,7 @@ const EmergencySection = () => {
     setErrors({});
 
     try {
-      // 🔧 FIX: Send only the fields that exist in backend
+      // Send only the fields that exist in backend
       const updateData = {};
       
       // Only include fields that have values or are part of the backend serializer
@@ -134,45 +143,59 @@ const EmergencySection = () => {
           setErrors({ submit: 'Failed to update emergency information. Please try again.' });
         }
       } else {
-        setErrors({ submit: err.message || 'Failed to update emergency information' });
+        setErrors({ submit: 'Network error. Please check your connection and try again.' });
       }
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const relationshipOptions = [
-    { value: '', label: 'Select Relationship' },
-    { value: 'spouse', label: 'Spouse' },
-    { value: 'parent', label: 'Parent' },
-    { value: 'child', label: 'Child' },
-    { value: 'sibling', label: 'Sibling' },
-    { value: 'friend', label: 'Friend' },
-    { value: 'neighbor', label: 'Neighbor' },
-    { value: 'other', label: 'Other' }
-  ];
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <Loader className="w-6 h-6 animate-spin text-red-600" />
+        <span className="ml-2 text-gray-600">Loading emergency information...</span>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Success Message */}
-      {successMessage && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-center">
-            <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
-            <p className="text-sm text-green-700">{successMessage}</p>
-          </div>
+    <div className="max-w-4xl mx-auto">
+      <div className="bg-white rounded-lg">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900 flex items-center">
+            <Phone className="w-5 h-5 text-red-600 mr-2" />
+            Emergency Contact Information
+          </h3>
+          <p className="mt-1 text-sm text-gray-600">
+            Keep your emergency contact information up to date for safety purposes.
+          </p>
         </div>
-      )}
 
-      {/* General Error Message */}
-      {errors.submit && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex items-center">
-            <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
-            <p className="text-sm text-red-700">{errors.submit}</p>
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mx-6 mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
+              <div className="text-sm text-green-700">
+                <p className="font-medium">{successMessage}</p>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* General Error Message */}
+        {errors.submit && (
+          <div className="mx-6 mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
+              <div className="text-sm text-red-700">
+                <p className="font-medium">{errors.submit}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Primary Emergency Contact */}
@@ -185,7 +208,7 @@ const EmergencySection = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label htmlFor="emergency_contact" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
+                Full Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -335,58 +358,6 @@ const EmergencySection = () => {
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Any special needs, mobility requirements, or accessibility considerations..."
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Insurance & Services */}
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">Insurance & Services</h4>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label htmlFor="insurance_company" className="block text-sm font-medium text-gray-700 mb-2">
-                Insurance Company
-              </label>
-              <input
-                type="text"
-                id="insurance_company"
-                name="insurance_company"
-                value={formData.insurance_company}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Blue Cross Blue Shield"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="insurance_policy_number" className="block text-sm font-medium text-gray-700 mb-2">
-                Policy Number
-              </label>
-              <input
-                type="text"
-                id="insurance_policy_number"
-                name="insurance_policy_number"
-                value={formData.insurance_policy_number}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="ABC123456789"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="veterinarian_contact" className="block text-sm font-medium text-gray-700 mb-2">
-                Veterinarian Contact
-              </label>
-              <input
-                type="text"
-                id="veterinarian_contact"
-                name="veterinarian_contact"
-                value={formData.veterinarian_contact}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Dr. Smith - (555) 123-4567"
               />
             </div>
           </div>

@@ -158,6 +158,52 @@ export const updateSecuritySettings = async (data) => {
   }
 }
 
+export const changePassword = async (data) => {
+  try {
+    console.log('🔄 Changing password...');
+    
+    // Backend expects current_password, new_password, and confirm_password
+    const requestData = {
+      current_password: data.current_password,
+      new_password: data.new_password,
+      confirm_password: data.new_password  // Same as new_password since we validate on frontend
+    };
+    
+    console.log('📤 Sending password change data:', {
+      ...requestData,
+      current_password: '[HIDDEN]',
+      new_password: '[HIDDEN]',
+      confirm_password: '[HIDDEN]'
+    });
+    
+    const response = await api.post('/users/security/change-password/', requestData);
+    console.log('✅ Password changed successfully');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Change password error:', error);
+    
+    // Provide more specific error information
+    if (error.response?.status === 400) {
+      console.error('📋 Password validation errors:', error.response.data);
+      // Handle specific validation errors
+      if (error.response.data.current_password) {
+        throw new Error('Current password is incorrect');
+      }
+      if (error.response.data.new_password) {
+        throw new Error(error.response.data.new_password[0] || 'New password is invalid');
+      }
+    } else if (error.response?.status === 401) {
+      throw new Error('Authentication failed - please log in again');
+    } else if (error.response?.status === 500) {
+      throw new Error('Server error - please try again later');
+    } else if (error.code === 'ERR_NETWORK') {
+      throw new Error('Network error - please check your connection');
+    }
+    
+    throw error;
+  }
+};
+
 // Financial Information
 export const getFinancialInfo = async () => {
   try {

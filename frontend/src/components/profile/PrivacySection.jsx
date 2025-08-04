@@ -11,7 +11,7 @@ const PrivacySection = () => {
     directory_show_phone: false,
     directory_show_email: false,
     directory_show_household: false,
-    profile_visibility: 'members',
+    profile_visibility: 'residents_only', // Fixed: Use backend values
     ...profileData.privacy
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,22 +44,37 @@ const PrivacySection = () => {
     
     setIsSubmitting(true);
     setSuccessMessage('');
+    setErrors({});
 
     try {
+      console.log('📤 Sending privacy settings:', formData);
       await updatePrivacySettings(formData);
       setSuccessMessage('Privacy settings updated successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
-      setErrors({ submit: err.message || 'Failed to update privacy settings' });
+      console.error('❌ Privacy settings update error:', err);
+      
+      // Handle specific error responses
+      if (err.response?.data) {
+        const backendErrors = err.response.data;
+        if (typeof backendErrors === 'object') {
+          setErrors(backendErrors);
+        } else {
+          setErrors({ submit: 'Failed to update privacy settings. Please try again.' });
+        }
+      } else {
+        setErrors({ submit: err.message || 'Failed to update privacy settings' });
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Fixed: Use correct backend values for profile_visibility
   const profileVisibilityOptions = [
-    { value: 'all', label: 'All Residents', description: 'Visible to all community members' },
-    { value: 'members', label: 'Members Only', description: 'Visible only to registered members' },
-    { value: 'admin', label: 'Admin Only', description: 'Visible only to HOA administration' }
+    { value: 'public', label: 'Public', description: 'Visible to all community members and guests' },
+    { value: 'residents_only', label: 'Residents Only', description: 'Visible only to registered residents' },
+    { value: 'private', label: 'Private', description: 'Visible only to HOA administration' }
   ];
 
   return (
@@ -76,6 +91,18 @@ const PrivacySection = () => {
       {errors.submit && (
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <p className="text-sm text-red-700">{errors.submit}</p>
+        </div>
+      )}
+
+      {/* Field-specific errors */}
+      {Object.keys(errors).filter(key => key !== 'submit').length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <h4 className="text-sm font-medium text-red-800 mb-2">Please correct the following:</h4>
+          <ul className="text-sm text-red-700 space-y-1">
+            {Object.entries(errors).filter(([key]) => key !== 'submit').map(([field, message]) => (
+              <li key={field}>• {field.replace('_', ' ')}: {Array.isArray(message) ? message[0] : message}</li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -102,15 +129,15 @@ const PrivacySection = () => {
               <label htmlFor="is_directory_visible" className="text-sm font-medium text-gray-900">
                 Include me in the community directory
               </label>
-              <p className="text-xs text-gray-500 mt-1">
-                Allow other residents to find and contact you through the community directory
+              <p className="text-xs text-gray-500">
+                Allow other residents to find your contact information in the community directory
               </p>
             </div>
           </div>
 
           {formData.is_directory_visible && (
             <div className="ml-7 space-y-3 bg-gray-50 p-4 rounded-md">
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Choose what information to display:</h4>
+              <p className="text-sm font-medium text-gray-700 mb-2">Show in directory:</p>
               
               <div className="space-y-2">
                 <div className="flex items-center">
@@ -280,7 +307,7 @@ const PrivacySection = () => {
               onClick={() => setFormData(prev => ({
                 ...prev,
                 is_directory_visible: false,
-                profile_visibility: 'admin'
+                profile_visibility: 'private'
               }))}
               className="text-xs px-3 py-1 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200"
             >
@@ -296,7 +323,7 @@ const PrivacySection = () => {
                 directory_show_phone: false,
                 directory_show_email: false,
                 directory_show_household: false,
-                profile_visibility: 'members'
+                profile_visibility: 'residents_only'
               }))}
               className="text-xs px-3 py-1 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200"
             >
@@ -312,7 +339,7 @@ const PrivacySection = () => {
                 directory_show_phone: true,
                 directory_show_email: true,
                 directory_show_household: true,
-                profile_visibility: 'all'
+                profile_visibility: 'public'
               }))}
               className="text-xs px-3 py-1 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200"
             >

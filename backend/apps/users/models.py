@@ -71,9 +71,6 @@ class User(AbstractUser):
     secondary_emergency_relationship = models.CharField(max_length=50, blank=True)
     medical_conditions = models.TextField(blank=True)
     special_needs = models.TextField(blank=True)
-    veterinarian_contact = models.CharField(max_length=255, blank=True)
-    insurance_company = models.CharField(max_length=255, blank=True)
-    insurance_policy_number = models.CharField(max_length=100, blank=True)
     
     is_directory_visible = models.BooleanField(default=True)
     directory_show_name = models.BooleanField(default=True)
