@@ -549,3 +549,183 @@ export const exportProfileData = async () => {
     throw error
   }
 }
+
+// Email Verification
+export const requestEmailVerification = async (newEmail) => {
+  try {
+    console.log('📧 Requesting email verification for:', newEmail);
+    const response = await api.post('/users/security/request-email-verification/', {
+      new_email: newEmail
+    });
+    console.log('✅ Email verification request sent');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Email verification request error:', error);
+    
+    if (error.response?.status === 400) {
+      if (error.response.data.new_email) {
+        throw new Error(error.response.data.new_email[0] || 'Invalid email address');
+      }
+    }
+    
+    throw error;
+  }
+};
+
+export const verifyEmail = async (token) => {
+  try {
+    console.log('✉️ Verifying email with token');
+    const response = await api.post('/users/security/verify-email/', {
+      token: token
+    });
+    console.log('✅ Email verified successfully');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Email verification error:', error);
+    
+    if (error.response?.status === 400) {
+      const errorMsg = error.response.data.error || 'Email verification failed';
+      throw new Error(errorMsg);
+    }
+    
+    throw error;
+  }
+};
+
+// Two-Factor Authentication
+export const enableTwoFactor = async () => {
+  try {
+    console.log('🔐 Enabling two-factor authentication');
+    const response = await api.post('/users/security/enable-2fa/');
+    console.log('✅ Two-factor authentication enabled');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Enable 2FA error:', error);
+    throw error;
+  }
+};
+
+export const disableTwoFactor = async (password) => {
+  try {
+    console.log('🔓 Disabling two-factor authentication');
+    const response = await api.post('/users/security/disable-2fa/', {
+      password: password
+    });
+    console.log('✅ Two-factor authentication disabled');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Disable 2FA error:', error);
+    throw error;
+  }
+};
+
+export const generateTwoFactorBackupCodes = async () => {
+  try {
+    console.log('🎫 Generating 2FA backup codes');
+    const response = await api.post('/users/security/generate-backup-codes/');
+    console.log('✅ Backup codes generated');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Generate backup codes error:', error);
+    throw error;
+  }
+};
+
+export const toggleTwoFactor = async (enabled) => {
+  try {
+    console.log('🔐 Toggling two-factor authentication:', enabled);
+    const response = await api.put('/users/profile/security/', {
+      two_factor_enabled: enabled
+    });
+    console.log('✅ Two-factor authentication toggled successfully');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Toggle 2FA error:', error);
+    
+    if (error.response?.status === 400) {
+      const errorMsg = error.response.data.error || 'Failed to update two-factor authentication';
+      throw new Error(errorMsg);
+    }
+    
+    throw error;
+  }
+};
+
+// Login Activity
+export const getLoginActivity = async () => {
+  try {
+    console.log('📊 Fetching login activity');
+    const response = await api.get('/users/profile/change-logs/');
+    console.log('✅ Login activity fetched');
+    
+    // Filter for login-related activities and format the data
+    const loginLogs = response.data.filter(log => 
+      log.change_type === 'login' || log.field_name === 'login'
+    );
+    
+    // Format for display (simulate session data from change logs)
+    const sessions = loginLogs.map((log, index) => ({
+      id: log.id,
+      device_name: extractDeviceName(log.user_agent),
+      user_agent: log.user_agent,
+      ip_address: log.ip_address,
+      location: getLocationFromIP(log.ip_address),
+      created_at: log.timestamp,
+      is_current: index === 0, // Most recent is current
+      browser: extractBrowser(log.user_agent)
+    }));
+    
+    return { sessions };
+  } catch (error) {
+    console.error('❌ Get login activity error:', error);
+    throw error;
+  }
+};
+
+// Helper functions for parsing activity data
+const extractDeviceName = (userAgent) => {
+  if (!userAgent) return 'Unknown Device';
+  
+  if (userAgent.includes('Mobile')) return 'Mobile Device';
+  if (userAgent.includes('Tablet')) return 'Tablet';
+  if (userAgent.includes('Windows')) return 'Windows Computer';
+  if (userAgent.includes('Macintosh')) return 'Mac Computer';
+  if (userAgent.includes('Linux')) return 'Linux Computer';
+  
+  return 'Unknown Device';
+};
+
+const extractBrowser = (userAgent) => {
+  if (!userAgent) return 'Unknown Browser';
+  
+  if (userAgent.includes('Chrome')) return 'Chrome';
+  if (userAgent.includes('Firefox')) return 'Firefox';
+  if (userAgent.includes('Safari')) return 'Safari';
+  if (userAgent.includes('Edge')) return 'Edge';
+  
+  return 'Unknown Browser';
+};
+
+const getLocationFromIP = (ipAddress) => {
+  // Use a geolocation service in official app
+  if (!ipAddress) return 'Unknown Location';
+  
+  // Mock location based on IP patterns
+  if (ipAddress.startsWith('127.') || ipAddress.startsWith('192.168.')) {
+    return 'Local Network';
+  }
+  
+  return 'Unknown Location';
+};
+
+// Mock functions for features that need full backend implementation
+export const generateMockBackupCodes = () => {
+  // Generate mock backup codes for demo purposes
+  const codes = [];
+  for (let i = 0; i < 8; i++) {
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    codes.push(`${code.slice(0, 4)}-${code.slice(4)}`);
+  }
+  return codes;
+};
+

@@ -32,7 +32,17 @@ import {
   deleteVehicle,
   getCompletionStatus,
   getChangeLogs,
-  changePassword
+  changePassword,
+  enableTwoFactor,
+  disableTwoFactor,
+  generateTwoFactorBackupCodes,
+  terminateSession,
+  terminateAllSessions,
+  requestEmailVerification,
+  verifyEmail,
+  toggleTwoFactor,
+  getLoginActivity,
+  generateMockBackupCodes
 } from '../services/profileService'
 
 const ProfileContext = createContext({})
@@ -361,6 +371,106 @@ export const ProfileProvider = ({ children }) => {
     }
   }, [])
 
+   // Email Verification
+   const handleRequestEmailVerification = useCallback(async (newEmail) => {
+    try {
+      const result = await requestEmailVerification(newEmail);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const handleVerifyEmail = useCallback(async (token) => {
+    try {
+      const result = await verifyEmail(token);
+      
+      // Reload basic profile to get updated email
+      try {
+        const updatedBasic = await getBasicProfile();
+        setProfileData(prev => ({
+          ...prev,
+          basic: updatedBasic
+        }));
+      } catch (err) {
+        console.log('Failed to reload profile after email verification');
+      }
+      
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  // Two-Factor Authentication
+  const handleToggleTwoFactor = useCallback(async (enabled) => {
+    try {
+      const result = await toggleTwoFactor(enabled);
+      
+      // Update security settings in context
+      setProfileData(prev => ({
+        ...prev,
+        security: {
+          ...prev.security,
+          two_factor_enabled: enabled
+        }
+      }));
+      
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const handleGenerateMockBackupCodes = useCallback(() => {
+    try {
+      const codes = generateMockBackupCodes();
+      return { backup_codes: codes };
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const handleGenerateTwoFactorBackupCodes = useCallback(async () => {
+    try {
+      const result = await generateTwoFactorBackupCodes();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  // Login Activity
+  const handleGetLoginActivity = useCallback(async () => {
+    try {
+      const result = await getLoginActivity();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  // Mock session management functions
+  const handleTerminateSession = useCallback(async (sessionId) => {
+    try {
+      // Call a backend endpoint to terminate the session in official app
+      console.log('Mock: Terminating session', sessionId);
+      return { message: 'Session terminated (mock)' };
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const handleTerminateAllSessions = useCallback(async () => {
+    try {
+      // This is a mock implementation
+      console.log('Mock: Terminating all sessions');
+      return { message: 'All sessions terminated (mock)' };
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
   // Load change logs
   const loadChangeLogs = useCallback(async () => {
     try {
@@ -419,6 +529,19 @@ export const ProfileProvider = ({ children }) => {
 
     // Security actions
     changePassword: handleChangePassword,
+
+    // Email verification
+    requestEmailVerification: handleRequestEmailVerification,
+    verifyEmail: handleVerifyEmail,
+    
+    // Two-Factor Authentication
+    toggleTwoFactor: handleToggleTwoFactor,
+    generateMockBackupCodes: handleGenerateMockBackupCodes,
+    
+    // Login Activity
+    getLoginActivity: handleGetLoginActivity,
+    terminateSession: handleTerminateSession,
+    terminateAllSessions: handleTerminateAllSessions,
     
     // Household members
     addHouseholdMember: handleAddHouseholdMember,
@@ -454,6 +577,14 @@ export const ProfileProvider = ({ children }) => {
     handleUpdateFinancialInfo,
     handleUpdateNotificationSettings,
     handleUpdateSystemPreferences,
+    handleChangePassword,
+    handleRequestEmailVerification,
+    handleVerifyEmail,
+    handleToggleTwoFactor,
+    handleGenerateMockBackupCodes,
+    handleGetLoginActivity,
+    handleTerminateSession,
+    handleTerminateAllSessions,
     handleAddHouseholdMember,
     handleUpdateHouseholdMember,
     handleDeleteHouseholdMember,

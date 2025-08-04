@@ -1,33 +1,90 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../context/ProfileContext';
-import { Lock, Save, Loader, CheckCircle, Shield, Key, AlertTriangle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { 
+  Lock, Save, Loader, CheckCircle, Shield, Key, AlertTriangle, 
+  Mail, Smartphone, Monitor, MapPin, Copy, Download, X, Eye, EyeOff,
+  Globe, Clock, Trash2, LogOut, QrCode
+} from 'lucide-react';
 
 const SecuritySection = () => {
-  const { profileData, loading, updateSecuritySettings, changePassword } = useProfile();
+  const { user } = useAuth();
+  const { 
+    profileData, 
+    loading, 
+    changePassword,
+    requestEmailVerification,
+    verifyEmail,
+    enableTwoFactor,
+    disableTwoFactor,
+    generateTwoFactorBackupCodes,
+    getLoginActivity,
+    terminateSession,
+    terminateAllSessions
+  } = useProfile();
+
+  // Password Change State
   const [passwordData, setPasswordData] = useState({
     current_password: '',
     new_password: '',
     confirm_password: ''
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errors, setErrors] = useState({});
+  const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [passwordErrors, setPasswordErrors] = useState({});
 
+  // Email Verification State
+  const [emailData, setEmailData] = useState({
+    new_email: '',
+    verification_code: ''
+  });
+  const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
+  const [emailSuccess, setEmailSuccess] = useState('');
+  const [emailErrors, setEmailErrors] = useState({});
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+
+  // Two-Factor Authentication State
+  const [isSubmitting2FA, setIsSubmitting2FA] = useState(false);
+  const [twoFactorSuccess, setTwoFactorSuccess] = useState('');
+  const [twoFactorErrors, setTwoFactorErrors] = useState({});
+  const [qrCode, setQrCode] = useState('');
+  const [backupCodes, setBackupCodes] = useState([]);
+  const [showBackupCodes, setShowBackupCodes] = useState(false);
+  const [disablePassword, setDisablePassword] = useState('');
+  const [showDisablePassword, setShowDisablePassword] = useState(false);
+
+  // Login Activity State
+  const [loginActivity, setLoginActivity] = useState([]);
+  const [isLoadingActivity, setIsLoadingActivity] = useState(false);
+  const [activitySuccess, setActivitySuccess] = useState('');
+  const [activityErrors, setActivityErrors] = useState({});
+
+  // Active Tab State
+  const [activeTab, setActiveTab] = useState('password');
+
+  // Load login activity on component mount
+  useEffect(() => {
+    loadLoginActivity();
+  }, []);
+
+  // Clear messages after timeout
+  useEffect(() => {
+    const timeouts = [];
+    
+    if (passwordSuccess) timeouts.push(setTimeout(() => setPasswordSuccess(''), 5000));
+    if (emailSuccess) timeouts.push(setTimeout(() => setEmailSuccess(''), 5000));
+    if (twoFactorSuccess) timeouts.push(setTimeout(() => setTwoFactorSuccess(''), 5000));
+    if (activitySuccess) timeouts.push(setTimeout(() => setActivitySuccess(''), 5000));
+    
+    return () => timeouts.forEach(clearTimeout);
+  }, [passwordSuccess, emailSuccess, twoFactorSuccess, activitySuccess]);
+
+  // Password Change Functions
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
-    setPasswordData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Clear error for this field
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: null }));
-    }
-    
-    // Clear general error when user starts typing
-    if (errors.general) {
-      setErrors(prev => ({ ...prev, general: null }));
+    setPasswordData(prev => ({ ...prev, [name]: value }));
+    if (passwordErrors[name]) {
+      setPasswordErrors(prev => ({ ...prev, [name]: null }));
     }
   };
 
@@ -40,15 +97,8 @@ const SecuritySection = () => {
     
     if (!passwordData.new_password.trim()) {
       newErrors.new_password = 'New password is required';
-    } else {
-      // Password strength validation
-      if (passwordData.new_password.length < 8) {
-        newErrors.new_password = 'Password must be at least 8 characters';
-      } else if (!/(?=.*[a-z])(?=.*[A-Z])/.test(passwordData.new_password)) {
-        newErrors.new_password = 'Password must contain both uppercase and lowercase letters';
-      } else if (!/(?=.*\d)/.test(passwordData.new_password)) {
-        newErrors.new_password = 'Password must contain at least one number';
-      }
+    } else if (passwordData.new_password.length < 8) {
+      newErrors.new_password = 'Password must be at least 8 characters';
     }
     
     if (!passwordData.confirm_password.trim()) {
@@ -57,74 +107,200 @@ const SecuritySection = () => {
       newErrors.confirm_password = 'Passwords do not match';
     }
     
-    // Check if new password is same as current
-    if (passwordData.current_password === passwordData.new_password) {
-      newErrors.new_password = 'New password must be different from current password';
-    }
-
     return newErrors;
   };
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     
-    console.log('🔐 Password change initiated');
-    
-    // Clear previous errors
-    setErrors({});
-    
-    // Validate form
+    setPasswordErrors({});
     const validationErrors = validatePassword();
     if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      console.log('❌ Password validation failed:', validationErrors);
+      setPasswordErrors(validationErrors);
       return;
     }
 
-    setIsSubmitting(true);
-    setSuccessMessage('');
+    setIsSubmittingPassword(true);
+    setPasswordSuccess('');
 
     try {
-      console.log('📤 Sending password change request...');
-      
       await changePassword({
         current_password: passwordData.current_password,
         new_password: passwordData.new_password
       });
       
-      console.log('✅ Password changed successfully');
-      
-      setSuccessMessage('Password updated successfully!');
-      setPasswordData({
-        current_password: '',
-        new_password: '',
-        confirm_password: ''
-      });
-      
-      // Auto-hide success message after 5 seconds
-      setTimeout(() => setSuccessMessage(''), 5000);
+      setPasswordSuccess('Password updated successfully!');
+      setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
       
     } catch (error) {
-      console.error('❌ Password change error:', error);
-      
-      // Handle specific error messages
-      if (error.message) {
-        if (error.message.includes('Current password is incorrect')) {
-          setErrors({ current_password: 'Current password is incorrect' });
-        } else if (error.message.includes('Authentication failed')) {
-          setErrors({ general: 'Authentication failed. Please log in again.' });
-        } else if (error.message.includes('Network error')) {
-          setErrors({ general: 'Network error. Please check your connection and try again.' });
-        } else {
-          setErrors({ general: error.message });
-        }
+      if (error.message?.includes('Current password is incorrect')) {
+        setPasswordErrors({ current_password: 'Current password is incorrect' });
       } else {
-        setErrors({ general: 'Failed to update password. Please try again.' });
+        setPasswordErrors({ general: error.message || 'Failed to update password. Please try again.' });
       }
     } finally {
-      setIsSubmitting(false);
+      setIsSubmittingPassword(false);
     }
   };
+
+  // Email Verification Functions
+  const handleEmailChange = (e) => {
+    const { name, value } = e.target;
+    setEmailData(prev => ({ ...prev, [name]: value }));
+    if (emailErrors[name]) {
+      setEmailErrors(prev => ({ ...prev, [name]: null }));
+    }
+  };
+
+  const handleEmailVerificationRequest = async (e) => {
+    e.preventDefault();
+    
+    if (!emailData.new_email.trim()) {
+      setEmailErrors({ new_email: 'Email address is required' });
+      return;
+    }
+
+    setIsSubmittingEmail(true);
+    setEmailSuccess('');
+    setEmailErrors({});
+
+    try {
+      await requestEmailVerification(emailData.new_email);
+      setEmailSuccess('Verification email sent! Please check your inbox.');
+      setEmailVerificationSent(true);
+    } catch (error) {
+      setEmailErrors({ general: error.message || 'Failed to send verification email' });
+    } finally {
+      setIsSubmittingEmail(false);
+    }
+  };
+
+  // Two-Factor Authentication Functions
+  const handleEnable2FA = async () => {
+    setIsSubmitting2FA(true);
+    setTwoFactorSuccess('');
+    setTwoFactorErrors({});
+
+    try {
+      const result = await enableTwoFactor();
+      setQrCode(result.qr_code);
+      setBackupCodes(result.backup_codes || []);
+      setTwoFactorSuccess('Two-factor authentication enabled successfully!');
+      setShowBackupCodes(true);
+    } catch (error) {
+      setTwoFactorErrors({ general: error.message || 'Failed to enable two-factor authentication' });
+    } finally {
+      setIsSubmitting2FA(false);
+    }
+  };
+
+  const handleDisable2FA = async () => {
+    if (!disablePassword.trim()) {
+      setTwoFactorErrors({ password: 'Password is required to disable 2FA' });
+      return;
+    }
+
+    setIsSubmitting2FA(true);
+    setTwoFactorSuccess('');
+    setTwoFactorErrors({});
+
+    try {
+      await disableTwoFactor(disablePassword);
+      setTwoFactorSuccess('Two-factor authentication disabled successfully!');
+      setShowDisablePassword(false);
+      setDisablePassword('');
+    } catch (error) {
+      setTwoFactorErrors({ general: error.message || 'Failed to disable two-factor authentication' });
+    } finally {
+      setIsSubmitting2FA(false);
+    }
+  };
+
+  const handleGenerateBackupCodes = async () => {
+    setIsSubmitting2FA(true);
+    
+    try {
+      const result = await generateTwoFactorBackupCodes();
+      setBackupCodes(result.backup_codes || []);
+      setTwoFactorSuccess('New backup codes generated successfully!');
+      setShowBackupCodes(true);
+    } catch (error) {
+      setTwoFactorErrors({ general: error.message || 'Failed to generate backup codes' });
+    } finally {
+      setIsSubmitting2FA(false);
+    }
+  };
+
+  // Login Activity Functions
+  const loadLoginActivity = async () => {
+    setIsLoadingActivity(true);
+    setActivityErrors({});
+
+    try {
+      const activity = await getLoginActivity();
+      setLoginActivity(activity.sessions || []);
+    } catch (error) {
+      setActivityErrors({ general: error.message || 'Failed to load login activity' });
+    } finally {
+      setIsLoadingActivity(false);
+    }
+  };
+
+  const handleTerminateSession = async (sessionId) => {
+    try {
+      await terminateSession(sessionId);
+      setActivitySuccess('Session terminated successfully!');
+      loadLoginActivity(); // Reload activity
+    } catch (error) {
+      setActivityErrors({ general: error.message || 'Failed to terminate session' });
+    }
+  };
+
+  const handleTerminateAllSessions = async () => {
+    if (!window.confirm('This will log you out of all devices. Continue?')) return;
+
+    try {
+      await terminateAllSessions();
+      setActivitySuccess('All sessions terminated successfully!');
+      loadLoginActivity(); // Reload activity
+    } catch (error) {
+      setActivityErrors({ general: error.message || 'Failed to terminate all sessions' });
+    }
+  };
+
+  // Utility Functions
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    setTwoFactorSuccess('Copied to clipboard!');
+  };
+
+  const downloadBackupCodes = () => {
+    const content = backupCodes.join('\n');
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'hoa-portal-backup-codes.txt';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString();
+  };
+
+  const getDeviceIcon = (userAgent) => {
+    if (userAgent?.includes('Mobile')) return <Smartphone className="w-4 h-4" />;
+    if (userAgent?.includes('Tablet')) return <Smartphone className="w-4 h-4" />;
+    return <Monitor className="w-4 h-4" />;
+  };
+
+  const tabs = [
+    { id: 'password', label: 'Password', icon: Key },
+    { id: 'email', label: 'Email', icon: Mail },
+    { id: 'twofactor', label: '2FA', icon: Shield },
+    { id: 'activity', label: 'Activity', icon: Monitor }
+  ];
 
   if (loading) {
     return (
@@ -137,173 +313,597 @@ const SecuritySection = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-lg">
+      {/* Header */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900 flex items-center">
             <Lock className="w-5 h-5 text-red-600 mr-2" />
             Security Settings
           </h3>
           <p className="mt-1 text-sm text-gray-600">
-            Manage your account security and password settings.
+            Manage your account security, password, and authentication settings.
           </p>
         </div>
 
-        {/* Success Message */}
-        {successMessage && (
-          <div className="mx-6 mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
-            <div className="flex items-center">
-              <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
-              <div className="text-sm text-green-700">
-                <p className="font-medium">{successMessage}</p>
-              </div>
-            </div>
+        {/* Tab Navigation */}
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex space-x-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <tab.icon className="w-4 h-4 mr-2" />
+                {tab.label}
+              </button>
+            ))}
           </div>
-        )}
-
-        {/* General Error Message */}
-        {errors.general && (
-          <div className="mx-6 mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="flex items-center">
-              <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
-              <div className="text-sm text-red-700">
-                <p className="font-medium">{errors.general}</p>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
 
-      {/* Password Change Section */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Key className="w-5 h-5 text-blue-600" />
-          <h4 className="text-md font-medium text-gray-900">Change Password</h4>
-        </div>
+      {/* Tab Content */}
+      <div className="space-y-6">
+        {/* Password Change Tab */}
+        {activeTab === 'password' && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Key className="w-5 h-5 text-blue-600" />
+              <h4 className="text-lg font-medium text-gray-900">Change Password</h4>
+            </div>
 
-        <form onSubmit={handlePasswordSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Current Password <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="password"
-              name="current_password"
-              value={passwordData.current_password}
-              onChange={handlePasswordChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.current_password ? 'border-red-300' : 'border-gray-300'
-              }`}
-              placeholder="Enter your current password"
-            />
-            {errors.current_password && (
-              <p className="mt-1 text-sm text-red-600">{errors.current_password}</p>
+            {/* Success/Error Messages */}
+            {passwordSuccess && (
+              <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
+                  <p className="text-sm text-green-700 font-medium">{passwordSuccess}</p>
+                </div>
+              </div>
+            )}
+
+            {passwordErrors.general && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
+                  <p className="text-sm text-red-700 font-medium">{passwordErrors.general}</p>
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Current Password <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  name="current_password"
+                  value={passwordData.current_password}
+                  onChange={handlePasswordChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    passwordErrors.current_password ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter your current password"
+                />
+                {passwordErrors.current_password && (
+                  <p className="mt-1 text-sm text-red-600">{passwordErrors.current_password}</p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    New Password <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    name="new_password"
+                    value={passwordData.new_password}
+                    onChange={handlePasswordChange}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      passwordErrors.new_password ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter your new password"
+                  />
+                  {passwordErrors.new_password && (
+                    <p className="mt-1 text-sm text-red-600">{passwordErrors.new_password}</p>
+                  )}
+                  <p className="mt-1 text-xs text-gray-500">
+                    Must be at least 8 characters
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Confirm New Password <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    name="confirm_password"
+                    value={passwordData.confirm_password}
+                    onChange={handlePasswordChange}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      passwordErrors.confirm_password ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                    placeholder="Confirm your new password"
+                  />
+                  {passwordErrors.confirm_password && (
+                    <p className="mt-1 text-sm text-red-600">{passwordErrors.confirm_password}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-gray-200">
+                <button
+                  type="submit"
+                  disabled={isSubmittingPassword}
+                  className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isSubmittingPassword ? (
+                    <Loader className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4 mr-2" />
+                  )}
+                  {isSubmittingPassword ? 'Updating Password...' : 'Update Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Email Verification Tab */}
+        {activeTab === 'email' && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Mail className="w-5 h-5 text-green-600" />
+              <h4 className="text-lg font-medium text-gray-900">Email Verification</h4>
+            </div>
+
+            {/* Current Email Status */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Current Email</p>
+                  <p className="text-sm text-gray-600">{user?.email}</p>
+                </div>
+                <span className="px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                  Verified
+                </span>
+              </div>
+            </div>
+
+            {/* Success/Error Messages */}
+            {emailSuccess && (
+              <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
+                  <p className="text-sm text-green-700 font-medium">{emailSuccess}</p>
+                </div>
+              </div>
+            )}
+
+            {emailErrors.general && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
+                  <p className="text-sm text-red-700 font-medium">{emailErrors.general}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Change Email Form */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  New Email Address
+                </label>
+                <div className="flex space-x-3">
+                  <input
+                    type="email"
+                    name="new_email"
+                    value={emailData.new_email}
+                    onChange={handleEmailChange}
+                    className={`flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      emailErrors.new_email ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter new email address"
+                    disabled={emailVerificationSent}
+                  />
+                  <button
+                    onClick={handleEmailVerificationRequest}
+                    disabled={isSubmittingEmail || emailVerificationSent}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {isSubmittingEmail ? (
+                      <Loader className="w-4 h-4 animate-spin" />
+                    ) : emailVerificationSent ? (
+                      'Sent'
+                    ) : (
+                      'Send Verification'
+                    )}
+                  </button>
+                </div>
+                {emailErrors.new_email && (
+                  <p className="mt-1 text-sm text-red-600">{emailErrors.new_email}</p>
+                )}
+              </div>
+
+              {emailVerificationSent && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-700">
+                    We've sent a verification link to <strong>{emailData.new_email}</strong>. 
+                    Please check your email and click the link to verify your new email address.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Two-Factor Authentication Tab */}
+        {activeTab === 'twofactor' && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Shield className="w-5 h-5 text-purple-600" />
+              <h4 className="text-lg font-medium text-gray-900">Two-Factor Authentication</h4>
+            </div>
+
+            {/* Success/Error Messages */}
+            {twoFactorSuccess && (
+              <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
+                  <p className="text-sm text-green-700 font-medium">{twoFactorSuccess}</p>
+                </div>
+              </div>
+            )}
+
+            {twoFactorErrors.general && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
+                  <p className="text-sm text-red-700 font-medium">{twoFactorErrors.general}</p>
+                </div>
+              </div>
+            )}
+
+            {/* 2FA Status */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Two-Factor Authentication</p>
+                  <p className="text-sm text-gray-600">
+                    {profileData.security?.two_factor_enabled 
+                      ? 'Add an extra layer of security to your account' 
+                      : 'Protect your account with an authenticator app'}
+                  </p>
+                </div>
+                <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                  profileData.security?.two_factor_enabled
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  {profileData.security?.two_factor_enabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+            </div>
+
+            {/* 2FA Controls */}
+            {!profileData.security?.two_factor_enabled ? (
+              <div className="space-y-4">
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h5 className="text-sm font-medium text-blue-900 mb-2">How it works:</h5>
+                  <ol className="text-sm text-blue-700 space-y-1">
+                    <li>1. Install an authenticator app (Google Authenticator, Authy, etc.)</li>
+                    <li>2. Scan the QR code with your app</li>
+                    <li>3. Enter the verification code to complete setup</li>
+                    <li>4. Save your backup codes in a secure location</li>
+                  </ol>
+                </div>
+
+                <button
+                  onClick={handleEnable2FA}
+                  disabled={isSubmitting2FA}
+                  className="flex items-center px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isSubmitting2FA ? (
+                    <Loader className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Shield className="w-4 h-4 mr-2" />
+                  )}
+                  {isSubmitting2FA ? 'Enabling...' : 'Enable Two-Factor Authentication'}
+                </button>
+
+                {/* QR Code Display */}
+                {qrCode && (
+                  <div className="p-4 bg-white border border-gray-200 rounded-lg">
+                    <div className="flex items-center gap-3 mb-3">
+                      <QrCode className="w-5 h-5 text-purple-600" />
+                      <h5 className="font-medium text-gray-900">Scan QR Code</h5>
+                    </div>
+                    <div className="flex justify-center mb-4">
+                      <img src={qrCode} alt="QR Code" className="w-48 h-48" />
+                    </div>
+                    <p className="text-sm text-gray-600 text-center">
+                      Scan this QR code with your authenticator app
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
+                    <span className="text-sm font-medium text-green-800">
+                      Two-factor authentication is active
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setShowDisablePassword(true)}
+                    className="text-sm text-red-600 hover:text-red-700 underline"
+                  >
+                    Disable
+                  </button>
+                </div>
+
+                <button
+                  onClick={handleGenerateBackupCodes}
+                  disabled={isSubmitting2FA}
+                  className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isSubmitting2FA ? (
+                    <Loader className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Key className="w-4 h-4 mr-2" />
+                  )}
+                  Generate New Backup Codes
+                </button>
+
+                {/* Disable 2FA Modal */}
+                {showDisablePassword && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <h5 className="text-sm font-medium text-red-900 mb-3">Disable Two-Factor Authentication</h5>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Enter your password to confirm
+                        </label>
+                        <div className="flex space-x-3">
+                          <div className="relative flex-1">
+                            <input
+                              type={showDisablePassword ? 'text' : 'password'}
+                              value={disablePassword}
+                              onChange={(e) => setDisablePassword(e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                              placeholder="Enter your password"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowDisablePassword(!showDisablePassword)}
+                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            >
+                              {showDisablePassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                          <button
+                            onClick={handleDisable2FA}
+                            disabled={isSubmitting2FA}
+                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          >
+                            {isSubmitting2FA ? (
+                              <Loader className="w-4 h-4 animate-spin" />
+                            ) : (
+                              'Disable'
+                            )}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowDisablePassword(false);
+                              setDisablePassword('');
+                            }}
+                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                        {twoFactorErrors.password && (
+                          <p className="mt-1 text-sm text-red-600">{twoFactorErrors.password}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Backup Codes Display */}
+            {showBackupCodes && backupCodes.length > 0 && (
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center">
+                    <Key className="w-5 h-5 text-yellow-600 mr-2" />
+                    <h5 className="font-medium text-yellow-900">Backup Codes</h5>
+                  </div>
+                  <button
+                    onClick={() => setShowBackupCodes(false)}
+                    className="text-yellow-600 hover:text-yellow-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <p className="text-sm text-yellow-800 mb-3">
+                  Save these backup codes in a secure location. Each code can only be used once.
+                </p>
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  {backupCodes.map((code, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-2 bg-white border rounded font-mono text-sm"
+                    >
+                      <span>{code}</span>
+                      <button
+                        onClick={() => copyToClipboard(code)}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={downloadBackupCodes}
+                    className="flex items-center px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors"
+                  >
+                    <Download className="w-4 h-4 mr-1" />
+                    Download
+                  </button>
+                  <button
+                    onClick={() => copyToClipboard(backupCodes.join('\n'))}
+                    className="flex items-center px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 transition-colors"
+                  >
+                    <Copy className="w-4 h-4 mr-1" />
+                    Copy All
+                  </button>
+                </div>
+              </div>
             )}
           </div>
+        )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                New Password <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="password"
-                name="new_password"
-                value={passwordData.new_password}
-                onChange={handlePasswordChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.new_password ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder="Enter your new password"
-              />
-              {errors.new_password && (
-                <p className="mt-1 text-sm text-red-600">{errors.new_password}</p>
-              )}
-              <p className="mt-1 text-xs text-gray-500">
-                Must be at least 8 characters with uppercase, lowercase, and numbers
-              </p>
+        {/* Login Activity Tab */}
+        {activeTab === 'activity' && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Monitor className="w-5 h-5 text-indigo-600" />
+                <h4 className="text-lg font-medium text-gray-900">Login Activity</h4>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={loadLoginActivity}
+                  disabled={isLoadingActivity}
+                  className="flex items-center px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 transition-colors"
+                >
+                  {isLoadingActivity ? (
+                    <Loader className="w-4 h-4 animate-spin mr-1" />
+                  ) : (
+                    'Refresh'
+                  )}
+                </button>
+                <button
+                  onClick={handleTerminateAllSessions}
+                  className="flex items-center px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
+                >
+                  <LogOut className="w-4 h-4 mr-1" />
+                  End All Sessions
+                </button>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm New Password <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="password"
-                name="confirm_password"
-                value={passwordData.confirm_password}
-                onChange={handlePasswordChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.confirm_password ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder="Confirm your new password"
-              />
-              {errors.confirm_password && (
-                <p className="mt-1 text-sm text-red-600">{errors.confirm_password}</p>
-              )}
-            </div>
-          </div>
+            {/* Success/Error Messages */}
+            {activitySuccess && (
+              <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
+                  <p className="text-sm text-green-700 font-medium">{activitySuccess}</p>
+                </div>
+              </div>
+            )}
 
-          <div className="flex justify-end pt-4 border-t border-gray-200">
-            <button
-              type="submit"
-              disabled={isSubmitting || loading}
-              className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isSubmitting ? (
-                <Loader className="w-4 h-4 mr-2 animate-spin" />
+            {activityErrors.general && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
+                  <p className="text-sm text-red-700 font-medium">{activityErrors.general}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Login Sessions */}
+            <div className="space-y-3">
+              {isLoadingActivity ? (
+                <div className="flex justify-center py-8">
+                  <Loader className="w-6 h-6 animate-spin text-indigo-600" />
+                </div>
+              ) : loginActivity.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <Monitor className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <p>No active sessions found</p>
+                </div>
               ) : (
-                <Save className="w-4 h-4 mr-2" />
+                loginActivity.map((session, index) => (
+                  <div
+                    key={session.id || index}
+                    className={`p-4 rounded-lg border ${
+                      session.is_current
+                        ? 'bg-green-50 border-green-200'
+                        : 'bg-gray-50 border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        {getDeviceIcon(session.user_agent)}
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <p className="text-sm font-medium text-gray-900">
+                              {session.device_name || 'Unknown Device'}
+                            </p>
+                            {session.is_current && (
+                              <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">
+                                Current Session
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
+                            <div className="flex items-center">
+                              <MapPin className="w-3 h-3 mr-1" />
+                              {session.location || 'Unknown Location'}
+                            </div>
+                            <div className="flex items-center">
+                              <Globe className="w-3 h-3 mr-1" />
+                              {session.ip_address}
+                            </div>
+                            <div className="flex items-center">
+                              <Clock className="w-3 h-3 mr-1" />
+                              {formatDate(session.created_at)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {!session.is_current && (
+                        <button
+                          onClick={() => handleTerminateSession(session.id)}
+                          className="flex items-center px-3 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          End Session
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))
               )}
-              {isSubmitting ? 'Updating Password...' : 'Update Password'}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Security Status */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Shield className="w-5 h-5 text-blue-600" />
-          <h4 className="text-md font-medium text-gray-900">Account Security Status</h4>
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-3 bg-white rounded-md border">
-            <div>
-              <p className="font-medium text-gray-900">Email Verification</p>
-              <p className="text-sm text-gray-600">Verify your email address for account security</p>
             </div>
-            <span className="px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-              Verified
-            </span>
-          </div>
 
-          <div className="flex items-center justify-between p-3 bg-white rounded-md border">
-            <div>
-              <p className="font-medium text-gray-900">Two-Factor Authentication</p>
-              <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
+            {/* Security Tips */}
+            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h5 className="text-sm font-medium text-blue-900 mb-2">Security Tips:</h5>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>• Regularly review your login activity for suspicious sessions</li>
+                <li>• End sessions on devices you no longer use</li>
+                <li>• If you see unrecognized activity, change your password immediately</li>
+                <li>• Use two-factor authentication for additional security</li>
+              </ul>
             </div>
-            <button 
-              type="button"
-              className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-100 rounded-md hover:bg-blue-200 transition-colors"
-            >
-              Enable
-            </button>
           </div>
-
-          <div className="flex items-center justify-between p-3 bg-white rounded-md border">
-            <div>
-              <p className="font-medium text-gray-900">Login Activity</p>
-              <p className="text-sm text-gray-600">Review recent login attempts and devices</p>
-            </div>
-            <button 
-              type="button"
-              className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-            >
-              View Activity
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
