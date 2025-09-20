@@ -36,6 +36,11 @@ import {
   requestEmailVerification,
   verifyEmail,
   updateTwoFactorSetting,
+  setupTwoFactor,
+  verifyTotpSetup,
+  disableTwoFactor,
+  generateBackupCodes,
+  verifyTotpCode,
   generateMockBackupCodes,
   getLoginActivity,
   terminateSession,
@@ -298,6 +303,71 @@ export const ProfileProvider = ({ children }) => {
     }
   }, []);
 
+  const handleSetupTwoFactor = useCallback(async () => {
+    try {
+      const result = await setupTwoFactor();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const handleVerifyTotpSetup = useCallback(async (secret, code) => {
+    try {
+      const result = await verifyTotpSetup(secret, code);
+
+      // Update security settings in context
+      setProfileData(prev => ({
+        ...prev,
+        security: {
+          ...prev.security,
+          two_factor_enabled: true
+        }
+      }));
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const handleDisableTwoFactor = useCallback(async (password) => {
+    try {
+      const result = await disableTwoFactor(password);
+
+      // Update security settings in context
+      setProfileData(prev => ({
+        ...prev,
+        security: {
+          ...prev.security,
+          two_factor_enabled: false
+        }
+      }));
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const handleGenerateBackupCodes = useCallback(async () => {
+    try {
+      const result = await generateBackupCodes();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const handleVerifyTotpCode = useCallback(async (token) => {
+    try {
+      const result = await verifyTotpCode(token);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
   const handleGenerateMockBackupCodes = useCallback(() => {
     try {
       const codes = generateMockBackupCodes();
@@ -518,6 +588,11 @@ export const ProfileProvider = ({ children }) => {
     requestEmailVerification: handleRequestEmailVerification,
     verifyEmail: handleVerifyEmail,
     updateTwoFactorSetting: handleUpdateTwoFactorSetting,
+    setupTwoFactor: handleSetupTwoFactor,
+    verifyTotpSetup: handleVerifyTotpSetup,
+    disableTwoFactor: handleDisableTwoFactor,
+    generateBackupCodes: handleGenerateBackupCodes,
+    verifyTotpCode: handleVerifyTotpCode,
     generateMockBackupCodes: handleGenerateMockBackupCodes,
     getLoginActivity: handleGetLoginActivity,
     terminateSession: handleTerminateSession,
@@ -561,6 +636,11 @@ export const ProfileProvider = ({ children }) => {
     handleRequestEmailVerification,
     handleVerifyEmail,
     handleUpdateTwoFactorSetting,
+    handleSetupTwoFactor,
+    handleVerifyTotpSetup,
+    handleDisableTwoFactor,
+    handleGenerateBackupCodes,
+    handleVerifyTotpCode,
     handleGenerateMockBackupCodes,
     handleGetLoginActivity,
     handleTerminateSession,

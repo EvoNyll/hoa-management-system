@@ -26,10 +26,6 @@ class User(AbstractUser):
         ('anytime', 'Anytime'),
     ]
     
-    PROPERTY_TYPE_CHOICES = [
-        ('townhouse', 'Townhouse'),
-        ('single_attached', 'Single Attached'),
-    ]
     
     # Primary fields
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -53,13 +49,10 @@ class User(AbstractUser):
     language_preference = models.CharField(max_length=10, default='en')
     timezone_setting = models.CharField(max_length=50, default='UTC')
     
-    unit_number = models.CharField(max_length=50, blank=True)
+    block = models.CharField(max_length=20, blank=True)
+    lot = models.CharField(max_length=20, blank=True)
     move_in_date = models.DateField(blank=True, null=True)
-    property_type = models.CharField(
-        max_length=20, 
-        choices=PROPERTY_TYPE_CHOICES, 
-        blank=True
-    )
+    house_front_view = models.ImageField(upload_to='house_photos/', blank=True, null=True)
     parking_spaces = models.PositiveIntegerField(default=0)
     mailbox_number = models.CharField(max_length=10, blank=True)
     
@@ -96,6 +89,8 @@ class User(AbstractUser):
     maintenance_alerts = models.BooleanField(default=True)
     
     two_factor_enabled = models.BooleanField(default=False)
+    totp_secret = models.CharField(max_length=32, blank=True, null=True)
+    backup_codes = models.JSONField(default=list, blank=True)
     security_question = models.CharField(max_length=255, blank=True)
     last_password_change = models.DateTimeField(default=timezone.now)
     failed_login_attempts = models.PositiveIntegerField(default=0)
@@ -115,8 +110,8 @@ class User(AbstractUser):
     @property
     def profile_completion_percentage(self):
         required_fields = [
-            'full_name', 'email', 'phone', 'unit_number', 
-            'property_type', 'emergency_contact', 'emergency_phone'
+            'full_name', 'email', 'phone', 'block', 'lot',
+            'emergency_contact', 'emergency_phone'
         ]
         completed = sum(1 for field in required_fields if getattr(self, field))
         return round((completed / len(required_fields)) * 100)

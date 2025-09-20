@@ -105,14 +105,14 @@ def send_profile_change_notification(user, change_summary):
 
 
 def get_profile_completion_requirements(user):
-    
+
     requirements = {
         'directory_listing': {
-            'required': ['full_name', 'unit_number'],
+            'required': ['full_name', 'block', 'lot'],
             'missing': []
         },
         'amenity_booking': {
-            'required': ['full_name', 'phone', 'unit_number'],
+            'required': ['full_name', 'phone', 'block', 'lot'],
             'missing': []
         },
         'forum_posting': {
@@ -120,16 +120,16 @@ def get_profile_completion_requirements(user):
             'missing': []
         },
         'payment_portal': {
-            'required': ['full_name', 'unit_number', 'phone'],
+            'required': ['full_name', 'block', 'lot', 'phone'],
             'missing': []
         }
     }
-    
+
     for feature, req_data in requirements.items():
         for field in req_data['required']:
             if not getattr(user, field, None):
                 req_data['missing'].append(field)
-    
+
     return requirements
 
 
@@ -160,14 +160,17 @@ def format_phone_number(phone):
     return phone
 
 
-def validate_unit_number_format(unit_number):
-    if not unit_number:
+def validate_block_lot_format(block, lot):
+    if not block and not lot:
         return True
-    
-    if re.match(r'^[A-Za-z0-9\-#\s\.\/\\]+$', unit_number.strip()):
-        return True
-    
-    raise ValueError("Unit number can only contain letters, numbers, hyphens, spaces, periods, and slashes")
+
+    if block and not re.match(r'^[A-Za-z0-9\-#\s\.\/\\]+$', block.strip()):
+        raise ValueError("Block can only contain letters, numbers, hyphens, spaces, periods, and slashes")
+
+    if lot and not re.match(r'^[A-Za-z0-9\-#\s\.\/\\]+$', lot.strip()):
+        raise ValueError("Lot can only contain letters, numbers, hyphens, spaces, periods, and slashes")
+
+    return True
 
 
 def get_user_activity_summary(user, days=30):
@@ -201,30 +204,38 @@ def validate_user_permissions(user, required_role='member'):
     return user_level >= required_level
 
 
-def format_unit_number_display(unit_number):
-    if not unit_number:
+def format_block_lot_display(block, lot):
+    if not block and not lot:
         return ''
-    
-    cleaned = unit_number.strip()
-    
-    if cleaned.isdigit():
-        return f"Unit {cleaned}"
-    
-    return cleaned
+
+    block_clean = block.strip() if block else ''
+    lot_clean = lot.strip() if lot else ''
+
+    if block_clean and lot_clean:
+        return f"Block {block_clean}, Lot {lot_clean}"
+    elif block_clean:
+        return f"Block {block_clean}"
+    elif lot_clean:
+        return f"Lot {lot_clean}"
+
+    return ''
 
 
-def check_unit_number_availability(unit_number, exclude_user_id=None):
+def check_block_lot_availability(block, lot, exclude_user_id=None):
     from django.contrib.auth import get_user_model
     User = get_user_model()
-    
-    if not unit_number:
+
+    if not block and not lot:
         return True
-    
-    query = User.objects.filter(unit_number=unit_number.strip())
-    
+
+    if not block or not lot:
+        return True  # Allow partial block/lot data
+
+    query = User.objects.filter(block=block.strip(), lot=lot.strip())
+
     if exclude_user_id:
         query = query.exclude(id=exclude_user_id)
-    
+
     return not query.exists()
 
 

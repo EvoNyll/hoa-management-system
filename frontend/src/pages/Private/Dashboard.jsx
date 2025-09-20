@@ -146,16 +146,16 @@ const Dashboard = () => {
       case 'pending':
         return <AlertCircle className="w-4 h-4 text-red-600" />
       default:
-        return <Clock className="w-4 h-4 text-gray-600" />
+        return <Clock className="w-4 h-4 text-gray-600 dark:text-gray-300" />
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#358939] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
+          <p className="text-gray-600 dark:text-gray-300">Loading your dashboard...</p>
         </div>
       </div>
     )
@@ -193,11 +193,11 @@ const Dashboard = () => {
       </HeroSection>
 
       {/* Quick Actions */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white dark:bg-gray-800">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-            <p className="text-lg text-gray-600">Everything you need for community living, just a click away.</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300">Everything you need for community living, just a click away.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -219,10 +219,10 @@ const Dashboard = () => {
                       <IconComponent className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-[#358939] transition-colors">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-[#358939] transition-colors">
                         {action.name}
                       </h3>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                         {action.description}
                       </p>
                       <div className="mt-3 flex items-center text-[#358939] text-sm font-medium group-hover:translate-x-1 transition-transform">
@@ -238,13 +238,13 @@ const Dashboard = () => {
       </section>
 
       {/* Main Content Grid */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Recent News */}
             <div className="card">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
                   <Bell className="w-5 h-5 mr-2 text-[#358939]" />
                   Recent News
                 </h3>
@@ -256,7 +256,7 @@ const Dashboard = () => {
                 {dashboardData.recentNews.map((article) => (
                   <div key={article.id} className="border-l-4 border-[#358939]/30 pl-4 hover:border-[#358939] transition-colors">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-medium text-gray-900">
+                      <h4 className="text-sm font-medium text-gray-900 dark:text-white">
                         {article.title}
                       </h4>
                       {article.is_featured && (
@@ -265,8 +265,8 @@ const Dashboard = () => {
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">{article.excerpt}</p>
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{article.excerpt}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                       {new Date(article.created_at).toLocaleDateString()}
                     </p>
                   </div>
@@ -277,7 +277,7 @@ const Dashboard = () => {
             {/* Upcoming Events */}
             <div className="card">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
                   <Calendar className="w-5 h-5 mr-2 text-blue-600" />
                   Upcoming Events
                 </h3>
@@ -287,15 +287,15 @@ const Dashboard = () => {
               </div>
               <div className="space-y-4">
                 {dashboardData.upcomingEvents.map((event) => (
-                  <div key={event.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
-                    <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <div key={event.id} className="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                    <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center">
                       <Calendar className="w-6 h-6 text-blue-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-medium text-gray-900">
+                      <h4 className="text-sm font-medium text-gray-900 dark:text-white">
                         {event.title}
                       </h4>
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         <p>📅 {new Date(event.date).toLocaleDateString()}</p>
                         <p>🕒 {event.time} • 📍 {event.location}</p>
                       </div>
@@ -309,7 +309,7 @@ const Dashboard = () => {
             {dashboardData.pendingPayments.length > 0 && (
               <div className="card">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
                     <CreditCard className="w-5 h-5 mr-2 text-green-600" />
                     Pending Payments
                   </h3>
@@ -319,18 +319,18 @@ const Dashboard = () => {
                 </div>
                 <div className="space-y-4">
                   {dashboardData.pendingPayments.map((payment) => (
-                    <div key={payment.id} className="p-4 bg-red-50 border border-red-200 rounded-2xl">
+                    <div key={payment.id} className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="text-sm font-medium text-gray-900">
+                          <h4 className="text-sm font-medium text-gray-900 dark:text-white">
                             {payment.description}
                           </h4>
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             Due: {new Date(payment.due_date).toLocaleDateString()}
                           </p>
                         </div>
                         <div className="text-right">
-                          <div className="text-lg font-bold text-gray-900">
+                          <div className="text-lg font-bold text-gray-900 dark:text-white">
                             ${payment.amount.toFixed(2)}
                           </div>
                           <Link
@@ -351,7 +351,7 @@ const Dashboard = () => {
             {dashboardData.activeTickets.length > 0 && (
               <div className="card">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
                     <Wrench className="w-5 h-5 mr-2 text-orange-600" />
                     Active Tickets
                   </h3>
@@ -366,17 +366,17 @@ const Dashboard = () => {
                         {getStatusIcon(ticket.status)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-medium text-gray-900">
+                        <h4 className="text-sm font-medium text-gray-900 dark:text-white">
                           {ticket.subject}
                         </h4>
                         <div className="flex items-center justify-between mt-1">
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
                             Created: {new Date(ticket.created_at).toLocaleDateString()}
                           </span>
                           <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                            ticket.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            ticket.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
+                            ticket.status === 'completed' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300' :
+                            ticket.status === 'in_progress' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300' :
+                            'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300'
                           }`}>
                             {ticket.status.replace('_', ' ')}
                           </span>

@@ -181,28 +181,28 @@ const BasicProfileSection = () => {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Success Message */}
       {successMessage && (
-        <div className="bg-green-50 border border-green-200 rounded-md p-4">
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-4">
           <div className="flex items-center">
-            <CheckCircle className="w-5 h-5 text-green-400 mr-2" />
-            <p className="text-sm text-green-700">{successMessage}</p>
+            <CheckCircle className="w-5 h-5 text-green-400 dark:text-green-400 mr-2" />
+            <p className="text-sm text-green-700 dark:text-green-300">{successMessage}</p>
           </div>
         </div>
       )}
 
       {/* Submit Error */}
       {errors.submit && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-sm text-red-700">{errors.submit}</p>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
+          <p className="text-sm text-red-700 dark:text-red-300">{errors.submit}</p>
         </div>
       )}
 
       {/* Profile Photo Section */}
-      <div className="border-b border-gray-200 pb-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Profile Photo</h3>
-        
+      <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Profile Photo</h3>
+
         <div className="flex items-center space-x-6">
           <div className="relative">
-            <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200">
+            <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600">
               {profilePhotoPreview ? (
                 <img
                   src={profilePhotoPreview}
@@ -217,27 +217,27 @@ const BasicProfileSection = () => {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <User className="w-8 h-8 text-gray-400" />
+                  <User className="w-8 h-8 text-gray-400 dark:text-gray-300" />
                 </div>
               )}
             </div>
-            
+
             {(profilePhotoPreview || selectedFile) && (
               <button
                 type="button"
                 onClick={removePhoto}
-                className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600"
+                className="absolute -top-2 -right-2 p-1 bg-red-500 dark:bg-red-600 rounded-full text-white hover:bg-red-600 dark:hover:bg-red-700 transition-colors"
               >
                 <X className="w-3 h-3" />
               </button>
             )}
           </div>
-          
+
           <div>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               <Camera className="w-4 h-4 mr-2" />
               {profileData.basic?.profile_photo ? 'Change Photo' : 'Upload Photo'}
@@ -251,12 +251,12 @@ const BasicProfileSection = () => {
               className="hidden"
             />
             
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Max file size: 5MB. Supported formats: JPEG, PNG, GIF, WebP
             </p>
-            
+
             {errors.profile_photo && (
-              <p className="text-xs text-red-600 mt-1">{errors.profile_photo}</p>
+              <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.profile_photo}</p>
             )}
           </div>
         </div>
@@ -265,7 +265,7 @@ const BasicProfileSection = () => {
       {/* Basic Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Full Name *
           </label>
           <input
@@ -274,16 +274,16 @@ const BasicProfileSection = () => {
             name="full_name"
             value={formData.full_name || ''}
             onChange={handleInputChange}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.full_name ? 'border-red-300' : 'border-gray-300'
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+              errors.full_name ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
             }`}
             placeholder="Enter your full name"
           />
-          {errors.full_name && <p className="text-xs text-red-600 mt-1">{errors.full_name}</p>}
+          {errors.full_name && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.full_name}</p>}
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Email Address *
           </label>
           <input
@@ -292,16 +292,16 @@ const BasicProfileSection = () => {
             name="email"
             value={formData.email || ''}
             onChange={handleInputChange}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.email ? 'border-red-300' : 'border-gray-300'
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+              errors.email ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
             }`}
             placeholder="Enter your email address"
           />
-          {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
+          {errors.email && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.email}</p>}
         </div>
 
         <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Phone Number
           </label>
           <input
@@ -310,16 +310,16 @@ const BasicProfileSection = () => {
             name="phone"
             value={formData.phone || ''}
             onChange={handleInputChange}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.phone ? 'border-red-300' : 'border-gray-300'
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+              errors.phone ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
             }`}
             placeholder="(555) 123-4567"
           />
-          {errors.phone && <p className="text-xs text-red-600 mt-1">{errors.phone}</p>}
+          {errors.phone && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.phone}</p>}
         </div>
 
         <div>
-          <label htmlFor="preferred_contact_method" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="preferred_contact_method" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Preferred Contact Method
           </label>
           <select
@@ -327,7 +327,7 @@ const BasicProfileSection = () => {
             name="preferred_contact_method"
             value={formData.preferred_contact_method || 'email'}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           >
             {contactMethods.map(method => (
               <option key={method.value} value={method.value}>
@@ -338,7 +338,7 @@ const BasicProfileSection = () => {
         </div>
 
         <div>
-          <label htmlFor="best_contact_time" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="best_contact_time" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Best Time to Contact
           </label>
           <select
@@ -346,7 +346,7 @@ const BasicProfileSection = () => {
             name="best_contact_time"
             value={formData.best_contact_time || 'anytime'}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           >
             {contactTimes.map(time => (
               <option key={time.value} value={time.value}>
@@ -357,7 +357,7 @@ const BasicProfileSection = () => {
         </div>
 
         <div>
-          <label htmlFor="language_preference" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="language_preference" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Preferred Language
           </label>
           <select
@@ -365,7 +365,7 @@ const BasicProfileSection = () => {
             name="language_preference"
             value={formData.language_preference || 'en'}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           >
             {languages.map(lang => (
               <option key={lang.value} value={lang.value}>
@@ -376,7 +376,7 @@ const BasicProfileSection = () => {
         </div>
 
         <div>
-          <label htmlFor="timezone_setting" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="timezone_setting" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Timezone
           </label>
           <select
@@ -384,7 +384,7 @@ const BasicProfileSection = () => {
             name="timezone_setting"
             value={formData.timezone_setting || 'UTC'}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           >
             {timezones.map(tz => (
               <option key={tz.value} value={tz.value}>

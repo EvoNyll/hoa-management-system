@@ -4,19 +4,19 @@ from .models import User
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ('email', 'full_name', 'role', 'unit_number', 'is_active', 'created_at')
+    list_display = ('email', 'full_name', 'role', 'block', 'lot', 'is_active', 'created_at')
     list_filter = ('role', 'is_active', 'is_directory_visible', 'created_at')
-    search_fields = ('email', 'full_name', 'username', 'unit_number')
+    search_fields = ('email', 'full_name', 'username', 'block', 'lot')
     ordering = ('email',)
     readonly_fields = ('id', 'created_at', 'updated_at')
     
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        ('Personal info', {'fields': ('full_name', 'email', 'phone', 'unit_number')}),
+        ('Personal info', {'fields': ('full_name', 'email', 'phone', 'block', 'lot', 'house_front_view')}),
         ('Permissions', {'fields': ('role', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined', 'move_in_date')}),
         ('Emergency Contact', {'fields': ('emergency_contact', 'emergency_phone')}),
-        ('Settings', {'fields': ('is_directory_visible', 'notification_preferences')}),
+        ('Settings', {'fields': ('is_directory_visible',)}),
         ('Timestamps', {'fields': ('created_at', 'updated_at')}),
     )
     

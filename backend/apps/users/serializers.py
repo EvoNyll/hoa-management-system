@@ -158,32 +158,51 @@ class UserBasicProfileSerializer(serializers.ModelSerializer):
 
 
 class UserResidenceSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = User
         fields = [
-            'unit_number', 'move_in_date', 'property_type', 'parking_spaces',
-            'mailbox_number'
+            'block', 'lot', 'move_in_date', 'parking_spaces',
+            'mailbox_number', 'house_front_view'
         ]
         extra_kwargs = {
             'move_in_date': {'required': False, 'allow_null': True},
             'parking_spaces': {'required': False},
             'mailbox_number': {'required': False, 'allow_blank': True, 'allow_null': True},
-            'unit_number': {'required': True, 'allow_blank': False},
-            'property_type': {'required': False, 'allow_blank': True},
+            'block': {'required': False, 'allow_blank': True},
+            'lot': {'required': False, 'allow_blank': True},
+            'house_front_view': {'required': False, 'allow_null': True},
         }
-    
-    def validate_unit_number(self, value):
-        if value:
-            user = self.instance
-            if user and User.objects.filter(unit_number=value).exclude(id=user.id).exists():
-                raise serializers.ValidationError("Unit number already assigned to another resident")
-        return value
-    
-    def validate_property_type(self, value):
-        if value and value not in ['townhouse', 'single_attached']:
-            raise serializers.ValidationError("Property type must be either 'townhouse' or 'single_attached'")
-        return value
+
+    def validate(self, attrs):
+        print(f"🔍 Serializer validate() called with attrs: {attrs}")
+
+        # Check the house_front_view field specifically
+        if 'house_front_view' in attrs:
+            house_front_view = attrs['house_front_view']
+            print(f"🔍 house_front_view type: {type(house_front_view)}")
+            print(f"🔍 house_front_view value: {house_front_view}")
+            if hasattr(house_front_view, 'name'):
+                print(f"🔍 house_front_view name: {house_front_view.name}")
+            if hasattr(house_front_view, 'size'):
+                print(f"🔍 house_front_view size: {house_front_view.size}")
+
+        # Check if at least block or lot is provided
+        if 'block' in attrs or 'lot' in attrs:
+            block = attrs.get('block', self.instance.block if self.instance else '')
+            lot = attrs.get('lot', self.instance.lot if self.instance else '')
+
+            if block and lot:
+                # Check for duplicate block/lot combination
+                user = self.instance
+                if user:
+                    if User.objects.filter(block=block, lot=lot).exclude(id=user.id).exists():
+                        raise serializers.ValidationError("Block and lot combination already assigned to another resident")
+                else:
+                    if User.objects.filter(block=block, lot=lot).exists():
+                        raise serializers.ValidationError("Block and lot combination already assigned to another resident")
+
+        return attrs
     
     def update(self, instance, validated_data):
         if 'move_in_date' in validated_data and validated_data['move_in_date'] is None:
@@ -272,11 +291,11 @@ class UserSecuritySerializer(serializers.ModelSerializer):
 
 
 class UserFinancialSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = User
         fields = [
-            'auto_pay_enabled', 'payment_method', 'billing_email'
+            # Note: Financial fields were removed in migration 0005 - keeping minimal serializer
         ]
 
 
@@ -286,8 +305,7 @@ class UserNotificationSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'email_notifications', 'sms_notifications', 'push_notifications',
-            'newsletter_subscription', 'event_reminders', 'maintenance_alerts',
-            'notification_preferences'
+            'newsletter_subscription', 'event_reminders', 'maintenance_alerts'
         ]
 
 
@@ -296,7 +314,7 @@ class UserSystemPreferencesSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'theme_preference', 'language_preference', 'timezone_setting'
+            'language_preference', 'timezone_setting'
         ]
 
 
@@ -312,17 +330,16 @@ class UserCompleteProfileSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'email', 'full_name', 'phone', 'profile_photo',
             'preferred_contact_method', 'best_contact_time', 'language_preference',
-            'timezone_setting', 'unit_number', 'move_in_date', 'property_type',
+            'timezone_setting', 'block', 'lot', 'move_in_date', 'house_front_view',
             'parking_spaces', 'mailbox_number', 'emergency_contact', 'emergency_phone',
             'emergency_relationship', 'secondary_emergency_contact', 'secondary_emergency_phone',
             'secondary_emergency_relationship', 'medical_conditions', 'special_needs',
             'is_directory_visible', 'directory_show_name', 'directory_show_unit',
             'directory_show_phone', 'directory_show_email', 'directory_show_household',
-            'profile_visibility', 'two_factor_enabled', 'auto_pay_enabled',
-            'payment_method', 'billing_email',
+            'profile_visibility', 'two_factor_enabled',
             'email_notifications', 'sms_notifications', 'push_notifications',
             'newsletter_subscription', 'event_reminders', 'maintenance_alerts',
-            'notification_preferences', 'theme_preference', 'role', 'is_active',
+            'role', 'is_active',
             'created_at', 'updated_at', 'last_profile_update', 'profile_completion',
             'household_members', 'pets', 'vehicles'
         ]

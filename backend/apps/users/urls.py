@@ -50,4 +50,11 @@ urlpatterns = [
     path('security/verify-email/', views.verify_email, name='verify-email'),
     path('security/request-phone-verification/', views.request_phone_verification, name='request-phone-verification'),
     path('security/verify-phone/', views.verify_phone, name='verify-phone'),
+
+    # Two-Factor Authentication
+    path('security/2fa/setup/', views.setup_totp, name='setup-2fa'),
+    path('security/2fa/verify-setup/', views.verify_totp_setup, name='verify-2fa-setup'),
+    path('security/2fa/disable/', views.disable_totp, name='disable-2fa'),
+    path('security/2fa/backup-codes/', views.generate_backup_codes, name='generate-backup-codes'),
+    path('security/2fa/verify/', views.verify_totp_code, name='verify-2fa-code'),
 ]

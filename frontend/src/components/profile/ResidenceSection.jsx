@@ -1,61 +1,117 @@
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../context/ProfileContext';
-import { Home, Save, Loader, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Home, Save, Loader, CheckCircle, AlertTriangle, Upload, X, Image } from 'lucide-react';
 
 const ResidenceSection = () => {
   const { profileData, loading, updateResidenceInfo } = useProfile();
   const [formData, setFormData] = useState({
-    unit_number: '',
-    property_type: ''
+    block: '',
+    lot: '',
+    house_front_view: null
   });
+  const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     console.log('📊 Profile data received:', profileData);
-    
+
     // Handle different possible data structures
     const residenceData = profileData?.residence || profileData?.basic || {};
-    
+
     setFormData({
-      unit_number: residenceData.unit_number || '',
-      property_type: residenceData.property_type || ''
+      block: residenceData.block || '',
+      lot: residenceData.lot || '',
+      house_front_view: null
     });
-    
+
+    // Set image preview if house_front_view exists
+    if (residenceData.house_front_view) {
+      setImagePreview(residenceData.house_front_view);
+    }
+
     console.log('📝 Form data set:', {
-      unit_number: residenceData.unit_number || '',
-      property_type: residenceData.property_type || ''
+      block: residenceData.block || '',
+      lot: residenceData.lot || '',
+      house_front_view: residenceData.house_front_view || null
     });
   }, [profileData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     console.log(`📝 Field changed: ${name} = ${value}`);
-    
+
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-    
+
     // Clear error for this field
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: null }));
     }
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+      if (!validTypes.includes(file.type)) {
+        setErrors(prev => ({ ...prev, house_front_view: 'Please select a valid image file (JPG, PNG)' }));
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors(prev => ({ ...prev, house_front_view: 'Image size must be less than 5MB' }));
+        return;
+      }
+
+      setFormData(prev => ({ ...prev, house_front_view: file }));
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = () => setImagePreview(reader.result);
+      reader.readAsDataURL(file);
+
+      // Clear any existing error
+      if (errors.house_front_view) {
+        setErrors(prev => ({ ...prev, house_front_view: null }));
+      }
+    }
+  };
+
+  const removeImage = () => {
+    setFormData(prev => ({ ...prev, house_front_view: null }));
+    setImagePreview(null);
+    // Reset file input
+    const fileInput = document.getElementById('house_front_view');
+    if (fileInput) fileInput.value = '';
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
-    // Unit number is required
-    if (!formData.unit_number?.trim()) {
-      newErrors.unit_number = 'Unit number is required';
+    // Check if we're updating existing residence data or uploading only a file
+    const hasBlockLotData = formData.block?.trim() || formData.lot?.trim();
+    const hasFileUpload = formData.house_front_view;
+
+    // If user is providing block/lot data, both must be provided
+    if (hasBlockLotData) {
+      if (formData.block?.trim() && !formData.lot?.trim()) {
+        newErrors.lot = 'Lot number is required when block is specified';
+      }
+      if (formData.lot?.trim() && !formData.block?.trim()) {
+        newErrors.block = 'Block number is required when lot is specified';
+      }
     }
 
-    // Property type is required
-    if (!formData.property_type) {
-      newErrors.property_type = 'Property type is required';
+    // Allow form submission if there's at least a file upload OR valid block/lot data
+    if (!hasFileUpload && !hasBlockLotData) {
+      newErrors.submit = 'Please provide either residence information (block and lot) or upload a house image';
     }
 
     setErrors(newErrors);
@@ -67,6 +123,9 @@ const ResidenceSection = () => {
     
     console.log('🚀 Form submission started');
     console.log('📋 Current form data:', formData);
+    console.log('📋 formData.house_front_view type:', typeof formData.house_front_view);
+    console.log('📋 formData.house_front_view instanceof File:', formData.house_front_view instanceof File);
+    console.log('📋 formData.house_front_view value:', formData.house_front_view);
     
     if (!validateForm()) {
       console.log('❌ Form validation failed:', errors);
@@ -78,20 +137,51 @@ const ResidenceSection = () => {
     setErrors({});
 
     try {
-      
-      const updateData = {};
-      
-      // Only include fields that have values
-      if (formData.unit_number?.trim()) {
-        updateData.unit_number = formData.unit_number.trim();
-      }
-      
-      if (formData.property_type) {
-        updateData.property_type = formData.property_type;
+      let updateData;
+
+      // Use FormData only if there's a file to upload
+      if (formData.house_front_view) {
+        updateData = new FormData();
+
+        // Add text fields to FormData (allow empty strings)
+        updateData.append('block', formData.block || '');
+        updateData.append('lot', formData.lot || '');
+
+        // Add image file
+        updateData.append('house_front_view', formData.house_front_view);
+
+        console.log('📤 Sending FormData with file:', {
+          block: formData.block?.trim(),
+          lot: formData.lot?.trim(),
+          file: formData.house_front_view.name,
+          fileType: formData.house_front_view.type,
+          fileSize: formData.house_front_view.size
+        });
+
+        // Debug: Log all FormData entries
+        console.log('📤 FormData entries:');
+        for (let [key, value] of updateData.entries()) {
+          if (value instanceof File) {
+            console.log(`  ${key}: File(${value.name}, ${value.type}, ${value.size} bytes)`);
+          } else {
+            console.log(`  ${key}: ${value}`);
+          }
+        }
+      } else {
+        // Use regular object for text-only updates
+        updateData = {};
+
+        if (formData.block?.trim()) {
+          updateData.block = formData.block.trim();
+        }
+
+        if (formData.lot?.trim()) {
+          updateData.lot = formData.lot.trim();
+        }
+
+        console.log('📤 Sending JSON data:', updateData);
       }
 
-      console.log('📤 Sending update data:', updateData);
-      
       const result = await updateResidenceInfo(updateData);
       
       console.log('✅ Update successful:', result);
@@ -130,80 +220,125 @@ const ResidenceSection = () => {
     }
   };
 
-  const propertyTypes = [
-    { value: '', label: 'Select Property Type' },
-    { value: 'townhouse', label: 'Townhouse' },
-    { value: 'single_attached', label: 'Single Attached' }
-  ];
 
   return (
     <div className="space-y-6">
       {/* Success Message */}
       {successMessage && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
           <div className="flex items-center">
-            <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
-            <p className="text-sm text-green-700">{successMessage}</p>
+            <CheckCircle className="w-5 h-5 text-green-400 dark:text-green-400 mr-3" />
+            <p className="text-sm text-green-700 dark:text-green-300">{successMessage}</p>
           </div>
         </div>
       )}
 
       {/* General Error Message */}
       {errors.submit && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
           <div className="flex items-center">
-            <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
-            <p className="text-sm text-red-700">{errors.submit}</p>
+            <AlertTriangle className="w-5 h-5 text-red-400 dark:text-red-400 mr-3" />
+            <p className="text-sm text-red-700 dark:text-red-300">{errors.submit}</p>
           </div>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Unit Number - No character limit, any case allowed */}
+          {/* Block Number */}
           <div>
-            <label htmlFor="unit_number" className="block text-sm font-medium text-gray-700 mb-2">
-              Unit Number *
+            <label htmlFor="block" className="block text-sm font-medium text-gray-700 mb-2">
+              Block Number *
             </label>
             <input
               type="text"
-              id="unit_number"
-              name="unit_number"
-              value={formData.unit_number}
+              id="block"
+              name="block"
+              value={formData.block}
               onChange={handleInputChange}
               className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.unit_number ? 'border-red-300' : 'border-gray-300'
+                errors.block ? 'border-red-300' : 'border-gray-300'
               }`}
-              placeholder="e.g., 101, A-204, Building 3 Unit 2B, etc."
-              maxLength={50}
+              placeholder="e.g., 1, A, Block 1"
+              maxLength={20}
             />
-            {errors.unit_number && (
-              <p className="mt-1 text-sm text-red-600">{errors.unit_number}</p>
+            {errors.block && (
+              <p className="mt-1 text-sm text-red-600">{errors.block}</p>
             )}
           </div>
 
-          {/* Property Type - Only Townhouse or Single Attached */}
+          {/* Lot Number */}
           <div>
-            <label htmlFor="property_type" className="block text-sm font-medium text-gray-700 mb-2">
-              Property Type *
+            <label htmlFor="lot" className="block text-sm font-medium text-gray-700 mb-2">
+              Lot Number *
             </label>
-            <select
-              id="property_type"
-              name="property_type"
-              value={formData.property_type}
+            <input
+              type="text"
+              id="lot"
+              name="lot"
+              value={formData.lot}
               onChange={handleInputChange}
               className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.property_type ? 'border-red-300' : 'border-gray-300'
+                errors.lot ? 'border-red-300' : 'border-gray-300'
               }`}
-            >
-              {propertyTypes.map(type => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-            {errors.property_type && (
-              <p className="mt-1 text-sm text-red-600">{errors.property_type}</p>
+              placeholder="e.g., 15, 28A, Lot 12"
+              maxLength={20}
+            />
+            {errors.lot && (
+              <p className="mt-1 text-sm text-red-600">{errors.lot}</p>
+            )}
+          </div>
+        </div>
+
+        {/* House Front View Image */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            House Front View
+          </label>
+          <div className="space-y-4">
+            {/* File Upload */}
+            <div className="flex items-center justify-center w-full">
+              <label
+                htmlFor="house_front_view"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+              >
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <Upload className="w-8 h-8 mb-2 text-gray-400" />
+                  <p className="mb-2 text-sm text-gray-500">
+                    <span className="font-semibold">Click to upload</span> your house front view
+                  </p>
+                  <p className="text-xs text-gray-500">PNG, JPG (MAX. 5MB)</p>
+                </div>
+                <input
+                  id="house_front_view"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="relative inline-block">
+                <img
+                  src={imagePreview}
+                  alt="House front view preview"
+                  className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+                />
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {errors.house_front_view && (
+              <p className="text-sm text-red-600">{errors.house_front_view}</p>
             )}
           </div>
         </div>
@@ -215,9 +350,10 @@ const ResidenceSection = () => {
             <div className="text-sm text-blue-700">
               <p className="font-medium mb-1">Residence Information</p>
               <p>
-                Your unit number and property type help us maintain accurate HOA records 
-                and ensure proper communication with residents. This information is required 
-                for HOA dues and community notifications.
+                Your block and lot numbers help us maintain accurate HOA records
+                and ensure proper communication with residents. The house front view
+                image is optional but helps with property identification for deliveries
+                and community services.
               </p>
             </div>
           </div>

@@ -9,13 +9,17 @@ import {
 
 const SecuritySection = () => {
   const { user } = useAuth();
-  const { 
-    profileData, 
-    loading, 
+  const {
+    profileData,
+    loading,
     changePassword,
     requestEmailVerification,
     verifyEmail,
     updateTwoFactorSetting,
+    setupTwoFactor,
+    verifyTotpSetup,
+    disableTwoFactor,
+    generateBackupCodes,
     generateMockBackupCodes,
     getLoginActivity,
     terminateSession,
@@ -47,6 +51,12 @@ const SecuritySection = () => {
   const [twoFactorErrors, setTwoFactorErrors] = useState({});
   const [backupCodes, setBackupCodes] = useState([]);
   const [showBackupCodes, setShowBackupCodes] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [secret, setSecret] = useState('');
+  const [setupToken, setSetupToken] = useState('');
+  const [showSetupForm, setShowSetupForm] = useState(false);
+  const [showDisableDialog, setShowDisableDialog] = useState(false);
+  const [disablePassword, setDisablePassword] = useState('');
 
   // Login Activity State
   const [loginActivity, setLoginActivity] = useState([]);
@@ -177,36 +187,100 @@ const SecuritySection = () => {
 
   // Two-Factor Authentication Functions
   const handleToggle2FA = async (enabled) => {
+    if (enabled) {
+      await handleStartSetup();
+    } else {
+      setShowDisableDialog(true);
+    }
+  };
+
+  const handleStartSetup = async () => {
     setIsSubmitting2FA(true);
     setTwoFactorSuccess('');
     setTwoFactorErrors({});
 
     try {
-      await updateTwoFactorSetting(enabled);
-      
-      if (enabled) {
-        // Generate mock backup codes for demo
-        const codesResult = generateMockBackupCodes();
-        setBackupCodes(codesResult.backup_codes || []);
-        setShowBackupCodes(true);
-        setTwoFactorSuccess('Two-factor authentication enabled successfully!');
-      } else {
-        setTwoFactorSuccess('Two-factor authentication disabled successfully!');
-        setBackupCodes([]);
-        setShowBackupCodes(false);
-      }
+      const result = await setupTwoFactor();
+      setQrCodeUrl(result.qr_code);
+      setSecret(result.secret);
+      setShowSetupForm(true);
+      setTwoFactorSuccess('Scan the QR code with your authenticator app and enter the verification code below.');
     } catch (error) {
-      setTwoFactorErrors({ general: error.message || 'Failed to update two-factor authentication' });
+      setTwoFactorErrors({ general: error.message || 'Failed to setup two-factor authentication' });
     } finally {
       setIsSubmitting2FA(false);
     }
   };
 
+  const handleVerifySetup = async () => {
+    if (!setupToken.trim()) {
+      setTwoFactorErrors({ token: 'Please enter the verification code' });
+      return;
+    }
+
+    if (!secret) {
+      setTwoFactorErrors({ token: 'Setup secret not found. Please restart the setup process.' });
+      return;
+    }
+
+    setIsSubmitting2FA(true);
+    setTwoFactorErrors({});
+
+    try {
+      const result = await verifyTotpSetup(secret, setupToken);
+      setBackupCodes(result.backup_codes || []);
+      setShowBackupCodes(true);
+      setShowSetupForm(false);
+      setSetupToken('');
+      setQrCodeUrl('');
+      setSecret('');
+      setTwoFactorSuccess('Two-factor authentication enabled successfully! Please save your backup codes.');
+    } catch (error) {
+      setTwoFactorErrors({ token: error.message || 'Invalid verification code' });
+    } finally {
+      setIsSubmitting2FA(false);
+    }
+  };
+
+  const handleDisable2FA = async () => {
+    if (!disablePassword.trim()) {
+      setTwoFactorErrors({ password: 'Password is required to disable 2FA' });
+      return;
+    }
+
+    setIsSubmitting2FA(true);
+    setTwoFactorSuccess('');
+    setTwoFactorErrors({});
+
+    try {
+      await disableTwoFactor(disablePassword);
+      setTwoFactorSuccess('Two-factor authentication disabled successfully!');
+      setBackupCodes([]);
+      setShowBackupCodes(false);
+      setShowSetupForm(false);
+      setShowDisableDialog(false);
+      setDisablePassword('');
+      setQrCodeUrl('');
+      setSecret('');
+      setSetupToken('');
+    } catch (error) {
+      setTwoFactorErrors({ password: error.message || 'Failed to disable two-factor authentication' });
+    } finally {
+      setIsSubmitting2FA(false);
+    }
+  };
+
+  const handleCancelDisable = () => {
+    setShowDisableDialog(false);
+    setDisablePassword('');
+    setTwoFactorErrors({});
+  };
+
   const handleGenerateNewBackupCodes = async () => {
     setIsSubmitting2FA(true);
-    
+
     try {
-      const result = generateMockBackupCodes();
+      const result = await generateBackupCodes();
       setBackupCodes(result.backup_codes || []);
       setTwoFactorSuccess('New backup codes generated successfully!');
       setShowBackupCodes(true);
@@ -215,6 +289,15 @@ const SecuritySection = () => {
     } finally {
       setIsSubmitting2FA(false);
     }
+  };
+
+  const handleCancelSetup = () => {
+    setShowSetupForm(false);
+    setQrCodeUrl('');
+    setSecret('');
+    setSetupToken('');
+    setTwoFactorErrors({});
+    setTwoFactorSuccess('');
   };
 
   // Login Activity Functions
@@ -291,8 +374,8 @@ const SecuritySection = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-8">
-        <Loader className="w-6 h-6 animate-spin text-blue-600" />
-        <span className="ml-2 text-gray-600">Loading security settings...</span>
+        <Loader className="w-6 h-6 animate-spin text-blue-600 dark:text-blue-400" />
+        <span className="ml-2 text-gray-600 dark:text-gray-300">Loading security settings...</span>
       </div>
     );
   }
@@ -300,19 +383,19 @@ const SecuritySection = () => {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900 flex items-center">
-            <Lock className="w-5 h-5 text-red-600 mr-2" />
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+            <Lock className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
             Security Settings
           </h3>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
             Manage your account security, password, and authentication settings.
           </p>
         </div>
 
         {/* Tab Navigation */}
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex space-x-1">
             {tabs.map((tab) => (
               <button
@@ -614,8 +697,142 @@ const SecuritySection = () => {
               </div>
             </div>
 
+            {/* 2FA Setup Form */}
+            {showSetupForm && (
+              <div className="mb-6 p-6 bg-blue-50 border border-blue-200 rounded-lg">
+                <h5 className="text-lg font-medium text-blue-900 mb-4">Set up Two-Factor Authentication</h5>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* QR Code */}
+                  <div>
+                    <h6 className="font-medium text-gray-900 mb-3">1. Scan QR Code</h6>
+                    {qrCodeUrl ? (
+                      <div className="p-4 bg-white border rounded-lg text-center">
+                        <img src={qrCodeUrl} alt="2FA Setup QR Code" className="mx-auto max-w-full h-auto" />
+                      </div>
+                    ) : (
+                      <div className="p-4 bg-gray-100 border rounded-lg text-center">
+                        <Loader className="w-8 h-8 animate-spin text-gray-500 mx-auto" />
+                        <p className="text-sm text-gray-500 mt-2">Loading QR code...</p>
+                      </div>
+                    )}
+
+                    {/* Manual Secret */}
+                    {secret && (
+                      <div className="mt-3">
+                        <p className="text-xs text-gray-600 mb-2">Can't scan? Enter this code manually:</p>
+                        <div className="p-2 bg-gray-100 border rounded text-xs font-mono break-all">
+                          {secret}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Verification */}
+                  <div>
+                    <h6 className="font-medium text-gray-900 mb-3">2. Enter Verification Code</h6>
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        value={setupToken}
+                        onChange={(e) => {
+                          setSetupToken(e.target.value.replace(/\D/g, '')); // Only digits
+                          if (twoFactorErrors.token) setTwoFactorErrors(prev => ({ ...prev, token: null }));
+                        }}
+                        maxLength="6"
+                        placeholder="Enter 6-digit code"
+                        className={`w-full px-3 py-2 border rounded-md text-center font-mono text-lg tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          twoFactorErrors.token ? 'border-red-300' : 'border-gray-300'
+                        }`}
+                      />
+                      {twoFactorErrors.token && (
+                        <p className="text-sm text-red-600">{twoFactorErrors.token}</p>
+                      )}
+
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={handleVerifySetup}
+                          disabled={isSubmitting2FA || !setupToken.trim()}
+                          className="flex-1 flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                          {isSubmitting2FA ? (
+                            <Loader className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                          )}
+                          Verify & Enable
+                        </button>
+                        <button
+                          onClick={handleCancelSetup}
+                          disabled={isSubmitting2FA}
+                          className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Disable 2FA Password Dialog */}
+            {showDisableDialog && (
+              <div className="mb-6 p-6 bg-red-50 border border-red-200 rounded-lg">
+                <h5 className="text-lg font-medium text-red-900 mb-4">Confirm Disable Two-Factor Authentication</h5>
+                <p className="text-sm text-red-700 mb-4">
+                  To disable two-factor authentication, please enter your account password to confirm this action.
+                </p>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Current Password <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="password"
+                      value={disablePassword}
+                      onChange={(e) => {
+                        setDisablePassword(e.target.value);
+                        if (twoFactorErrors.password) setTwoFactorErrors(prev => ({ ...prev, password: null }));
+                      }}
+                      placeholder="Enter your password"
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                        twoFactorErrors.password ? 'border-red-300' : 'border-gray-300'
+                      }`}
+                    />
+                    {twoFactorErrors.password && (
+                      <p className="mt-1 text-sm text-red-600">{twoFactorErrors.password}</p>
+                    )}
+                  </div>
+
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={handleDisable2FA}
+                      disabled={isSubmitting2FA || !disablePassword.trim()}
+                      className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {isSubmitting2FA ? (
+                        <Loader className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Shield className="w-4 h-4 mr-2" />
+                      )}
+                      {isSubmitting2FA ? 'Disabling...' : 'Disable 2FA'}
+                    </button>
+                    <button
+                      onClick={handleCancelDisable}
+                      disabled={isSubmitting2FA}
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Generate New Backup Codes (if 2FA is enabled) */}
-            {profileData.security?.two_factor_enabled && (
+            {profileData.security?.two_factor_enabled && !showSetupForm && (
               <div className="mb-6">
                 <button
                   onClick={handleGenerateNewBackupCodes}

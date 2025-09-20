@@ -107,10 +107,10 @@ const Account = () => {
 
   if (loading && !profileData?.basic && Object.keys(profileData || {}).length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
-          <Loader className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">Loading your profile...</p>
+          <Loader className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600 dark:text-blue-400" />
+          <p className="text-gray-600 dark:text-gray-300">Loading your profile...</p>
         </div>
       </div>
     );
@@ -118,10 +118,10 @@ const Account = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600" />
-          <p className="text-red-600 mb-4">{error}</p>
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-600 dark:text-red-400" />
+          <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
           <button
             onClick={() => {
               clearError();
@@ -129,7 +129,7 @@ const Account = () => {
                 loadProfileData();
               }
             }}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
           >
             Try Again
           </button>
@@ -141,14 +141,14 @@ const Account = () => {
   const activeTabData = profileTabs.find(tab => tab.id === activeTab);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="mb-4 sm:mb-0">
-              <h1 className="text-3xl font-bold text-gray-900">Account Settings</h1>
-              <p className="text-gray-600 mt-2">Manage your profile information and preferences</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Account Settings</h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-2">Manage your profile information and preferences</p>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -228,10 +228,10 @@ const Account = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Navigation */}
           <div className="lg:w-80 flex-shrink-0">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Profile Settings</h2>
-                <p className="text-sm text-gray-600 mt-1">Choose a section to manage</p>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Profile Settings</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Choose a section to manage</p>
               </div>
               
               <nav className="p-3">
@@ -245,19 +245,19 @@ const Account = () => {
                       onClick={() => setActiveTab(tab.id)}
                       className={`w-full text-left p-4 rounded-lg text-sm font-medium transition-all duration-200 mb-1 group ${
                         isActive
-                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                          : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                       }`}
                     >
                       <div className="flex items-center">
-                        <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-blue-600' : 'text-gray-500 group-hover:text-gray-700'}`} />
+                        <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300'}`} />
                         <div className="flex-1">
                           <div className="font-medium">{tab.label}</div>
-                          <div className={`text-xs mt-1 ${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
+                          <div className={`text-xs mt-1 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}>
                             {tab.description}
                           </div>
                         </div>
-                        {isActive && <ChevronRight className="w-4 h-4 text-blue-600" />}
+                        {isActive && <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400" />}
                       </div>
                     </button>
                   );
@@ -266,33 +266,33 @@ const Account = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Quick Actions</h3>
+            <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 <button
                   onClick={() => setActiveTab('security')}
-                  className="w-full text-left text-sm text-gray-600 hover:text-gray-900 py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="w-full text-left text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white py-2 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <Lock className="w-4 h-4 inline mr-2" />
                   Change Password
                 </button>
                 <button
                   onClick={() => setActiveTab('notifications')}
-                  className="w-full text-left text-sm text-gray-600 hover:text-gray-900 py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="w-full text-left text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white py-2 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <Bell className="w-4 h-4 inline mr-2" />
                   Update Notifications
                 </button>
                 <button
                   onClick={() => setActiveTab('privacy')}
-                  className="w-full text-left text-sm text-gray-600 hover:text-gray-900 py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="w-full text-left text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white py-2 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <Shield className="w-4 h-4 inline mr-2" />
                   Privacy Settings
                 </button>
                 <button
                   onClick={handleExportData}
-                  className="w-full text-left text-sm text-gray-600 hover:text-gray-900 py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="w-full text-left text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white py-2 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <Download className="w-4 h-4 inline mr-2" />
                   Download My Data
@@ -303,19 +303,19 @@ const Account = () => {
 
           {/* Main Content Area */}
           <div className="flex-1 min-w-0">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
               {/* Section Header */}
-              <div className="p-6 border-b border-gray-200 bg-gray-50">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
                 <div className="flex items-center">
                   {(() => {
                     const Icon = activeTabData?.icon || User;
-                    return <Icon className="w-6 h-6 text-blue-600 mr-4" />;
+                    return <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-4" />;
                   })()}
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                       {activeTabData?.label}
                     </h2>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                       {activeTabData?.description}
                     </p>
                   </div>

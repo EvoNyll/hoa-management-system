@@ -1,4 +1,4 @@
-from rest_framework import generics, status, permissions
+from rest_framework import generics, status, permissions, parsers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -12,6 +12,11 @@ from django.utils import timezone
 from django.db import transaction
 import secrets
 import uuid
+import pyotp
+import qrcode
+import io
+import base64
+import json
 from .models import HouseholdMember, Pet, Vehicle, ProfileChangeLog
 from .serializers import (
     CustomTokenObtainPairSerializer, UserBasicProfileSerializer, UserResidenceSerializer, 
@@ -199,14 +204,30 @@ class ProfileBasicView(generics.RetrieveUpdateAPIView):
 class ProfileResidenceView(generics.RetrieveUpdateAPIView):
     serializer_class = UserResidenceSerializer
     permission_classes = [permissions.IsAuthenticated]
-    
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser]
+
     def get_object(self):
         return self.request.user
-    
+
+    def update(self, request, *args, **kwargs):
+        # Debug logging
+        print(f"🔍 Request content type: {request.content_type}")
+        print(f"🔍 Request method: {request.method}")
+        print(f"🔍 Request data keys: {list(request.data.keys())}")
+        print(f"🔍 Request FILES keys: {list(request.FILES.keys())}")
+
+        for key, value in request.data.items():
+            print(f"🔍 Data field '{key}': {type(value)} - {value}")
+
+        for key, file_obj in request.FILES.items():
+            print(f"🔍 File field '{key}': {type(file_obj)} - {file_obj.name} ({file_obj.size} bytes)")
+
+        return super().update(request, *args, **kwargs)
+
     def perform_update(self, serializer):
         old_data = {field: getattr(self.request.user, field) for field in serializer.validated_data.keys()}
         instance = serializer.save(last_profile_update=timezone.now())
-        
+
         # Log changes
         for field, new_value in serializer.validated_data.items():
             old_value = old_data.get(field)
@@ -767,9 +788,9 @@ def profile_completion_status(request):
         completion_data['missing_fields'].append('profile_photo')
         completion_data['suggestions'].append('Add a profile photo to help neighbors recognize you')
     
-    if not user.unit_number:
-        completion_data['missing_fields'].append('unit_number')
-        completion_data['suggestions'].append('Add your unit number for accurate HOA records')
+    if not user.block or not user.lot:
+        completion_data['missing_fields'].append('residence_info')
+        completion_data['suggestions'].append('Add your block and lot numbers for accurate HOA records')
     
     if not user.emergency_contact:
         completion_data['missing_fields'].append('emergency_contact')
@@ -782,7 +803,255 @@ def profile_completion_status(request):
     if not user.household_members.exists():
         completion_data['suggestions'].append('Consider adding household members to help with community building')
     
-    if not user.notification_preferences:
-        completion_data['suggestions'].append('Customize your notification preferences')
-    
+    # Note: notification_preferences field was removed in migration
+
     return Response(completion_data, status=status.HTTP_200_OK)
+
+
+# Two-Factor Authentication Views
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def setup_totp(request):
+    """Generate TOTP secret and QR code for 2FA setup"""
+    try:
+        user = request.user
+
+        # Generate a new secret
+        secret = pyotp.random_base32()
+
+        # Create TOTP instance
+        totp = pyotp.TOTP(secret)
+
+        # Generate QR code URI
+        issuer_name = "HOA Portal"
+        account_name = f"{issuer_name}:{user.email}"
+        uri = totp.provisioning_uri(
+            name=account_name,
+            issuer_name=issuer_name
+        )
+
+        # Generate QR code image
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(uri)
+        qr.make(fit=True)
+
+        img = qr.make_image(fill_color="black", back_color="white")
+
+        # Convert to base64
+        buffer = io.BytesIO()
+        img.save(buffer, format='PNG')
+        buffer.seek(0)
+        img_base64 = base64.b64encode(buffer.getvalue()).decode()
+
+        return Response({
+            'secret': secret,
+            'qr_code': f"data:image/png;base64,{img_base64}",
+            'manual_entry_key': secret,
+            'account_name': account_name,
+            'issuer': issuer_name
+        })
+
+    except Exception as e:
+        return Response(
+            {'error': f'Failed to setup TOTP: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def verify_totp_setup(request):
+    """Verify TOTP code and enable 2FA"""
+    try:
+        user = request.user
+        secret = request.data.get('secret')
+        code = request.data.get('code')
+
+        if not secret or not code:
+            return Response(
+                {'error': 'Secret and verification code are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Verify the code
+        totp = pyotp.TOTP(secret)
+        if not totp.verify(code, valid_window=1):
+            return Response(
+                {'error': 'Invalid verification code'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Generate backup codes
+        backup_codes = [secrets.token_hex(4).upper() for _ in range(8)]
+
+        # Save to user
+        with transaction.atomic():
+            user.totp_secret = secret
+            user.two_factor_enabled = True
+            user.backup_codes = backup_codes
+            user.save()
+
+        # Log the change
+        ProfileChangeLog.objects.create(
+            user=user,
+            change_type='security_update',
+            field_name='two_factor_enabled',
+            old_value='False',
+            new_value='True',
+            ip_address=request.META.get('REMOTE_ADDR', 'Unknown'),
+            user_agent=request.META.get('HTTP_USER_AGENT', 'Unknown')
+        )
+
+        return Response({
+            'message': 'Two-factor authentication enabled successfully',
+            'backup_codes': backup_codes
+        })
+
+    except Exception as e:
+        return Response(
+            {'error': f'Failed to verify TOTP: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def disable_totp(request):
+    """Disable 2FA after verification"""
+    try:
+        user = request.user
+        password = request.data.get('password')
+
+        if not password:
+            return Response(
+                {'error': 'Password is required to disable 2FA'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Verify password
+        if not user.check_password(password):
+            return Response(
+                {'error': 'Invalid password'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Disable 2FA
+        with transaction.atomic():
+            user.two_factor_enabled = False
+            user.totp_secret = None
+            user.backup_codes = []
+            user.save()
+
+        # Log the change
+        ProfileChangeLog.objects.create(
+            user=user,
+            change_type='security_update',
+            field_name='two_factor_enabled',
+            old_value='True',
+            new_value='False',
+            ip_address=request.META.get('REMOTE_ADDR', 'Unknown'),
+            user_agent=request.META.get('HTTP_USER_AGENT', 'Unknown')
+        )
+
+        return Response({
+            'message': 'Two-factor authentication disabled successfully'
+        })
+
+    except Exception as e:
+        return Response(
+            {'error': f'Failed to disable 2FA: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def generate_backup_codes(request):
+    """Generate new backup codes"""
+    try:
+        user = request.user
+
+        if not user.two_factor_enabled:
+            return Response(
+                {'error': 'Two-factor authentication is not enabled'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Generate new backup codes
+        backup_codes = [secrets.token_hex(4).upper() for _ in range(8)]
+
+        # Save to user
+        user.backup_codes = backup_codes
+        user.save()
+
+        # Log the change
+        ProfileChangeLog.objects.create(
+            user=user,
+            change_type='security_update',
+            field_name='backup_codes',
+            old_value='regenerated',
+            new_value='new_codes',
+            ip_address=request.META.get('REMOTE_ADDR', 'Unknown'),
+            user_agent=request.META.get('HTTP_USER_AGENT', 'Unknown')
+        )
+
+        return Response({
+            'backup_codes': backup_codes,
+            'message': 'New backup codes generated successfully'
+        })
+
+    except Exception as e:
+        return Response(
+            {'error': f'Failed to generate backup codes: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def verify_totp_code(request):
+    """Verify a TOTP code (for testing or validation)"""
+    try:
+        user = request.user
+        code = request.data.get('code')
+
+        if not code:
+            return Response(
+                {'error': 'Verification code is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not user.two_factor_enabled or not user.totp_secret:
+            return Response(
+                {'error': 'Two-factor authentication is not enabled'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Check if it's a backup code
+        if code.upper() in user.backup_codes:
+            # Remove used backup code
+            backup_codes = user.backup_codes[:]
+            backup_codes.remove(code.upper())
+            user.backup_codes = backup_codes
+            user.save()
+
+            return Response({
+                'valid': True,
+                'type': 'backup_code',
+                'remaining_codes': len(backup_codes)
+            })
+
+        # Verify TOTP code
+        totp = pyotp.TOTP(user.totp_secret)
+        valid = totp.verify(code, valid_window=1)
+
+        return Response({
+            'valid': valid,
+            'type': 'totp'
+        })
+
+    except Exception as e:
+        return Response(
+            {'error': f'Failed to verify code: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

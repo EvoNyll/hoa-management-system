@@ -51,36 +51,71 @@ export const getResidenceInfo = async () => {
 export const updateResidenceInfo = async (data) => {
   try {
     console.log('🔄 Updating residence info with data:', data);
-    
-    // Ensure we're sending clean data - only include non-empty values
-    const cleanData = {};
-    
-    if (data.unit_number) {
-      cleanData.unit_number = data.unit_number;
+
+    if (data instanceof FormData) {
+      console.log('📤 Sending FormData with residence info');
+      console.log('📤 FormData entries:');
+      for (let [key, value] of data.entries()) {
+        if (value instanceof File) {
+          console.log(`  ${key}: File(${value.name}, ${value.type}, ${value.size} bytes)`);
+        } else {
+          console.log(`  ${key}: ${value}`);
+        }
+      }
+
+      // Use fetch API directly for file uploads to avoid Axios header conflicts
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('http://localhost:8000/api/users/profile/residence/', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          // Don't set Content-Type - let browser set multipart/form-data with boundary
+        },
+        body: data
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        const error = new Error(`Request failed with status code ${response.status}`);
+        error.response = { status: response.status, data: errorData };
+        throw error;
+      }
+
+      const responseData = await response.json();
+      console.log('✅ Residence update response:', responseData);
+      return responseData;
+
+    } else {
+      // For regular JSON data, use the existing Axios approach
+      const cleanData = {};
+
+      if (data.block) {
+        cleanData.block = data.block;
+      }
+
+      if (data.lot) {
+        cleanData.lot = data.lot;
+      }
+
+      if (data.house_front_view) {
+        cleanData.house_front_view = data.house_front_view;
+      }
+
+      console.log('📤 Clean data being sent:', cleanData);
+
+      const response = await api.put('/users/profile/residence/', cleanData);
+
+      console.log('✅ Residence update response:', response.data);
+      return response.data;
     }
-    
-    if (data.property_type) {
-      cleanData.property_type = data.property_type;
-    }
-    
-    console.log('📤 Clean data being sent:', cleanData);
-    
-    const response = await api.put('/users/profile/residence/', cleanData, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    
-    console.log('✅ Residence update response:', response.data);
-    return response.data;
   } catch (error) {
     console.error('❌ Update residence info error:', {
       message: error.message,
       status: error.response?.status,
       data: error.response?.data,
-      url: error.config?.url
+      url: error.config?.url || 'fetch request'
     });
-    
+
     // Provide more specific error information
     if (error.response?.status === 400) {
       console.error('📋 Validation errors:', error.response.data);
@@ -91,7 +126,7 @@ export const updateResidenceInfo = async (data) => {
     } else if (error.code === 'ERR_NETWORK') {
       console.error('🌐 Network error - backend may be down');
     }
-    
+
     throw error;
   }
 };
@@ -260,36 +295,114 @@ export const verifyEmail = async (token) => {
   }
 };
 
-// Two-Factor Authentication (using existing security endpoint)
-export const updateTwoFactorSetting = async (enabled) => {
+// Two-Factor Authentication - Setup TOTP
+export const setupTwoFactor = async () => {
   try {
-    console.log('🔐 Updating two-factor authentication setting:', enabled);
-    const response = await api.put('/users/profile/security/', {
-      two_factor_enabled: enabled
-    });
-    console.log('✅ Two-factor authentication setting updated successfully');
+    console.log('🔐 Setting up two-factor authentication');
+    const response = await api.post('/users/security/2fa/setup/');
+    console.log('✅ 2FA setup initiated successfully');
     return response.data;
   } catch (error) {
-    console.error('❌ Update 2FA setting error:', error);
-    
+    console.error('❌ Setup 2FA error:', error);
+
     if (error.response?.status === 400) {
-      const errorMsg = error.response.data.error || 'Failed to update two-factor authentication';
+      const errorMsg = error.response.data.error || 'Failed to setup two-factor authentication';
       throw new Error(errorMsg);
     }
-    
+
     throw error;
   }
 };
 
-// Mock backup codes generation
-export const generateMockBackupCodes = () => {
-  console.log('🎫 Generating mock backup codes');
-  const codes = [];
-  for (let i = 0; i < 8; i++) {
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    codes.push(`${code.slice(0, 4)}-${code.slice(4)}`);
+// Verify TOTP setup
+export const verifyTotpSetup = async (secret, code) => {
+  try {
+    console.log('🔐 Verifying TOTP setup');
+    const response = await api.post('/users/security/2fa/verify-setup/', { secret, code });
+    console.log('✅ TOTP setup verified successfully');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Verify TOTP setup error:', error);
+
+    if (error.response?.status === 400) {
+      const errorMsg = error.response.data.error || 'Failed to verify TOTP setup';
+      throw new Error(errorMsg);
+    }
+
+    throw error;
   }
-  return { backup_codes: codes };
+};
+
+// Disable Two-Factor Authentication
+export const disableTwoFactor = async (password) => {
+  try {
+    console.log('🔐 Disabling two-factor authentication');
+    const response = await api.post('/users/security/2fa/disable/', { password });
+    console.log('✅ 2FA disabled successfully');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Disable 2FA error:', error);
+
+    if (error.response?.status === 400) {
+      const errorMsg = error.response.data.error || 'Failed to disable two-factor authentication';
+      throw new Error(errorMsg);
+    }
+
+    throw error;
+  }
+};
+
+// Generate backup codes
+export const generateBackupCodes = async () => {
+  try {
+    console.log('🎫 Generating backup codes');
+    const response = await api.post('/users/security/2fa/backup-codes/');
+    console.log('✅ Backup codes generated successfully');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Generate backup codes error:', error);
+
+    if (error.response?.status === 400) {
+      const errorMsg = error.response.data.error || 'Failed to generate backup codes';
+      throw new Error(errorMsg);
+    }
+
+    throw error;
+  }
+};
+
+// Verify TOTP code
+export const verifyTotpCode = async (token) => {
+  try {
+    console.log('🔐 Verifying TOTP code');
+    const response = await api.post('/users/security/2fa/verify/', { token });
+    console.log('✅ TOTP code verified successfully');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Verify TOTP code error:', error);
+
+    if (error.response?.status === 400) {
+      const errorMsg = error.response.data.error || 'Invalid TOTP code';
+      throw new Error(errorMsg);
+    }
+
+    throw error;
+  }
+};
+
+// Legacy function for backward compatibility
+export const updateTwoFactorSetting = async (enabled) => {
+  if (enabled) {
+    return setupTwoFactor();
+  } else {
+    return disableTwoFactor();
+  }
+};
+
+// Legacy function for backward compatibility
+export const generateMockBackupCodes = () => {
+  console.log('🎫 Using legacy backup codes - redirecting to real implementation');
+  return generateBackupCodes();
 };
 
 // Login Activity (using existing change logs endpoint)

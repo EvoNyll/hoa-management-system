@@ -11,7 +11,7 @@ const HeroSection = ({
   height = "min-h-[400px]"
 }) => {
   return (
-    <section className="bg-gray-50 py-4 px-4 sm:px-6 lg:px-8">
+    <section className="bg-gray-50 dark:bg-gray-900 py-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-[1400px] mx-auto">
         <div 
           className={`relative rounded-3xl overflow-hidden ${height} flex items-center`}
