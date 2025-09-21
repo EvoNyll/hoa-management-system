@@ -44,7 +44,8 @@ const Login = () => {
     isSubmitting,
     handleChange,
     handleBlur,
-    handleSubmit
+    handleSubmit,
+    setFieldValue
   } = useForm(
     {
       email: '',
@@ -103,6 +104,12 @@ const Login = () => {
       console.error('Login error:', error)
       showError(error.response?.data?.message || 'Invalid email or password')
     }
+  }
+
+  // Helper function to fill form with test credentials
+  const fillCredentials = (email, password) => {
+    setFieldValue('email', email)
+    setFieldValue('password', password)
   }
 
   return (
@@ -244,12 +251,34 @@ const Login = () => {
             </button>
           </div>
 
-          {/* Demo credentials */}
+          {/* Test credentials */}
           <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h4 className="text-sm font-medium text-blue-900 mb-2">Demo Credentials:</h4>
-            <div className="text-xs text-blue-800 space-y-1">
-              <div><strong>Admin:</strong> admin1@hoa.com / admin123</div>
-              <div><strong>Member:</strong> member1@hoa.com / member123</div>
+            <h4 className="text-sm font-medium text-blue-900 mb-2">Test Login Credentials:</h4>
+            <div className="text-xs text-blue-800 space-y-2">
+              <button
+                type="button"
+                onClick={() => fillCredentials('admin@hoamanagement.com', 'admin123')}
+                className="block w-full text-left p-2 rounded hover:bg-blue-100 transition-colors"
+              >
+                <strong>Admin:</strong> admin@hoamanagement.com / admin123
+              </button>
+              <button
+                type="button"
+                onClick={() => fillCredentials('member@test.com', 'member123')}
+                className="block w-full text-left p-2 rounded hover:bg-blue-100 transition-colors"
+              >
+                <strong>Member:</strong> member@test.com / member123
+              </button>
+              <button
+                type="button"
+                onClick={() => fillCredentials('guest@test.com', 'guest123')}
+                className="block w-full text-left p-2 rounded hover:bg-blue-100 transition-colors"
+              >
+                <strong>Guest:</strong> guest@test.com / guest123
+              </button>
+            </div>
+            <div className="mt-2 text-xs text-blue-600">
+              Click on any credential to auto-fill the form
             </div>
           </div>
         </form>

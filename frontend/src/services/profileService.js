@@ -65,7 +65,7 @@ export const updateResidenceInfo = async (data) => {
 
       // Use fetch API directly for file uploads to avoid Axios header conflicts
       const token = localStorage.getItem('access_token');
-      const response = await fetch('http://localhost:8000/api/users/profile/residence/', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/profile/residence/`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -617,18 +617,76 @@ export const getPets = async () => {
 
 export const addPet = async (data) => {
   try {
-    const response = await api.post('/users/pets/', data)
-    return response.data
+    console.log('[SERVICE DEBUG] addPet called with data type:', data instanceof FormData ? 'FormData' : typeof data);
+
+    if (data instanceof FormData) {
+      // Use fetch API directly for file uploads to avoid Axios header conflicts
+      console.log('[SERVICE DEBUG] Using fetch for FormData upload');
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/pets/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          // Don't set Content-Type - let browser set multipart/form-data with boundary
+        },
+        body: data
+      });
+
+      console.log('[SERVICE DEBUG] FormData response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log('[SERVICE DEBUG] FormData error response:', errorData);
+        const error = new Error(`Request failed with status code ${response.status}`);
+        error.response = { status: response.status, data: errorData };
+        throw error;
+      }
+
+      const responseData = await response.json();
+      console.log('[SERVICE DEBUG] FormData success response:', responseData);
+      return responseData;
+    } else {
+      // For regular JSON data, use the existing Axios approach
+      console.log('[SERVICE DEBUG] Using axios for JSON upload');
+      console.log('[SERVICE DEBUG] JSON data:', data);
+      const response = await api.post('/users/pets/', data);
+      console.log('[SERVICE DEBUG] JSON success response:', response.data);
+      return response.data;
+    }
   } catch (error) {
-    console.error('Add pet error:', error)
+    console.error('[SERVICE DEBUG] Add pet error:', error)
     throw error
   }
 }
 
 export const updatePet = async (id, data) => {
   try {
-    const response = await api.put(`/users/pets/${id}/`, data)
-    return response.data
+    if (data instanceof FormData) {
+      // Use fetch API directly for file uploads to avoid Axios header conflicts
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/pets/${id}/`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          // Don't set Content-Type - let browser set multipart/form-data with boundary
+        },
+        body: data
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        const error = new Error(`Request failed with status code ${response.status}`);
+        error.response = { status: response.status, data: errorData };
+        throw error;
+      }
+
+      const responseData = await response.json();
+      return responseData;
+    } else {
+      // For regular JSON data, use the existing Axios approach
+      const response = await api.put(`/users/pets/${id}/`, data);
+      return response.data;
+    }
   } catch (error) {
     console.error('Update pet error:', error)
     throw error

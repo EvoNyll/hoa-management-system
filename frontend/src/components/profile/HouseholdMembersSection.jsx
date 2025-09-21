@@ -196,7 +196,7 @@ const HouseholdMembersSection = () => {
                   name="date_of_birth"
                   value={formData.date_of_birth}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="form-select"
                 />
               </div>
 
@@ -209,7 +209,7 @@ const HouseholdMembersSection = () => {
                   name="contact_phone"
                   value={formData.contact_phone}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="form-select"
                   placeholder="(555) 123-4567"
                 />
               </div>
@@ -223,7 +223,7 @@ const HouseholdMembersSection = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="form-select"
                   placeholder="email@example.com"
                 />
               </div>

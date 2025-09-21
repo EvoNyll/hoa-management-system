@@ -18,11 +18,16 @@ const FinancialSection = () => {
   const [errors, setErrors] = useState({});
 
   React.useEffect(() => {
+    console.log('💰 Financial data changed:', profileData.financial);
     if (profileData.financial) {
-      setFormData(prev => ({
-        ...prev,
-        ...profileData.financial
-      }));
+      setFormData(prev => {
+        const newFormData = {
+          ...prev,
+          ...profileData.financial
+        };
+        console.log('💰 Setting form data:', newFormData);
+        return newFormData;
+      });
     }
   }, [profileData.financial]);
 
@@ -78,12 +83,21 @@ const FinancialSection = () => {
     setSuccessMessage('');
 
     try {
-      await updateFinancialInfo(formData);
-      const walletMessage = formData.preferred_payment_method === 'payment_wallet'
-        ? `${formData.wallet_provider === 'gcash' ? 'GCash' : 'Maya'} wallet linked successfully!`
-        : 'Financial preferences updated successfully!';
-      setSuccessMessage(walletMessage);
-      setTimeout(() => setSuccessMessage(''), 3000);
+      console.log('💰 Submitting financial data:', formData);
+      const result = await updateFinancialInfo(formData);
+      console.log('💰 Update result:', result);
+
+      let successMsg = 'Financial preferences updated successfully!';
+
+      if (formData.preferred_payment_method === 'payment_wallet') {
+        const providerName = formData.wallet_provider === 'gcash' ? 'GCash' : 'Maya';
+        const accountName = formData.wallet_account_name;
+        const accountNumber = formData.wallet_account_number;
+        successMsg = `${providerName} wallet (${accountName} - ${accountNumber}) linked successfully!`;
+      }
+
+      setSuccessMessage(successMsg);
+      setTimeout(() => setSuccessMessage(''), 5000);
     } catch (err) {
       setErrors({ submit: err.message || 'Failed to update financial preferences' });
     } finally {
@@ -226,6 +240,40 @@ const FinancialSection = () => {
           </div>
 
           <div className="space-y-6">
+            {/* Saved Wallet Summary - only show if wallet is configured */}
+            {formData.wallet_account_number && formData.wallet_account_name && (
+              <div className={`p-4 rounded-lg border ${
+                formData.wallet_provider === 'gcash'
+                  ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                  : 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      formData.wallet_provider === 'gcash' ? 'bg-blue-100 dark:bg-blue-800' : 'bg-green-100 dark:bg-green-800'
+                    }`}>
+                      <span className="text-lg">{formData.wallet_provider === 'gcash' ? '💙' : '💚'}</span>
+                    </div>
+                    <div>
+                      <div className={`text-sm font-semibold ${
+                        formData.wallet_provider === 'gcash' ? 'text-blue-900 dark:text-blue-100' : 'text-green-900 dark:text-green-100'
+                      }`}>
+                        {formData.wallet_provider === 'gcash' ? 'GCash' : 'Maya'} Wallet Configured
+                      </div>
+                      <div className={`text-xs ${
+                        formData.wallet_provider === 'gcash' ? 'text-blue-700 dark:text-blue-300' : 'text-green-700 dark:text-green-300'
+                      }`}>
+                        {formData.wallet_account_name} • {formData.wallet_account_number}
+                      </div>
+                    </div>
+                  </div>
+                  <CheckCircle className={`w-6 h-6 ${
+                    formData.wallet_provider === 'gcash' ? 'text-blue-600' : 'text-green-600'
+                  }`} />
+                </div>
+              </div>
+            )}
+
             {/* Wallet Provider Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
@@ -245,7 +293,7 @@ const FinancialSection = () => {
                     />
                     <label
                       htmlFor={`wallet_${provider.value}`}
-                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all relative ${
                         formData.wallet_provider === provider.value
                           ? `border-blue-500 dark:border-blue-400 ${provider.color} bg-opacity-10 dark:bg-opacity-20`
                           : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
@@ -277,22 +325,28 @@ const FinancialSection = () => {
                 <label htmlFor="wallet_account_number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {formData.wallet_provider === 'gcash' ? 'GCash' : 'Maya'} Mobile Number <span className="text-red-500">*</span>
                 </label>
-                <input
-                  id="wallet_account_number"
-                  name="wallet_account_number"
-                  type="tel"
-                  value={formData.wallet_account_number}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
-                    errors.wallet_account_number ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
-                  }`}
-                  placeholder={formData.wallet_provider === 'gcash' ? '+63 9XX XXX XXXX' : '+63 9XX XXX XXXX'}
-                />
+                <div className="relative">
+                  <input
+                    id="wallet_account_number"
+                    name="wallet_account_number"
+                    type="tel"
+                    value={formData.wallet_account_number}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 pr-10 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                      errors.wallet_account_number ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
+                    }`}
+                    placeholder="e.g., +63 9XX XXX XXXX or 09XX XXX XXXX"
+                  />
+                  {formData.wallet_account_number && (
+                    <CheckCircle className="absolute right-3 top-2.5 w-4 h-4 text-green-500" />
+                  )}
+                </div>
                 {errors.wallet_account_number && (
                   <p className="text-xs text-red-600 mt-1">{errors.wallet_account_number}</p>
                 )}
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Enter the mobile number linked to your {formData.wallet_provider === 'gcash' ? 'GCash' : 'Maya'} account
+                  <span className="block">Accepted formats: +63 9XX XXX XXXX, 63 9XX XXX XXXX, or 09XX XXX XXXX</span>
+                  <span className="block mt-1">Enter the mobile number linked to your {formData.wallet_provider === 'gcash' ? 'GCash' : 'Maya'} account</span>
                 </p>
               </div>
 
@@ -300,17 +354,22 @@ const FinancialSection = () => {
                 <label htmlFor="wallet_account_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Account Holder Name <span className="text-red-500">*</span>
                 </label>
-                <input
-                  id="wallet_account_name"
-                  name="wallet_account_name"
-                  type="text"
-                  value={formData.wallet_account_name}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
-                    errors.wallet_account_name ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
-                  }`}
-                  placeholder="Enter full name as registered"
-                />
+                <div className="relative">
+                  <input
+                    id="wallet_account_name"
+                    name="wallet_account_name"
+                    type="text"
+                    value={formData.wallet_account_name}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 pr-10 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                      errors.wallet_account_name ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
+                    }`}
+                    placeholder="Enter full name as registered"
+                  />
+                  {formData.wallet_account_name && (
+                    <CheckCircle className="absolute right-3 top-2.5 w-4 h-4 text-green-500" />
+                  )}
+                </div>
                 {errors.wallet_account_name && (
                   <p className="text-xs text-red-600 mt-1">{errors.wallet_account_name}</p>
                 )}
@@ -617,6 +676,43 @@ const FinancialSection = () => {
           </div>
         </div>
       </div>
+
+      {/* Current Configuration Summary */}
+      {(formData.wallet_account_number || formData.billing_address_different) && (
+        <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Current Configuration</h4>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-600 dark:text-gray-400">Payment Method:</span>
+              <span className="text-gray-900 dark:text-white font-medium">
+                {formData.preferred_payment_method === 'payment_wallet' ? 'Payment Wallet' : 'InstaPay QR Code'}
+              </span>
+            </div>
+            {formData.preferred_payment_method === 'payment_wallet' && formData.wallet_account_number && (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Wallet Provider:</span>
+                  <span className="text-gray-900 dark:text-white font-medium">
+                    {formData.wallet_provider === 'gcash' ? 'GCash' : 'Maya'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Account:</span>
+                  <span className="text-gray-900 dark:text-white font-medium">
+                    {formData.wallet_account_name} ({formData.wallet_account_number})
+                  </span>
+                </div>
+              </>
+            )}
+            <div className="flex justify-between">
+              <span className="text-gray-600 dark:text-gray-400">Billing Address:</span>
+              <span className="text-gray-900 dark:text-white font-medium">
+                {formData.billing_address_different ? 'Custom Address' : 'Same as Residence'}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700">
         <button

@@ -5,7 +5,7 @@ import { Settings, Save, Loader, CheckCircle, Monitor, Globe, Clock, Sun, Moon, 
 
 const SystemPreferencesSection = () => {
   const { profileData, loading, updateSystemPreferences } = useProfile();
-  const { theme, updateTheme } = useTheme();
+  const { theme, updateTheme, syncThemeFromProfile, isInitialized } = useTheme();
   const [formData, setFormData] = useState({
     theme_preference: theme || 'light',
     language_preference: 'en',
@@ -23,8 +23,13 @@ const SystemPreferencesSection = () => {
         ...prev,
         ...profileData.system
       }));
+
+      // Sync theme with backend data if ThemeContext is initialized
+      if (isInitialized && profileData.system.theme_preference) {
+        syncThemeFromProfile(profileData.system.theme_preference);
+      }
     }
-  }, [profileData.system]);
+  }, [profileData.system, isInitialized, syncThemeFromProfile]);
 
   React.useEffect(() => {
     setFormData(prev => ({
@@ -48,12 +53,14 @@ const SystemPreferencesSection = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     setIsSubmitting(true);
     setSuccessMessage('');
 
     try {
       await updateSystemPreferences(formData);
+      // Ensure theme is also saved to localStorage for persistence across refreshes
+      updateTheme(formData.theme_preference);
       setSuccessMessage('System preferences updated successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
@@ -156,7 +163,7 @@ const SystemPreferencesSection = () => {
                 name="language_preference"
                 value={formData.language_preference}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="form-select"
               >
                 <option value="en">English</option>
                 <option value="es">Español</option>
@@ -174,7 +181,7 @@ const SystemPreferencesSection = () => {
                 name="timezone_setting"
                 value={formData.timezone_setting}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="form-select"
               >
                 <option value="America/New_York">Eastern Time (UTC-5)</option>
                 <option value="America/Chicago">Central Time (UTC-6)</option>
@@ -202,7 +209,7 @@ const SystemPreferencesSection = () => {
                 name="date_format"
                 value={formData.date_format}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="form-select"
               >
                 <option value="MM/DD/YYYY">MM/DD/YYYY (12/31/2024)</option>
                 <option value="DD/MM/YYYY">DD/MM/YYYY (31/12/2024)</option>
@@ -219,7 +226,7 @@ const SystemPreferencesSection = () => {
                 name="time_format"
                 value={formData.time_format}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="form-select"
               >
                 <option value="12">12 Hour (3:30 PM)</option>
                 <option value="24">24 Hour (15:30)</option>

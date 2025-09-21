@@ -20,6 +20,8 @@ import Dashboard from './pages/Private/Dashboard'
 import Account from './pages/Private/Account'
 import Payments from './pages/Private/Payments'
 import PaymentHistory from './pages/Private/PaymentHistory'
+import PaymentSuccess from './pages/Private/PaymentSuccess'
+import PaymentFailed from './pages/Private/PaymentFailed'
 import Bookings from './pages/Private/Bookings'
 import Requests from './pages/Private/Requests'
 import Forum from './pages/Private/Forum'
@@ -73,6 +75,16 @@ function AppRouter() {
       <Route path="/payment-history" element={
         <ProtectedRoute requiredRole="member">
           <PaymentHistory />
+        </ProtectedRoute>
+      } />
+      <Route path="/payment-success" element={
+        <ProtectedRoute requiredRole="member">
+          <PaymentSuccess />
+        </ProtectedRoute>
+      } />
+      <Route path="/payment-failed" element={
+        <ProtectedRoute requiredRole="member">
+          <PaymentFailed />
         </ProtectedRoute>
       } />
       <Route path="/bookings" element={

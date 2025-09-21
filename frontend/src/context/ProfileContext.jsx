@@ -205,13 +205,16 @@ export const ProfileProvider = ({ children }) => {
 
   const handleUpdateFinancialInfo = useCallback(async (data) => {
     try {
+      console.log('🏦 ProfileContext: Updating financial info with:', data);
       const updatedData = await updateFinancialInfo(data)
+      console.log('🏦 ProfileContext: Received updated data:', updatedData);
       setProfileData(prev => ({
         ...prev,
         financial: updatedData
       }))
       return updatedData
     } catch (error) {
+      console.error('🏦 ProfileContext: Update failed:', error);
       throw error
     }
   }, [])

@@ -175,17 +175,17 @@ class UserResidenceSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, attrs):
-        print(f"🔍 Serializer validate() called with attrs: {attrs}")
+        print(f"[SERIALIZER] Serializer validate() called with attrs: {attrs}")
 
         # Check the house_front_view field specifically
         if 'house_front_view' in attrs:
             house_front_view = attrs['house_front_view']
-            print(f"🔍 house_front_view type: {type(house_front_view)}")
-            print(f"🔍 house_front_view value: {house_front_view}")
+            print(f"[SERIALIZER] house_front_view type: {type(house_front_view)}")
+            print(f"[SERIALIZER] house_front_view value: {house_front_view}")
             if hasattr(house_front_view, 'name'):
-                print(f"🔍 house_front_view name: {house_front_view.name}")
+                print(f"[SERIALIZER] house_front_view name: {house_front_view.name}")
             if hasattr(house_front_view, 'size'):
-                print(f"🔍 house_front_view size: {house_front_view.size}")
+                print(f"[SERIALIZER] house_front_view size: {house_front_view.size}")
 
         # Check if at least block or lot is provided
         if 'block' in attrs or 'lot' in attrs:
@@ -295,8 +295,47 @@ class UserFinancialSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            # Note: Financial fields were removed in migration 0005 - keeping minimal serializer
+            'preferred_payment_method',
+            'wallet_provider',
+            'wallet_account_number',
+            'wallet_account_name',
+            'billing_address_different',
+            'billing_address'
         ]
+
+    def validate_wallet_account_number(self, value):
+        """Validate mobile number format for wallet providers"""
+        if value and self.initial_data.get('preferred_payment_method') == 'payment_wallet':
+            # Remove spaces and dashes for validation
+            clean_number = re.sub(r'[\s\-]', '', value)
+
+            # Philippine mobile number validation (+63 or 0 followed by 9 and 9 digits)
+            phone_regex = r'^(\+63|63|0)?9\d{9}$'
+
+            if not re.match(phone_regex, clean_number):
+                raise serializers.ValidationError(
+                    "Invalid mobile number format. Please use format: +63 9XX XXX XXXX or 09XX XXX XXXX"
+                )
+        return value
+
+    def validate(self, data):
+        """Validate financial information as a whole"""
+        if data.get('preferred_payment_method') == 'payment_wallet':
+            if not data.get('wallet_account_number'):
+                raise serializers.ValidationError({
+                    'wallet_account_number': 'Wallet account number is required for payment wallet method.'
+                })
+            if not data.get('wallet_account_name'):
+                raise serializers.ValidationError({
+                    'wallet_account_name': 'Account holder name is required for payment wallet method.'
+                })
+
+        if data.get('billing_address_different') and not data.get('billing_address'):
+            raise serializers.ValidationError({
+                'billing_address': 'Billing address is required when different from residence address.'
+            })
+
+        return data
 
 
 class UserNotificationSerializer(serializers.ModelSerializer):
@@ -314,7 +353,7 @@ class UserSystemPreferencesSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'language_preference', 'timezone_setting'
+            'language_preference', 'timezone_setting', 'theme_preference'
         ]
 
 

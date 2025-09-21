@@ -48,6 +48,15 @@ class User(AbstractUser):
     )
     language_preference = models.CharField(max_length=10, default='en')
     timezone_setting = models.CharField(max_length=50, default='UTC')
+    theme_preference = models.CharField(
+        max_length=10,
+        choices=[
+            ('light', 'Light'),
+            ('dark', 'Dark'),
+            ('system', 'System'),
+        ],
+        default='light'
+    )
     
     block = models.CharField(max_length=20, blank=True)
     lot = models.CharField(max_length=20, blank=True)
@@ -95,6 +104,30 @@ class User(AbstractUser):
     last_password_change = models.DateTimeField(default=timezone.now)
     failed_login_attempts = models.PositiveIntegerField(default=0)
     account_locked_until = models.DateTimeField(blank=True, null=True)
+
+    # Financial Information
+    preferred_payment_method = models.CharField(
+        max_length=20,
+        choices=[
+            ('payment_wallet', 'Payment Wallet'),
+            ('qr_code', 'InstaPay QR Code'),
+        ],
+        default='payment_wallet',
+        blank=True
+    )
+    wallet_provider = models.CharField(
+        max_length=10,
+        choices=[
+            ('gcash', 'GCash'),
+            ('maya', 'Maya'),
+        ],
+        default='gcash',
+        blank=True
+    )
+    wallet_account_number = models.CharField(max_length=20, blank=True)
+    wallet_account_name = models.CharField(max_length=255, blank=True)
+    billing_address_different = models.BooleanField(default=False)
+    billing_address = models.TextField(blank=True)
     
     last_profile_update = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)

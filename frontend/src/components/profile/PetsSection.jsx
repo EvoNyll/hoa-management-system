@@ -134,23 +134,32 @@ const PetsSection = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setIsSubmitting(true);
     setErrors({});
-    
+
     try {
       let submitData;
-      
-      if (formData.photo && formData.photo instanceof File) {
+      const hasPhoto = formData.photo && formData.photo instanceof File;
+
+      console.log('[PET DEBUG] Photo check:', {
+        hasPhoto: hasPhoto,
+        photoType: typeof formData.photo,
+        photoInstanceOf: formData.photo instanceof File,
+        photoValue: formData.photo
+      });
+
+      if (hasPhoto) {
         // Use FormData for file uploads
+        console.log('[PET DEBUG] Using FormData for file upload');
         submitData = new FormData();
-        
+
         // Add all fields to FormData
         Object.keys(formData).forEach(key => {
           const value = formData[key];
-          
+
           if (value !== null && value !== '') {
             if (key === 'photo' && value instanceof File) {
               submitData.append(key, value);
@@ -166,6 +175,7 @@ const PetsSection = () => {
         });
       } else {
         // Use JSON for regular data (no file upload)
+        console.log('[PET DEBUG] Using JSON for data only');
         submitData = {
           name: formData.name.trim(),
           pet_type: formData.pet_type,
@@ -189,7 +199,7 @@ const PetsSection = () => {
         });
       }
 
-      console.log('🔄 Submitting pet data:', submitData instanceof FormData ? 'FormData' : submitData);
+      console.log('[PET DEBUG] Final submitData:', submitData instanceof FormData ? 'FormData' : submitData);
 
       if (editingPet) {
         await updatePet(editingPet, submitData);
@@ -200,7 +210,7 @@ const PetsSection = () => {
         setSuccessMessage('Pet added successfully!');
         setIsAddingPet(false);
       }
-      
+
       resetForm();
       setTimeout(() => setSuccessMessage(''), 5000);
       
@@ -446,7 +456,7 @@ const PetsSection = () => {
                   name="breed"
                   value={formData.breed}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="form-select"
                   placeholder="e.g., Golden Retriever, Persian"
                   maxLength={100}
                 />
@@ -463,7 +473,7 @@ const PetsSection = () => {
                   name="color"
                   value={formData.color}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="form-select"
                   placeholder="e.g., Brown, Black and White"
                   maxLength={50}
                 />
@@ -525,7 +535,7 @@ const PetsSection = () => {
                   name="microchip_number"
                   value={formData.microchip_number}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="form-select"
                   placeholder="15-digit microchip ID"
                   maxLength={50}
                 />

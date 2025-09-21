@@ -25,4 +25,28 @@ export const paymentsAPI = {
     const response = await api.post('/payments/process/', paymentData)
     return response.data
   },
+
+  // Payment History functions
+  getPaymentHistory: async (params = {}) => {
+    const response = await api.get('/payments/history/', { params })
+    return response.data
+  },
+
+  addPaymentHistory: async (historyData) => {
+    const response = await api.post('/payments/history/', historyData)
+    return response.data
+  },
+
+  getPaymentReceipt: async (paymentId) => {
+    const response = await api.get(`/payments/history/${paymentId}/receipt/`)
+    return response.data
+  },
+
+  exportPaymentHistory: async (params = {}) => {
+    const response = await api.get('/payments/history/export/', {
+      params,
+      responseType: 'blob'
+    })
+    return response.data
+  },
 }

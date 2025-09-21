@@ -1,7 +1,7 @@
 from rest_framework import generics, status, permissions, parsers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -211,16 +211,16 @@ class ProfileResidenceView(generics.RetrieveUpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         # Debug logging
-        print(f"🔍 Request content type: {request.content_type}")
-        print(f"🔍 Request method: {request.method}")
-        print(f"🔍 Request data keys: {list(request.data.keys())}")
-        print(f"🔍 Request FILES keys: {list(request.FILES.keys())}")
+        print(f"[DEBUG] Request content type: {request.content_type}")
+        print(f"[DEBUG] Request method: {request.method}")
+        print(f"[DEBUG] Request data keys: {list(request.data.keys())}")
+        print(f"[DEBUG] Request FILES keys: {list(request.FILES.keys())}")
 
         for key, value in request.data.items():
-            print(f"🔍 Data field '{key}': {type(value)} - {value}")
+            print(f"[DEBUG] Data field '{key}': {type(value)} - {value}")
 
         for key, file_obj in request.FILES.items():
-            print(f"🔍 File field '{key}': {type(file_obj)} - {file_obj.name} ({file_obj.size} bytes)")
+            print(f"[DEBUG] File field '{key}': {type(file_obj)} - {file_obj.name} ({file_obj.size} bytes)")
 
         return super().update(request, *args, **kwargs)
 
@@ -462,7 +462,7 @@ class HouseholdMemberDetailView(generics.RetrieveUpdateDestroyAPIView):
 class PetListCreateView(generics.ListCreateAPIView):
     serializer_class = PetSerializer
     permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     
     def get_queryset(self):
         return Pet.objects.filter(user=self.request.user)
@@ -482,7 +482,7 @@ class PetListCreateView(generics.ListCreateAPIView):
 class PetDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PetSerializer
     permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     
     def get_queryset(self):
         return Pet.objects.filter(user=self.request.user)

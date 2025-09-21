@@ -327,7 +327,7 @@ const BasicProfileSection = () => {
             name="preferred_contact_method"
             value={formData.preferred_contact_method || 'email'}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            className="form-select"
           >
             {contactMethods.map(method => (
               <option key={method.value} value={method.value}>
@@ -346,7 +346,7 @@ const BasicProfileSection = () => {
             name="best_contact_time"
             value={formData.best_contact_time || 'anytime'}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            className="form-select"
           >
             {contactTimes.map(time => (
               <option key={time.value} value={time.value}>
@@ -365,7 +365,7 @@ const BasicProfileSection = () => {
             name="language_preference"
             value={formData.language_preference || 'en'}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            className="form-select"
           >
             {languages.map(lang => (
               <option key={lang.value} value={lang.value}>
@@ -384,7 +384,7 @@ const BasicProfileSection = () => {
             name="timezone_setting"
             value={formData.timezone_setting || 'UTC'}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            className="form-select"
           >
             {timezones.map(tz => (
               <option key={tz.value} value={tz.value}>

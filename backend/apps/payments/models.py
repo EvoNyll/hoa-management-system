@@ -38,4 +38,4 @@ class Payment(models.Model):
         ordering = ['-created_at']
     
     def __str__(self):
-        return f"{self.user.full_name} - {self.payment_type.name} (${self.amount})"
+        return f"{self.user.full_name} - {self.payment_type.name} (₱{self.amount})"

@@ -44,7 +44,7 @@ const AdminDashboard = () => {
             {
               id: 2,
               type: 'payment_received',
-              description: 'Payment received from Unit 245 - $275.00',
+              description: 'Payment received from Unit 245 - ₱275.00',
               timestamp: '2024-01-15T09:15:00Z'
             },
             {

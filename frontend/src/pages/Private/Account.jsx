@@ -46,7 +46,17 @@ const Account = () => {
     if (user && isAuthenticated) {
       loadProfileData();
     }
-  }, [user?.id, isAuthenticated]); 
+  }, [user?.id, isAuthenticated]);
+
+  // Check for sessionStorage to set active tab (for direct navigation from other pages)
+  useEffect(() => {
+    const savedTab = sessionStorage.getItem('accountActiveTab');
+    if (savedTab && ['basic', 'residence', 'emergency', 'privacy', 'security', 'financial', 'notifications', 'system', 'household', 'pets', 'vehicles', 'change-logs'].includes(savedTab)) {
+      setActiveTab(savedTab);
+      // Clear the sessionStorage after using it
+      sessionStorage.removeItem('accountActiveTab');
+    }
+  }, []); 
 
   const profileTabs = [
     { id: 'basic', label: 'Basic Info', icon: User, description: 'Personal information and contact details' },
