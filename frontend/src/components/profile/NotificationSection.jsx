@@ -98,35 +98,36 @@ const NotificationSection = () => {
   return (
     <div className="p-6">
       <div className="flex items-center gap-3 mb-6">
-        <Bell className="w-5 h-5 text-blue-600" />
-        <h3 className="text-lg font-semibold text-gray-900">Notification Preferences</h3>
+        <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Notification Preferences</h3>
       </div>
 
       {successMessage && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md flex items-center gap-2">
-          <CheckCircle className="w-5 h-5 text-green-600" />
-          <span className="text-green-800">{successMessage}</span>
+        <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md flex items-center gap-2">
+          <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+          <span className="text-green-800 dark:text-green-300">{successMessage}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
           {notificationOptions.map((option) => (
-            <div key={option.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div key={option.key} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <div className="flex-1">
-                <h4 className="text-sm font-medium text-gray-900">{option.title}</h4>
-                <p className="text-sm text-gray-600">{option.description}</p>
+                <h4 className="text-sm font-medium text-gray-900 dark:text-white">{option.title}</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">{option.description}</p>
               </div>
-              <label className="flex items-center">
+              <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
                   name={option.key}
                   checked={formData[option.key]}
                   onChange={handleInputChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="sr-only peer"
                 />
-                <span className="ml-2 text-sm text-gray-700">
-                  {formData[option.key] ? 'On' : 'Off'}
+                <div className="relative w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500"></div>
+                <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {formData[option.key] ? 'Enabled' : 'Disabled'}
                 </span>
               </label>
             </div>

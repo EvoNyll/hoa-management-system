@@ -128,38 +128,38 @@ const FinancialSection = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {successMessage && (
-        <div className="bg-green-50 border border-green-200 rounded-md p-4">
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-4">
           <div className="flex items-center">
             <CheckCircle className="w-5 h-5 text-green-400 mr-2" />
-            <p className="text-sm text-green-700">{successMessage}</p>
+            <p className="text-sm text-green-700 dark:text-green-300">{successMessage}</p>
           </div>
         </div>
       )}
 
       {errors.submit && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-sm text-red-700">{errors.submit}</p>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
+          <p className="text-sm text-red-700 dark:text-red-300">{errors.submit}</p>
         </div>
       )}
 
 
       {/* Payment Method Preferences */}
-      <div className="border-b border-gray-200 pb-6">
+      <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
         <div className="flex items-center mb-4">
-          <CreditCard className="w-5 h-5 text-blue-500 mr-2" />
-          <h3 className="text-lg font-medium text-gray-900">Preferred Payment Method</h3>
+          <CreditCard className="w-5 h-5 text-blue-500 dark:text-blue-400 mr-2" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">Preferred Payment Method</h3>
         </div>
         
         <div className="space-y-3">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Choose your preferred method for HOA dues and other payments. You can always select a different method during checkout.
           </p>
           
-          {paymentMethods.map((method) => {
-            const Icon = method.icon;
-            return (
-              <div key={method.value} className="flex items-start">
-                <div className="flex items-center h-5">
+          <div className="grid grid-cols-1 gap-3">
+            {paymentMethods.map((method) => {
+              const Icon = method.icon;
+              return (
+                <div key={method.value} className="relative">
                   <input
                     id={`payment_${method.value}`}
                     name="preferred_payment_method"
@@ -167,36 +167,68 @@ const FinancialSection = () => {
                     value={method.value}
                     checked={formData.preferred_payment_method === method.value}
                     onChange={handleInputChange}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                    className="sr-only peer"
                   />
+                  <label
+                    htmlFor={`payment_${method.value}`}
+                    className={`flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                      formData.preferred_payment_method === method.value
+                        ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-800'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                        formData.preferred_payment_method === method.value
+                          ? 'border-blue-500 dark:border-blue-400 bg-blue-500 dark:bg-blue-400'
+                          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700'
+                      }`}>
+                        {formData.preferred_payment_method === method.value && (
+                          <div className="w-2 h-2 rounded-full bg-white"></div>
+                        )}
+                      </div>
+                      <Icon className={`w-5 h-5 ${
+                        formData.preferred_payment_method === method.value
+                          ? 'text-blue-600 dark:text-blue-400'
+                          : 'text-gray-400 dark:text-gray-500'
+                      }`} />
+                      <div>
+                        <div className={`text-sm font-medium ${
+                          formData.preferred_payment_method === method.value
+                            ? 'text-blue-900 dark:text-blue-100'
+                            : 'text-gray-900 dark:text-white'
+                        }`}>
+                          {method.label}
+                        </div>
+                        <p className={`text-xs mt-1 ${
+                          formData.preferred_payment_method === method.value
+                            ? 'text-blue-700 dark:text-blue-300'
+                            : 'text-gray-500 dark:text-gray-400'
+                        }`}>
+                          {method.description}
+                        </p>
+                      </div>
+                    </div>
+                  </label>
                 </div>
-                <div className="ml-3 flex-1">
-                  <div className="flex items-center">
-                    <Icon className="w-4 h-4 text-gray-400 mr-2" />
-                    <label htmlFor={`payment_${method.value}`} className="text-sm font-medium text-gray-900">
-                      {method.label}
-                    </label>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">{method.description}</p>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
 
       {/* Payment Wallet Configuration */}
       {formData.preferred_payment_method === 'payment_wallet' && (
-        <div className="border-b border-gray-200 pb-6">
+        <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
           <div className="flex items-center mb-4">
-            <CreditCard className="w-5 h-5 text-indigo-500 mr-2" />
-            <h3 className="text-lg font-medium text-gray-900">Payment Wallet Setup</h3>
+            <CreditCard className="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-2" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Payment Wallet Setup</h3>
           </div>
 
           <div className="space-y-6">
             {/* Wallet Provider Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                 Choose Your Wallet Provider <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -215,23 +247,23 @@ const FinancialSection = () => {
                       htmlFor={`wallet_${provider.value}`}
                       className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
                         formData.wallet_provider === provider.value
-                          ? `border-blue-500 ${provider.color} bg-opacity-10`
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? `border-blue-500 dark:border-blue-400 ${provider.color} bg-opacity-10 dark:bg-opacity-20`
+                          : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                       }`}
                     >
                       <div className="flex items-center space-x-3">
                         <span className="text-2xl">{provider.logo}</span>
                         <div>
                           <div className={`font-semibold ${
-                            formData.wallet_provider === provider.value ? provider.textColor : 'text-gray-900'
+                            formData.wallet_provider === provider.value ? provider.textColor : 'text-gray-900 dark:text-white'
                           }`}>
                             {provider.label}
                           </div>
-                          <div className="text-xs text-gray-500">{provider.description}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{provider.description}</div>
                         </div>
                       </div>
                       {formData.wallet_provider === provider.value && (
-                        <CheckCircle className="w-5 h-5 text-blue-500 ml-auto" />
+                        <CheckCircle className="w-5 h-5 text-blue-500 dark:text-blue-400 ml-auto" />
                       )}
                     </label>
                   </div>
@@ -242,7 +274,7 @@ const FinancialSection = () => {
             {/* Wallet Account Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="wallet_account_number" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="wallet_account_number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {formData.wallet_provider === 'gcash' ? 'GCash' : 'Maya'} Mobile Number <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -251,21 +283,21 @@ const FinancialSection = () => {
                   type="tel"
                   value={formData.wallet_account_number}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.wallet_account_number ? 'border-red-300' : 'border-gray-300'
+                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    errors.wallet_account_number ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
                   placeholder={formData.wallet_provider === 'gcash' ? '+63 9XX XXX XXXX' : '+63 9XX XXX XXXX'}
                 />
                 {errors.wallet_account_number && (
                   <p className="text-xs text-red-600 mt-1">{errors.wallet_account_number}</p>
                 )}
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Enter the mobile number linked to your {formData.wallet_provider === 'gcash' ? 'GCash' : 'Maya'} account
                 </p>
               </div>
 
               <div>
-                <label htmlFor="wallet_account_name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="wallet_account_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Account Holder Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -274,15 +306,15 @@ const FinancialSection = () => {
                   type="text"
                   value={formData.wallet_account_name}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.wallet_account_name ? 'border-red-300' : 'border-gray-300'
+                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    errors.wallet_account_name ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
                   placeholder="Enter full name as registered"
                 />
                 {errors.wallet_account_name && (
                   <p className="text-xs text-red-600 mt-1">{errors.wallet_account_name}</p>
                 )}
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Must match the name registered to your wallet account
                 </p>
               </div>
@@ -290,7 +322,7 @@ const FinancialSection = () => {
 
             {/* Wallet Information */}
             <div className={`p-4 rounded-lg border ${
-              formData.wallet_provider === 'gcash' ? 'bg-blue-50 border-blue-200' : 'bg-green-50 border-green-200'
+              formData.wallet_provider === 'gcash' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
             }`}>
               <div className="flex items-start">
                 <span className="text-lg mr-3">
@@ -298,12 +330,12 @@ const FinancialSection = () => {
                 </span>
                 <div>
                   <h4 className={`font-medium ${
-                    formData.wallet_provider === 'gcash' ? 'text-blue-900' : 'text-green-900'
+                    formData.wallet_provider === 'gcash' ? 'text-blue-900 dark:text-blue-200' : 'text-green-900 dark:text-green-200'
                   }`}>
                     {formData.wallet_provider === 'gcash' ? 'About GCash' : 'About Maya'}
                   </h4>
                   <ul className={`mt-1 text-xs space-y-1 ${
-                    formData.wallet_provider === 'gcash' ? 'text-blue-700' : 'text-green-700'
+                    formData.wallet_provider === 'gcash' ? 'text-blue-700 dark:text-blue-300' : 'text-green-700 dark:text-green-300'
                   }`}>
                     {formData.wallet_provider === 'gcash' ? (
                       <>
@@ -330,47 +362,47 @@ const FinancialSection = () => {
 
       {/* QR Code Payment Configuration */}
       {formData.preferred_payment_method === 'qr_code' && (
-        <div className="border-b border-gray-200 pb-6">
+        <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
           <div className="flex items-center mb-4">
-            <DollarSign className="w-5 h-5 text-green-500 mr-2" />
-            <h3 className="text-lg font-medium text-gray-900">InstaPay QR Code Setup</h3>
+            <DollarSign className="w-5 h-5 text-green-500 dark:text-green-400 mr-2" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">InstaPay QR Code Setup</h3>
           </div>
 
           <div className="space-y-6">
             {/* QR Code Information */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
-                  <div className="w-16 h-16 bg-white border-2 border-green-300 rounded-lg flex items-center justify-center">
+                  <div className="w-16 h-16 bg-white dark:bg-gray-800 border-2 border-green-300 dark:border-green-600 rounded-lg flex items-center justify-center">
                     <span className="text-2xl">📱</span>
                   </div>
                 </div>
                 <div className="ml-4 flex-1">
-                  <h4 className="text-lg font-semibold text-green-900 mb-2">
+                  <h4 className="text-lg font-semibold text-green-900 dark:text-green-200 mb-2">
                     How InstaPay QR Code Payments Work
                   </h4>
                   <div className="space-y-3">
                     <div className="flex items-start">
                       <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5">1</span>
-                      <p className="text-sm text-green-800">
+                      <p className="text-sm text-green-800 dark:text-green-300">
                         When you have a payment due, we'll send you a <strong>unique InstaPay QR code</strong> via email and SMS
                       </p>
                     </div>
                     <div className="flex items-start">
                       <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5">2</span>
-                      <p className="text-sm text-green-800">
+                      <p className="text-sm text-green-800 dark:text-green-300">
                         Open any InstaPay-enabled app (GCash, Maya, BPI, BDO, UnionBank, etc.) and scan the QR code
                       </p>
                     </div>
                     <div className="flex items-start">
                       <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5">3</span>
-                      <p className="text-sm text-green-800">
+                      <p className="text-sm text-green-800 dark:text-green-300">
                         Review the payment details and confirm the transaction in your banking/wallet app
                       </p>
                     </div>
                     <div className="flex items-start">
                       <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5">4</span>
-                      <p className="text-sm text-green-800">
+                      <p className="text-sm text-green-800 dark:text-green-300">
                         Your payment is processed instantly and you'll receive a confirmation receipt
                       </p>
                     </div>
@@ -380,12 +412,12 @@ const FinancialSection = () => {
             </div>
 
             {/* InstaPay Information */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
               <div className="flex items-start">
                 <span className="text-lg mr-3">🏦</span>
                 <div>
-                  <h4 className="font-medium text-blue-900">About InstaPay</h4>
-                  <ul className="mt-1 text-xs text-blue-700 space-y-1">
+                  <h4 className="font-medium text-blue-900 dark:text-blue-200">About InstaPay</h4>
+                  <ul className="mt-1 text-xs text-blue-700 dark:text-blue-300 space-y-1">
                     <li>• Real-time electronic fund transfer service by BSP</li>
                     <li>• Works with all major Philippine banks and e-wallets</li>
                     <li>• Available 24/7, including weekends and holidays</li>
@@ -397,54 +429,54 @@ const FinancialSection = () => {
             </div>
 
             {/* Compatible Apps */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-3">Compatible Banking Apps & E-Wallets</h4>
+            <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 dark:text-white mb-3">Compatible Banking Apps & E-Wallets</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                 <div className="flex items-center space-x-2">
                   <span>💙</span>
-                  <span className="text-gray-700">GCash</span>
+                  <span className="text-gray-700 dark:text-gray-300">GCash</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span>💚</span>
-                  <span className="text-gray-700">Maya</span>
+                  <span className="text-gray-700 dark:text-gray-300">Maya</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span>🔵</span>
-                  <span className="text-gray-700">BPI Mobile</span>
+                  <span className="text-gray-700 dark:text-gray-300">BPI Mobile</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span>🔴</span>
-                  <span className="text-gray-700">BDO Online</span>
+                  <span className="text-gray-700 dark:text-gray-300">BDO Online</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span>🟡</span>
-                  <span className="text-gray-700">UnionBank</span>
+                  <span className="text-gray-700 dark:text-gray-300">UnionBank</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span>🟢</span>
-                  <span className="text-gray-700">Metrobank</span>
+                  <span className="text-gray-700 dark:text-gray-300">Metrobank</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span>🟠</span>
-                  <span className="text-gray-700">Landbank</span>
+                  <span className="text-gray-700 dark:text-gray-300">Landbank</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span>⚪</span>
-                  <span className="text-gray-700">PNB Mobile</span>
+                  <span className="text-gray-700 dark:text-gray-300">PNB Mobile</span>
                 </div>
               </div>
-              <p className="text-xs text-gray-600 mt-3">
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">
                 And many more InstaPay-enabled banks and e-wallets
               </p>
             </div>
 
             {/* QR Code Delivery Options */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
               <div className="flex items-start">
                 <AlertTriangle className="w-5 h-5 text-yellow-600 mr-2 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-yellow-900">QR Code Delivery</h4>
-                  <ul className="mt-1 text-xs text-yellow-800 space-y-1">
+                  <h4 className="font-medium text-yellow-900 dark:text-yellow-200">QR Code Delivery</h4>
+                  <ul className="mt-1 text-xs text-yellow-800 dark:text-yellow-300 space-y-1">
                     <li>• QR codes will be sent to your registered email address</li>
                     <li>• SMS notifications will include a link to view the QR code</li>
                     <li>• QR codes are unique for each payment and expire after 24 hours</li>
@@ -459,29 +491,30 @@ const FinancialSection = () => {
       )}
 
       {/* Billing Address */}
-      <div className="border-b border-gray-200 pb-6">
+      <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
         <div className="flex items-center mb-4">
-          <MapPin className="w-5 h-5 text-purple-500 mr-2" />
-          <h3 className="text-lg font-medium text-gray-900">Billing Address</h3>
+          <MapPin className="w-5 h-5 text-purple-500 dark:text-purple-400 mr-2" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">Billing Address</h3>
         </div>
         
         <div className="space-y-4">
           <div className="flex items-start">
-            <div className="flex items-center h-5">
+            <label htmlFor="billing_address_different" className="relative inline-flex items-center cursor-pointer">
               <input
                 id="billing_address_different"
                 name="billing_address_different"
                 type="checkbox"
                 checked={formData.billing_address_different}
                 onChange={handleInputChange}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                className="sr-only peer"
               />
-            </div>
+              <div className="relative w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500"></div>
+            </label>
             <div className="ml-3">
-              <label htmlFor="billing_address_different" className="text-sm font-medium text-gray-900">
+              <label htmlFor="billing_address_different" className="text-sm font-medium text-gray-900 dark:text-white cursor-pointer">
                 My billing address is different from my residence address
               </label>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Check this box if you want invoices and payment receipts sent to a different address
               </p>
             </div>
@@ -489,7 +522,7 @@ const FinancialSection = () => {
 
           {formData.billing_address_different && (
             <div className="mt-4">
-              <label htmlFor="billing_address" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="billing_address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Billing Address *
               </label>
               <textarea
@@ -498,8 +531,8 @@ const FinancialSection = () => {
                 value={formData.billing_address || ''}
                 onChange={handleInputChange}
                 rows={3}
-                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.billing_address ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                  errors.billing_address ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                 }`}
                 placeholder="Enter complete billing address including street, city, state, and ZIP code"
               />
@@ -508,8 +541,8 @@ const FinancialSection = () => {
           )}
 
           {!formData.billing_address_different && (
-            <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
-              <p className="text-sm text-gray-600">
+            <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md p-3">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 <strong>Current billing address:</strong> Your residence address on file will be used for billing and receipts.
               </p>
             </div>
@@ -519,12 +552,12 @@ const FinancialSection = () => {
 
       {/* Security & Information */}
       <div className="space-y-4">
-        <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-4">
           <div className="flex">
             <Shield className="w-5 h-5 text-blue-400 mr-2" />
             <div>
-              <h4 className="text-sm font-medium text-blue-800">Payment Security</h4>
-              <ul className="mt-1 text-xs text-blue-700 space-y-1">
+              <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200">Payment Security</h4>
+              <ul className="mt-1 text-xs text-blue-700 dark:text-blue-300 space-y-1">
                 <li>• All payment information is encrypted and securely stored</li>
                 <li>• GCash and Maya use bank-grade security with BSP regulation</li>
                 <li>• Payment processing follows PCI-DSS compliance standards</li>
@@ -535,12 +568,12 @@ const FinancialSection = () => {
           </div>
         </div>
 
-        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-4">
           <div className="flex">
             <AlertTriangle className="w-5 h-5 text-yellow-400 mr-2" />
             <div>
-              <h4 className="text-sm font-medium text-yellow-800">Important Information</h4>
-              <ul className="mt-1 text-xs text-yellow-700 space-y-1">
+              <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Important Information</h4>
+              <ul className="mt-1 text-xs text-yellow-700 dark:text-yellow-300 space-y-1">
                 <li>• Ensure your {formData.preferred_payment_method === 'payment_wallet' ? 'wallet has sufficient balance' : 'payment method is active'}</li>
                 <li>• Failed payments will result in email notifications and late fees may apply</li>
                 <li>• Manual payments can be made through your account dashboard</li>
@@ -557,8 +590,8 @@ const FinancialSection = () => {
         </div>
 
         {/* Payment History Link */}
-        <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
-          <h4 className="text-sm font-medium text-gray-800 mb-2">Payment Management</h4>
+        <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md p-4">
+          <h4 className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">Payment Management</h4>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -585,7 +618,7 @@ const FinancialSection = () => {
         </div>
       </div>
 
-      <div className="flex justify-end pt-6 border-t border-gray-200">
+      <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700">
         <button
           type="submit"
           disabled={isSubmitting || loading}

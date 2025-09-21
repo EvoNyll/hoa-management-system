@@ -83,8 +83,16 @@ const Sidebar = ({ isOpen, onClose }) => {
           {/* User info */}
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                <User className="w-6 h-6 text-green-600 dark:text-green-400" />
+              <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center overflow-hidden">
+                {user?.profile_photo || user?.basic?.profile_photo ? (
+                  <img
+                    src={user?.profile_photo || user?.basic?.profile_photo}
+                    alt={user?.full_name || 'Profile'}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  <User className="w-6 h-6 text-green-600 dark:text-green-400" />
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 dark:text-white truncate">

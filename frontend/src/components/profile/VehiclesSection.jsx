@@ -167,8 +167,8 @@ const VehiclesSection = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Vehicle Registration</h2>
-          <p className="text-gray-600 mt-1">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Vehicle Registration</h2>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             Register your vehicles for parking permits and community records
           </p>
         </div>
@@ -184,12 +184,12 @@ const VehiclesSection = () => {
 
       {/* Add Vehicle Form */}
       {isAddingVehicle && (
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Add New Vehicle</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Add New Vehicle</h3>
             <button
               onClick={handleCancel}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
             >
               <X className="w-5 h-5" />
             </button>
@@ -197,7 +197,7 @@ const VehiclesSection = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="license_plate" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="license_plate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 License Plate *
               </label>
               <input
@@ -206,8 +206,8 @@ const VehiclesSection = () => {
                 name="license_plate"
                 value={formData.license_plate}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.license_plate ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                  errors.license_plate ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                 }`}
                 placeholder="ABC123"
               />
@@ -217,7 +217,7 @@ const VehiclesSection = () => {
             </div>
 
             <div>
-              <label htmlFor="vehicle_type" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="vehicle_type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Vehicle Type *
               </label>
               <select
@@ -225,7 +225,7 @@ const VehiclesSection = () => {
                 name="vehicle_type"
                 value={formData.vehicle_type}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 {vehicleTypes.map(type => (
                   <option key={type.value} value={type.value}>
@@ -236,7 +236,7 @@ const VehiclesSection = () => {
             </div>
 
             <div>
-              <label htmlFor="make" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="make" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Make *
               </label>
               <input
@@ -245,8 +245,8 @@ const VehiclesSection = () => {
                 name="make"
                 value={formData.make}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.make ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                  errors.make ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                 }`}
                 placeholder="Toyota"
               />
@@ -256,7 +256,7 @@ const VehiclesSection = () => {
             </div>
 
             <div>
-              <label htmlFor="model" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="model" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Model *
               </label>
               <input
@@ -265,8 +265,8 @@ const VehiclesSection = () => {
                 name="model"
                 value={formData.model}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.model ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                  errors.model ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                 }`}
                 placeholder="Camry"
               />
@@ -276,7 +276,7 @@ const VehiclesSection = () => {
             </div>
 
             <div>
-              <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="year" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Year *
               </label>
               <input
@@ -287,8 +287,8 @@ const VehiclesSection = () => {
                 onChange={handleInputChange}
                 min="1900"
                 max={new Date().getFullYear() + 1}
-                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.year ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                  errors.year ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                 }`}
               />
               {errors.year && (
@@ -297,7 +297,7 @@ const VehiclesSection = () => {
             </div>
 
             <div>
-              <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="color" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Color *
               </label>
               <input
@@ -306,8 +306,8 @@ const VehiclesSection = () => {
                 name="color"
                 value={formData.color}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.color ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                  errors.color ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                 }`}
                 placeholder="Silver"
               />
@@ -317,7 +317,7 @@ const VehiclesSection = () => {
             </div>
 
             <div className="md:col-span-2">
-              <label htmlFor="parking_permit_number" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="parking_permit_number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Parking Permit Number
               </label>
               <input
@@ -326,21 +326,25 @@ const VehiclesSection = () => {
                 name="parking_permit_number"
                 value={formData.parking_permit_number}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 placeholder="Optional parking permit number"
               />
             </div>
 
             <div className="md:col-span-2">
               <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="is_primary"
-                  checked={formData.is_primary}
-                  onChange={handleInputChange}
-                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                />
-                <span className="ml-2 text-sm text-gray-700">
+                <label htmlFor="is_primary" className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    id="is_primary"
+                    type="checkbox"
+                    name="is_primary"
+                    checked={formData.is_primary}
+                    onChange={handleInputChange}
+                    className="sr-only peer"
+                  />
+                  <div className="relative w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500"></div>
+                </label>
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                   Set as primary vehicle
                 </span>
               </label>
@@ -350,7 +354,7 @@ const VehiclesSection = () => {
           <div className="flex justify-end space-x-3 mt-6">
             <button
               onClick={handleCancel}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               Cancel
             </button>
@@ -370,15 +374,15 @@ const VehiclesSection = () => {
       <div className="space-y-4">
         {profileData.vehicles && profileData.vehicles.length > 0 ? (
           profileData.vehicles.map((vehicle) => (
-            <div key={vehicle.id} className="bg-white border border-gray-200 rounded-lg p-6">
+            <div key={vehicle.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
               {editingVehicle === vehicle.id ? (
                 /* Edit Form */
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium text-gray-900">Edit Vehicle</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">Edit Vehicle</h3>
                     <button
                       onClick={handleCancel}
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -386,7 +390,7 @@ const VehiclesSection = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="edit_license_plate" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="edit_license_plate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         License Plate *
                       </label>
                       <input
@@ -395,8 +399,8 @@ const VehiclesSection = () => {
                         name="license_plate"
                         value={formData.license_plate}
                         onChange={handleInputChange}
-                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          errors.license_plate ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          errors.license_plate ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                         }`}
                       />
                       {errors.license_plate && (
@@ -405,7 +409,7 @@ const VehiclesSection = () => {
                     </div>
 
                     <div>
-                      <label htmlFor="edit_vehicle_type" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="edit_vehicle_type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Vehicle Type *
                       </label>
                       <select
@@ -413,7 +417,7 @@ const VehiclesSection = () => {
                         name="vehicle_type"
                         value={formData.vehicle_type}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       >
                         {vehicleTypes.map(type => (
                           <option key={type.value} value={type.value}>
@@ -424,7 +428,7 @@ const VehiclesSection = () => {
                     </div>
 
                     <div>
-                      <label htmlFor="edit_make" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="edit_make" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Make *
                       </label>
                       <input
@@ -433,8 +437,8 @@ const VehiclesSection = () => {
                         name="make"
                         value={formData.make}
                         onChange={handleInputChange}
-                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          errors.make ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          errors.make ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                         }`}
                       />
                       {errors.make && (
@@ -443,7 +447,7 @@ const VehiclesSection = () => {
                     </div>
 
                     <div>
-                      <label htmlFor="edit_model" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="edit_model" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Model *
                       </label>
                       <input
@@ -452,8 +456,8 @@ const VehiclesSection = () => {
                         name="model"
                         value={formData.model}
                         onChange={handleInputChange}
-                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          errors.model ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          errors.model ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                         }`}
                       />
                       {errors.model && (
@@ -462,7 +466,7 @@ const VehiclesSection = () => {
                     </div>
 
                     <div>
-                      <label htmlFor="edit_year" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="edit_year" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Year *
                       </label>
                       <input
@@ -473,8 +477,8 @@ const VehiclesSection = () => {
                         onChange={handleInputChange}
                         min="1900"
                         max={new Date().getFullYear() + 1}
-                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          errors.year ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          errors.year ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                         }`}
                       />
                       {errors.year && (
@@ -483,7 +487,7 @@ const VehiclesSection = () => {
                     </div>
 
                     <div>
-                      <label htmlFor="edit_color" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="edit_color" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Color *
                       </label>
                       <input
@@ -492,8 +496,8 @@ const VehiclesSection = () => {
                         name="color"
                         value={formData.color}
                         onChange={handleInputChange}
-                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          errors.color ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          errors.color ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                         }`}
                       />
                       {errors.color && (
@@ -502,7 +506,7 @@ const VehiclesSection = () => {
                     </div>
 
                     <div className="md:col-span-2">
-                      <label htmlFor="edit_parking_permit_number" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="edit_parking_permit_number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Parking Permit Number
                       </label>
                       <input
@@ -511,21 +515,25 @@ const VehiclesSection = () => {
                         name="parking_permit_number"
                         value={formData.parking_permit_number}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="Optional parking permit number"
                       />
                     </div>
 
                     <div className="md:col-span-2">
                       <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          name="is_primary"
-                          checked={formData.is_primary}
-                          onChange={handleInputChange}
-                          className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">
+                        <label htmlFor="edit_is_primary" className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            id="edit_is_primary"
+                            type="checkbox"
+                            name="is_primary"
+                            checked={formData.is_primary}
+                            onChange={handleInputChange}
+                            className="sr-only peer"
+                          />
+                          <div className="relative w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500"></div>
+                        </label>
+                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                           Set as primary vehicle
                         </span>
                       </label>
@@ -535,7 +543,7 @@ const VehiclesSection = () => {
                   <div className="flex justify-end space-x-3 mt-6">
                     <button
                       onClick={handleCancel}
-                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       Cancel
                     </button>
@@ -555,34 +563,34 @@ const VehiclesSection = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
-                        <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-2xl">
+                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-2xl">
                           {getVehicleTypeIcon(vehicle.vehicle_type)}
                         </div>
                       </div>
                       <div>
                         <div className="flex items-center space-x-2">
-                          <h3 className="text-lg font-medium text-gray-900">
+                          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                             {vehicle.year} {vehicle.make} {vehicle.model}
                           </h3>
                           {vehicle.is_primary && (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300">
                               <Star className="w-3 h-3 mr-1" />
                               Primary
                             </span>
                           )}
                         </div>
                         <div className="mt-1 space-y-1">
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-300">
                             <span className="font-medium">License Plate:</span> {vehicle.license_plate}
                           </p>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-300">
                             <span className="font-medium">Color:</span> {vehicle.color}
                           </p>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-300">
                             <span className="font-medium">Type:</span> {vehicleTypes.find(t => t.value === vehicle.vehicle_type)?.label}
                           </p>
                           {vehicle.parking_permit_number && (
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                               <span className="font-medium">Parking Permit:</span> {vehicle.parking_permit_number}
                             </p>
                           )}
@@ -593,14 +601,14 @@ const VehiclesSection = () => {
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => handleEditVehicle(vehicle)}
-                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                         title="Edit vehicle"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => setDeleteConfirm(vehicle.id)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                         title="Delete vehicle"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -612,12 +620,12 @@ const VehiclesSection = () => {
             </div>
           ))
         ) : (
-          <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-            <Car className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+            <Car className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               No vehicles registered
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               Register your vehicles for parking permits and community records.
             </p>
             <button
@@ -639,25 +647,25 @@ const VehiclesSection = () => {
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
-                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/20 sm:mx-0 sm:h-10 sm:w-10">
                     <AlertTriangle className="h-6 w-6 text-red-600" />
                   </div>
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
                       Delete Vehicle
                     </h3>
                     <div className="mt-2">
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         Are you sure you want to delete this vehicle? This action cannot be undone.
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
                   onClick={() => handleDelete(deleteConfirm)}
                   disabled={loading}
@@ -667,7 +675,7 @@ const VehiclesSection = () => {
                 </button>
                 <button
                   onClick={() => setDeleteConfirm(null)}
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                 >
                   Cancel
                 </button>

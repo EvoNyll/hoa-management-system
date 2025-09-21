@@ -58,7 +58,7 @@ export const useProfile = () => {
 }
 
 export const ProfileProvider = ({ children }) => {
-  const { user, isAuthenticated } = useAuth()
+  const { user, isAuthenticated, refreshUser } = useAuth()
   const [profileData, setProfileData] = useState({
     basic: {},
     residence: {},
@@ -137,11 +137,19 @@ export const ProfileProvider = ({ children }) => {
         ...prev,
         basic: updatedData
       }))
+
+      // Refresh AuthContext user data to sync profile photo and other basic info
+      try {
+        await refreshUser()
+      } catch (err) {
+        console.error('Failed to refresh user data after profile update:', err)
+      }
+
       return updatedData
     } catch (error) {
       throw error
     }
-  }, [])
+  }, [refreshUser])
 
   const handleUpdateResidenceInfo = useCallback(async (data) => {
     try {

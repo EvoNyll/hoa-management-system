@@ -403,8 +403,8 @@ const SecuritySection = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                   activeTab === tab.id
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 <tab.icon className="w-4 h-4 mr-2" />
@@ -419,34 +419,34 @@ const SecuritySection = () => {
       <div className="space-y-6">
         {/* Password Change Tab */}
         {activeTab === 'password' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center gap-3 mb-4">
-              <Key className="w-5 h-5 text-blue-600" />
-              <h4 className="text-lg font-medium text-gray-900">Change Password</h4>
+              <Key className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <h4 className="text-lg font-medium text-gray-900 dark:text-white">Change Password</h4>
             </div>
 
             {/* Success/Error Messages */}
             {passwordSuccess && (
-              <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                 <div className="flex items-center">
                   <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
-                  <p className="text-sm text-green-700 font-medium">{passwordSuccess}</p>
+                  <p className="text-sm text-green-700 dark:text-green-300 font-medium">{passwordSuccess}</p>
                 </div>
               </div>
             )}
 
             {passwordErrors.general && (
-              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                 <div className="flex items-center">
                   <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
-                  <p className="text-sm text-red-700 font-medium">{passwordErrors.general}</p>
+                  <p className="text-sm text-red-700 dark:text-red-300 font-medium">{passwordErrors.general}</p>
                 </div>
               </div>
             )}
 
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Current Password <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -454,8 +454,8 @@ const SecuritySection = () => {
                   name="current_password"
                   value={passwordData.current_password}
                   onChange={handlePasswordChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    passwordErrors.current_password ? 'border-red-300' : 'border-gray-300'
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    passwordErrors.current_password ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
                   placeholder="Enter your current password"
                 />
@@ -466,7 +466,7 @@ const SecuritySection = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     New Password <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -474,21 +474,21 @@ const SecuritySection = () => {
                     name="new_password"
                     value={passwordData.new_password}
                     onChange={handlePasswordChange}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      passwordErrors.new_password ? 'border-red-300' : 'border-gray-300'
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                      passwordErrors.new_password ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                     }`}
                     placeholder="Enter your new password"
                   />
                   {passwordErrors.new_password && (
                     <p className="mt-1 text-sm text-red-600">{passwordErrors.new_password}</p>
                   )}
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     Must be at least 8 characters
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Confirm New Password <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -496,8 +496,8 @@ const SecuritySection = () => {
                     name="confirm_password"
                     value={passwordData.confirm_password}
                     onChange={handlePasswordChange}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      passwordErrors.confirm_password ? 'border-red-300' : 'border-gray-300'
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                      passwordErrors.confirm_password ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                     }`}
                     placeholder="Confirm your new password"
                   />
@@ -507,7 +507,7 @@ const SecuritySection = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end pt-4 border-t border-gray-200">
+              <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button
                   type="submit"
                   disabled={isSubmittingPassword}
@@ -527,20 +527,20 @@ const SecuritySection = () => {
 
         {/* Email Verification Tab */}
         {activeTab === 'email' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center gap-3 mb-4">
-              <Mail className="w-5 h-5 text-green-600" />
-              <h4 className="text-lg font-medium text-gray-900">Email Verification</h4>
+              <Mail className="w-5 h-5 text-green-600 dark:text-green-400" />
+              <h4 className="text-lg font-medium text-gray-900 dark:text-white">Email Verification</h4>
             </div>
 
             {/* Current Email Status */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+            <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-900">Current Email</p>
-                  <p className="text-sm text-gray-600">{user?.email}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">Current Email</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{user?.email}</p>
                 </div>
-                <span className="px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                <span className="px-3 py-1 text-xs font-medium bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 rounded-full">
                   Verified
                 </span>
               </div>
@@ -548,19 +548,19 @@ const SecuritySection = () => {
 
             {/* Success/Error Messages */}
             {emailSuccess && (
-              <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                 <div className="flex items-center">
                   <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
-                  <p className="text-sm text-green-700 font-medium">{emailSuccess}</p>
+                  <p className="text-sm text-green-700 dark:text-green-300 font-medium">{emailSuccess}</p>
                 </div>
               </div>
             )}
 
             {emailErrors.general && (
-              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                 <div className="flex items-center">
                   <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
-                  <p className="text-sm text-red-700 font-medium">{emailErrors.general}</p>
+                  <p className="text-sm text-red-700 dark:text-red-300 font-medium">{emailErrors.general}</p>
                 </div>
               </div>
             )}
@@ -568,7 +568,7 @@ const SecuritySection = () => {
             {/* Change Email Form */}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   New Email Address
                 </label>
                 <div className="flex space-x-3">
@@ -577,8 +577,8 @@ const SecuritySection = () => {
                     name="new_email"
                     value={emailData.new_email}
                     onChange={handleEmailChange}
-                    className={`flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      emailErrors.new_email ? 'border-red-300' : 'border-gray-300'
+                    className={`flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                      emailErrors.new_email ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                     }`}
                     placeholder="Enter new email address"
                     disabled={emailVerificationSent}
@@ -603,8 +603,8 @@ const SecuritySection = () => {
               </div>
 
               {emailVerificationSent && (
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-700">
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
                     We've sent a verification link to <strong>{emailData.new_email}</strong>. 
                     Please check your email and click the link to verify your new email address.
                   </p>
@@ -616,37 +616,37 @@ const SecuritySection = () => {
 
         {/* Two-Factor Authentication Tab */}
         {activeTab === 'twofactor' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center gap-3 mb-4">
-              <Shield className="w-5 h-5 text-purple-600" />
-              <h4 className="text-lg font-medium text-gray-900">Two-Factor Authentication</h4>
+              <Shield className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              <h4 className="text-lg font-medium text-gray-900 dark:text-white">Two-Factor Authentication</h4>
             </div>
 
             {/* Success/Error Messages */}
             {twoFactorSuccess && (
-              <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                 <div className="flex items-center">
                   <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
-                  <p className="text-sm text-green-700 font-medium">{twoFactorSuccess}</p>
+                  <p className="text-sm text-green-700 dark:text-green-300 font-medium">{twoFactorSuccess}</p>
                 </div>
               </div>
             )}
 
             {twoFactorErrors.general && (
-              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                 <div className="flex items-center">
                   <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
-                  <p className="text-sm text-red-700 font-medium">{twoFactorErrors.general}</p>
+                  <p className="text-sm text-red-700 dark:text-red-300 font-medium">{twoFactorErrors.general}</p>
                 </div>
               </div>
             )}
 
             {/* 2FA Status */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+            <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-900">Two-Factor Authentication</p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">Two-Factor Authentication</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
                     {profileData.security?.two_factor_enabled 
                       ? 'Your account is protected with two-factor authentication' 
                       : 'Add an extra layer of security to your account'}
@@ -655,8 +655,8 @@ const SecuritySection = () => {
                 <div className="flex items-center space-x-3">
                   <span className={`px-3 py-1 text-xs font-medium rounded-full ${
                     profileData.security?.two_factor_enabled
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
+                      ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300'
+                      : 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300'
                   }`}>
                     {profileData.security?.two_factor_enabled ? 'Enabled' : 'Disabled'}
                   </span>
@@ -682,10 +682,10 @@ const SecuritySection = () => {
             </div>
 
             {/* Information Box */}
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <div className="flex">
                 <Info className="w-5 h-5 text-blue-400 mr-2 mt-0.5" />
-                <div className="text-sm text-blue-700">
+                <div className="text-sm text-blue-700 dark:text-blue-300">
                   <p className="font-medium mb-1">About Two-Factor Authentication:</p>
                   <ul className="space-y-1">
                     <li>• Adds an extra layer of security to your account</li>
@@ -699,29 +699,29 @@ const SecuritySection = () => {
 
             {/* 2FA Setup Form */}
             {showSetupForm && (
-              <div className="mb-6 p-6 bg-blue-50 border border-blue-200 rounded-lg">
-                <h5 className="text-lg font-medium text-blue-900 mb-4">Set up Two-Factor Authentication</h5>
+              <div className="mb-6 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <h5 className="text-lg font-medium text-blue-900 dark:text-blue-200 mb-4">Set up Two-Factor Authentication</h5>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* QR Code */}
                   <div>
-                    <h6 className="font-medium text-gray-900 mb-3">1. Scan QR Code</h6>
+                    <h6 className="font-medium text-gray-900 dark:text-white mb-3">1. Scan QR Code</h6>
                     {qrCodeUrl ? (
-                      <div className="p-4 bg-white border rounded-lg text-center">
+                      <div className="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-center">
                         <img src={qrCodeUrl} alt="2FA Setup QR Code" className="mx-auto max-w-full h-auto" />
                       </div>
                     ) : (
-                      <div className="p-4 bg-gray-100 border rounded-lg text-center">
+                      <div className="p-4 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-center">
                         <Loader className="w-8 h-8 animate-spin text-gray-500 mx-auto" />
-                        <p className="text-sm text-gray-500 mt-2">Loading QR code...</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Loading QR code...</p>
                       </div>
                     )}
 
                     {/* Manual Secret */}
                     {secret && (
                       <div className="mt-3">
-                        <p className="text-xs text-gray-600 mb-2">Can't scan? Enter this code manually:</p>
-                        <div className="p-2 bg-gray-100 border rounded text-xs font-mono break-all">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Can't scan? Enter this code manually:</p>
+                        <div className="p-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded text-xs font-mono break-all text-gray-900 dark:text-white">
                           {secret}
                         </div>
                       </div>
@@ -730,7 +730,7 @@ const SecuritySection = () => {
 
                   {/* Verification */}
                   <div>
-                    <h6 className="font-medium text-gray-900 mb-3">2. Enter Verification Code</h6>
+                    <h6 className="font-medium text-gray-900 dark:text-white mb-3">2. Enter Verification Code</h6>
                     <div className="space-y-3">
                       <input
                         type="text"
@@ -741,8 +741,8 @@ const SecuritySection = () => {
                         }}
                         maxLength="6"
                         placeholder="Enter 6-digit code"
-                        className={`w-full px-3 py-2 border rounded-md text-center font-mono text-lg tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          twoFactorErrors.token ? 'border-red-300' : 'border-gray-300'
+                        className={`w-full px-3 py-2 border rounded-md text-center font-mono text-lg tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          twoFactorErrors.token ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                         }`}
                       />
                       {twoFactorErrors.token && (
@@ -778,15 +778,15 @@ const SecuritySection = () => {
 
             {/* Disable 2FA Password Dialog */}
             {showDisableDialog && (
-              <div className="mb-6 p-6 bg-red-50 border border-red-200 rounded-lg">
-                <h5 className="text-lg font-medium text-red-900 mb-4">Confirm Disable Two-Factor Authentication</h5>
-                <p className="text-sm text-red-700 mb-4">
+              <div className="mb-6 p-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <h5 className="text-lg font-medium text-red-900 dark:text-red-200 mb-4">Confirm Disable Two-Factor Authentication</h5>
+                <p className="text-sm text-red-700 dark:text-red-300 mb-4">
                   To disable two-factor authentication, please enter your account password to confirm this action.
                 </p>
 
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Current Password <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -797,8 +797,8 @@ const SecuritySection = () => {
                         if (twoFactorErrors.password) setTwoFactorErrors(prev => ({ ...prev, password: null }));
                       }}
                       placeholder="Enter your password"
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                        twoFactorErrors.password ? 'border-red-300' : 'border-gray-300'
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                        twoFactorErrors.password ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                       }`}
                     />
                     {twoFactorErrors.password && (
@@ -851,11 +851,11 @@ const SecuritySection = () => {
 
             {/* Backup Codes Display */}
             {showBackupCodes && backupCodes.length > 0 && (
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center">
                     <Key className="w-5 h-5 text-yellow-600 mr-2" />
-                    <h5 className="font-medium text-yellow-900">Backup Codes</h5>
+                    <h5 className="font-medium text-yellow-900 dark:text-yellow-200">Backup Codes</h5>
                   </div>
                   <button
                     onClick={() => setShowBackupCodes(false)}
@@ -864,14 +864,14 @@ const SecuritySection = () => {
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                <p className="text-sm text-yellow-800 mb-3">
+                <p className="text-sm text-yellow-800 dark:text-yellow-300 mb-3">
                   Save these backup codes in a secure location. Each code can only be used once if you lose access to your authenticator app.
                 </p>
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   {backupCodes.map((code, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-2 bg-white border rounded font-mono text-sm"
+                      className="flex items-center justify-between p-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded font-mono text-sm text-gray-900 dark:text-white"
                     >
                       <span>{code}</span>
                       <button
@@ -906,11 +906,11 @@ const SecuritySection = () => {
 
         {/* Login Activity Tab */}
         {activeTab === 'activity' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <Monitor className="w-5 h-5 text-indigo-600" />
-                <h4 className="text-lg font-medium text-gray-900">Login Activity</h4>
+                <Monitor className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <h4 className="text-lg font-medium text-gray-900 dark:text-white">Login Activity</h4>
               </div>
               <div className="flex space-x-2">
                 <button
@@ -936,19 +936,19 @@ const SecuritySection = () => {
 
             {/* Success/Error Messages */}
             {activitySuccess && (
-              <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                 <div className="flex items-center">
                   <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
-                  <p className="text-sm text-green-700 font-medium">{activitySuccess}</p>
+                  <p className="text-sm text-green-700 dark:text-green-300 font-medium">{activitySuccess}</p>
                 </div>
               </div>
             )}
 
             {activityErrors.general && (
-              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                 <div className="flex items-center">
                   <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
-                  <p className="text-sm text-red-700 font-medium">{activityErrors.general}</p>
+                  <p className="text-sm text-red-700 dark:text-red-300 font-medium">{activityErrors.general}</p>
                 </div>
               </div>
             )}
@@ -960,8 +960,8 @@ const SecuritySection = () => {
                   <Loader className="w-6 h-6 animate-spin text-indigo-600" />
                 </div>
               ) : loginActivity.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <Monitor className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  <Monitor className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
                   <p>No recent login activity found</p>
                   <p className="text-sm mt-1">Login events will appear here</p>
                 </div>
@@ -971,8 +971,8 @@ const SecuritySection = () => {
                     key={session.id || index}
                     className={`p-4 rounded-lg border ${
                       session.is_current
-                        ? 'bg-green-50 border-green-200'
-                        : 'bg-gray-50 border-gray-200'
+                        ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                        : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -980,16 +980,16 @@ const SecuritySection = () => {
                         {getDeviceIcon(session.user_agent)}
                         <div>
                           <div className="flex items-center space-x-2">
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
                               {session.device_name || 'Unknown Device'}
                             </p>
                             {session.is_current && (
-                              <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">
+                              <span className="px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 rounded">
                                 Current Session
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
+                          <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500 dark:text-gray-400">
                             <div className="flex items-center">
                               <Globe className="w-3 h-3 mr-1" />
                               {session.browser || 'Unknown Browser'}
@@ -1004,7 +1004,7 @@ const SecuritySection = () => {
                             </div>
                           </div>
                           {session.ip_address && (
-                            <div className="mt-1 text-xs text-gray-400">
+                            <div className="mt-1 text-xs text-gray-400 dark:text-gray-500">
                               IP: {session.ip_address} • {session.activity_type}
                             </div>
                           )}
@@ -1013,7 +1013,7 @@ const SecuritySection = () => {
                       {!session.is_current && (
                         <button
                           onClick={() => handleTerminateSession(session.id)}
-                          className="flex items-center px-3 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                          className="flex items-center px-3 py-1 text-xs bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-900/30 transition-colors"
                         >
                           <Trash2 className="w-3 h-3 mr-1" />
                           End Session
@@ -1026,9 +1026,9 @@ const SecuritySection = () => {
             </div>
 
             {/* Security Tips */}
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h5 className="text-sm font-medium text-blue-900 mb-2">Security Tips:</h5>
-              <ul className="text-sm text-blue-700 space-y-1">
+            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <h5 className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">Security Tips:</h5>
+              <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
                 <li>• Regularly review your login activity for suspicious sessions</li>
                 <li>• End sessions on devices you no longer use</li>
                 <li>• If you see unrecognized activity, change your password immediately</li>

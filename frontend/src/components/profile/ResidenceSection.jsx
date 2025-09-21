@@ -247,7 +247,7 @@ const ResidenceSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Block Number */}
           <div>
-            <label htmlFor="block" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="block" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Block Number *
             </label>
             <input
@@ -256,8 +256,8 @@ const ResidenceSection = () => {
               name="block"
               value={formData.block}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.block ? 'border-red-300' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                errors.block ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
               }`}
               placeholder="e.g., 1, A, Block 1"
               maxLength={20}
@@ -269,7 +269,7 @@ const ResidenceSection = () => {
 
           {/* Lot Number */}
           <div>
-            <label htmlFor="lot" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="lot" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Lot Number *
             </label>
             <input
@@ -278,8 +278,8 @@ const ResidenceSection = () => {
               name="lot"
               value={formData.lot}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.lot ? 'border-red-300' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                errors.lot ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
               }`}
               placeholder="e.g., 15, 28A, Lot 12"
               maxLength={20}
@@ -292,7 +292,7 @@ const ResidenceSection = () => {
 
         {/* House Front View Image */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             House Front View
           </label>
           <div className="space-y-4">
@@ -300,14 +300,14 @@ const ResidenceSection = () => {
             <div className="flex items-center justify-center w-full">
               <label
                 htmlFor="house_front_view"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-8 h-8 mb-2 text-gray-400" />
-                  <p className="mb-2 text-sm text-gray-500">
+                  <Upload className="w-8 h-8 mb-2 text-gray-400 dark:text-gray-500" />
+                  <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
                     <span className="font-semibold">Click to upload</span> your house front view
                   </p>
-                  <p className="text-xs text-gray-500">PNG, JPG (MAX. 5MB)</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG (MAX. 5MB)</p>
                 </div>
                 <input
                   id="house_front_view"
@@ -325,7 +325,7 @@ const ResidenceSection = () => {
                 <img
                   src={imagePreview}
                   alt="House front view preview"
-                  className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+                  className="w-32 h-32 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
                 />
                 <button
                   type="button"
@@ -344,10 +344,10 @@ const ResidenceSection = () => {
         </div>
 
         {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <div className="flex">
-            <Home className="w-5 h-5 text-blue-400 mr-3 mt-0.5" />
-            <div className="text-sm text-blue-700">
+            <Home className="w-5 h-5 text-blue-400 dark:text-blue-400 mr-3 mt-0.5" />
+            <div className="text-sm text-blue-700 dark:text-blue-300">
               <p className="font-medium mb-1">Residence Information</p>
               <p>
                 Your block and lot numbers help us maintain accurate HOA records
@@ -360,7 +360,7 @@ const ResidenceSection = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="flex justify-end pt-4 border-t border-gray-200">
+        <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="submit"
             disabled={isSubmitting || loading}

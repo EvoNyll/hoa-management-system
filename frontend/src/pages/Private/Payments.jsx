@@ -133,10 +133,10 @@ const Payments = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      pending: { color: 'bg-yellow-100 text-yellow-800', icon: Clock },
-      processing: { color: 'bg-blue-100 text-blue-800', icon: Clock },
-      completed: { color: 'bg-green-100 text-green-800', icon: CheckCircle },
-      failed: { color: 'bg-red-100 text-red-800', icon: AlertCircle }
+      pending: { color: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300', icon: Clock },
+      processing: { color: 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300', icon: Clock },
+      completed: { color: 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300', icon: CheckCircle },
+      failed: { color: 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300', icon: AlertCircle }
     }
     
     const config = statusConfig[status] || statusConfig.pending
@@ -156,8 +156,8 @@ const Payments = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Payments</h1>
-            <p className="text-gray-600 mt-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Payments</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
               Manage your HOA payments and view payment history
             </p>
           </div>
@@ -182,26 +182,26 @@ const Payments = () => {
       {/* Pending Payments Alert */}
       {pendingPayments.length > 0 && (
         <div className="mb-8">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
             <div className="flex items-center mb-4">
-              <AlertCircle className="w-5 h-5 text-yellow-600 mr-2" />
-              <h3 className="text-lg font-medium text-yellow-800">
+              <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2" />
+              <h3 className="text-lg font-medium text-yellow-800 dark:text-yellow-200">
                 Outstanding Payments ({pendingPayments.length})
               </h3>
             </div>
             <div className="space-y-4">
               {pendingPayments.map((payment) => (
-                <div key={payment.id} className="bg-white rounded-lg p-4 border border-yellow-200">
+                <div key={payment.id} className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-medium text-gray-900">{payment.payment_type.name}</h4>
-                      <p className="text-sm text-gray-600">
+                      <h4 className="font-medium text-gray-900 dark:text-white">{payment.payment_type.name}</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
                         Due: {new Date(payment.due_date).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="flex items-center space-x-4">
                       <div className="text-right">
-                        <p className="text-2xl font-bold text-gray-900">${payment.amount}</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">${payment.amount}</p>
                         {getStatusBadge(payment.status)}
                       </div>
                       <button
@@ -226,10 +226,10 @@ const Payments = () => {
         <div className="mb-8">
           <div className="card">
             <div className="card-header">
-              <h3 className="text-lg font-medium text-gray-900">Make a Payment</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Make a Payment</h3>
               <button
                 onClick={() => setShowPaymentForm(false)}
-                className="text-gray-400 hover:text-gray-500"
+                className="text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-300"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -280,7 +280,7 @@ const Payments = () => {
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <DollarSign className="h-5 w-5 text-gray-400" />
+                      <DollarSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                     </div>
                     <input
                       id="amount"
@@ -365,36 +365,36 @@ const Payments = () => {
 
       {/* Available Payment Types */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Available Payment Types</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Available Payment Types</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {paymentTypes.map((type) => (
             <div key={type.id} className="card hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="text-lg font-medium text-gray-900">{type.name}</h3>
-                  <p className="text-sm text-gray-600 mt-1">{type.description}</p>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">{type.name}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{type.description}</p>
                   
                   <div className="mt-4 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Amount:</span>
-                      <span className="text-lg font-bold text-green-600">${type.amount}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Amount:</span>
+                      <span className="text-lg font-bold text-green-600 dark:text-green-400">${type.amount}</span>
                     </div>
                     
                     {type.due_date && (
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">Due Date:</span>
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Due Date:</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
                           {new Date(type.due_date).toLocaleDateString()}
                         </span>
                       </div>
                     )}
                     
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Type:</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Type:</span>
                       <span className={`text-xs px-2 py-1 rounded-full ${
-                        type.is_recurring 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : 'bg-gray-100 text-gray-800'
+                        type.is_recurring
+                          ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
                       }`}>
                         {type.is_recurring ? 'Recurring' : 'One-time'}
                       </span>
@@ -421,9 +421,9 @@ const Payments = () => {
       {/* Payment Information */}
       <div className="card">
         <div className="card-header">
-          <h3 className="text-lg font-medium text-gray-900">Payment Information</h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">Payment Information</h3>
         </div>
-        <div className="prose prose-sm max-w-none text-gray-600">
+        <div className="prose prose-sm max-w-none text-gray-600 dark:text-gray-300">
           <ul className="space-y-2">
             <li>• Payments are processed securely and you will receive email confirmation</li>
             <li>• Credit card payments are processed immediately</li>

@@ -161,22 +161,22 @@ const AdminDashboard = () => {
   const getActivityIcon = (type) => {
     switch (type) {
       case 'user_registration':
-        return <Users className="w-4 h-4 text-blue-600" />
+        return <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
       case 'payment_received':
-        return <DollarSign className="w-4 h-4 text-green-600" />
+        return <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
       case 'ticket_created':
-        return <Wrench className="w-4 h-4 text-orange-600" />
+        return <Wrench className="w-4 h-4 text-orange-600 dark:text-orange-400" />
       default:
-        return <Clock className="w-4 h-4 text-gray-600" />
+        return <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#358939] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading admin dashboard...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading admin dashboard...</p>
         </div>
       </div>
     )
@@ -207,11 +207,11 @@ const AdminDashboard = () => {
       </HeroSection>
 
       {/* Quick Actions */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white dark:bg-gray-900">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Management Tools</h2>
-            <p className="text-lg text-gray-600">Administrative functions to manage your community efficiently.</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Management Tools</h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">Administrative functions to manage your community efficiently.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -233,10 +233,10 @@ const AdminDashboard = () => {
                       <IconComponent className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-[#358939] transition-colors">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-[#358939] transition-colors">
                         {action.name}
                       </h3>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                         {action.description}
                       </p>
                       <div className="mt-3 flex items-center text-[#358939] text-sm font-medium group-hover:translate-x-1 transition-transform">
@@ -252,14 +252,14 @@ const AdminDashboard = () => {
       </section>
 
       {/* Analytics & Activity */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Recent Activity */}
             <div className="card">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-                  <BarChart3 className="w-5 h-5 mr-2 text-blue-600" />
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                  <BarChart3 className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
                   Recent Activity
                 </h3>
                 <Link to="#" className="text-sm text-[#358939] hover:text-[#2d7230] font-medium">
@@ -268,13 +268,13 @@ const AdminDashboard = () => {
               </div>
               <div className="space-y-4">
                 {adminData.recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
+                  <div key={activity.id} className="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                     <div className="flex-shrink-0 mt-1">
                       {getActivityIcon(activity.type)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900">{activity.description}</p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-sm text-gray-900 dark:text-white">{activity.description}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {new Date(activity.timestamp).toLocaleString()}
                       </p>
                     </div>
@@ -286,26 +286,26 @@ const AdminDashboard = () => {
             {/* Pending Items */}
             <div className="card">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-                  <AlertTriangle className="w-5 h-5 mr-2 text-orange-600" />
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                  <AlertTriangle className="w-5 h-5 mr-2 text-orange-600 dark:text-orange-400" />
                   Pending Items
                 </h3>
               </div>
               <div className="space-y-4">
                 {adminData.pendingItems.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900 capitalize">
+                      <h4 className="text-sm font-medium text-gray-900 dark:text-white capitalize">
                         {item.type}
                       </h4>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {item.urgent > 0 && `${item.urgent} urgent`}
                       </p>
                     </div>
                     <div className="text-right">
-                      <div className="text-lg font-bold text-gray-900">{item.count}</div>
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">{item.count}</div>
                       {item.urgent > 0 && (
-                        <div className="text-xs text-red-600 font-medium">
+                        <div className="text-xs text-red-600 dark:text-red-400 font-medium">
                           {item.urgent} urgent
                         </div>
                       )}
@@ -318,27 +318,27 @@ const AdminDashboard = () => {
             {/* System Health */}
             <div className="card">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-                  <Shield className="w-5 h-5 mr-2 text-green-600" />
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                  <Shield className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
                   System Health
                 </h3>
               </div>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Database Size</span>
-                  <span className="text-sm font-medium text-gray-900">2.3 GB</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Database Size</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">2.3 GB</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Active Sessions</span>
-                  <span className="text-sm font-medium text-gray-900">42</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Active Sessions</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">42</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Last Backup</span>
-                  <span className="text-sm font-medium text-gray-900">2 hours ago</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Last Backup</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">2 hours ago</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">System Status</span>
-                  <span className="inline-flex items-center text-sm font-medium text-green-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">System Status</span>
+                  <span className="inline-flex items-center text-sm font-medium text-green-600 dark:text-green-400">
                     <CheckCircle className="w-4 h-4 mr-1" />
                     Healthy
                   </span>
@@ -349,23 +349,23 @@ const AdminDashboard = () => {
             {/* Quick Reports */}
             <div className="card">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-                  <Settings className="w-5 h-5 mr-2 text-gray-600" />
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                  <Settings className="w-5 h-5 mr-2 text-gray-600 dark:text-gray-400" />
                   Generate Reports
                 </h3>
               </div>
               <div className="space-y-3">
-                <button className="w-full p-3 text-left border border-gray-200 rounded-xl hover:border-[#358939] hover:bg-[#358939]/5 transition-colors group">
-                  <h4 className="font-medium text-gray-900 group-hover:text-[#358939]">Financial Report</h4>
-                  <p className="text-sm text-gray-600 mt-1">Monthly payment summary and revenue analysis</p>
+                <button className="w-full p-3 text-left border border-gray-200 dark:border-gray-600 rounded-xl hover:border-[#358939] hover:bg-[#358939]/5 dark:hover:bg-[#358939]/10 transition-colors group">
+                  <h4 className="font-medium text-gray-900 dark:text-white group-hover:text-[#358939]">Financial Report</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Monthly payment summary and revenue analysis</p>
                 </button>
-                <button className="w-full p-3 text-left border border-gray-200 rounded-xl hover:border-[#358939] hover:bg-[#358939]/5 transition-colors group">
-                  <h4 className="font-medium text-gray-900 group-hover:text-[#358939]">Maintenance Report</h4>
-                  <p className="text-sm text-gray-600 mt-1">Ticket status overview and maintenance trends</p>
+                <button className="w-full p-3 text-left border border-gray-200 dark:border-gray-600 rounded-xl hover:border-[#358939] hover:bg-[#358939]/5 dark:hover:bg-[#358939]/10 transition-colors group">
+                  <h4 className="font-medium text-gray-900 dark:text-white group-hover:text-[#358939]">Maintenance Report</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Ticket status overview and maintenance trends</p>
                 </button>
-                <button className="w-full p-3 text-left border border-gray-200 rounded-xl hover:border-[#358939] hover:bg-[#358939]/5 transition-colors group">
-                  <h4 className="font-medium text-gray-900 group-hover:text-[#358939]">Occupancy Report</h4>
-                  <p className="text-sm text-gray-600 mt-1">Resident activity and occupancy analytics</p>
+                <button className="w-full p-3 text-left border border-gray-200 dark:border-gray-600 rounded-xl hover:border-[#358939] hover:bg-[#358939]/5 dark:hover:bg-[#358939]/10 transition-colors group">
+                  <h4 className="font-medium text-gray-900 dark:text-white group-hover:text-[#358939]">Occupancy Report</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Resident activity and occupancy analytics</p>
                 </button>
               </div>
             </div>

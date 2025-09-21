@@ -94,6 +94,17 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  const refreshUser = async () => {
+    try {
+      const userData = await authAPI.getProfile()
+      setUser(userData)
+      return userData
+    } catch (error) {
+      console.error('Failed to refresh user data:', error)
+      throw error
+    }
+  }
+
   const hasRole = (requiredRole) => {
     if (!user) return false
     

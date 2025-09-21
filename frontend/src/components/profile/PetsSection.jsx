@@ -291,20 +291,20 @@ const PetsSection = () => {
     <div className="space-y-6">
       {/* Success Message */}
       {successMessage && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
           <div className="flex items-center">
             <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
-            <p className="text-sm text-green-700">{successMessage}</p>
+            <p className="text-sm text-green-700 dark:text-green-300">{successMessage}</p>
           </div>
         </div>
       )}
 
       {/* Error Message */}
       {errors.submit && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
           <div className="flex items-center">
             <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
-            <p className="text-sm text-red-700">{errors.submit}</p>
+            <p className="text-sm text-red-700 dark:text-red-300">{errors.submit}</p>
           </div>
         </div>
       )}
@@ -312,8 +312,8 @@ const PetsSection = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Pet Registration</h2>
-          <p className="text-gray-600 mt-1">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Pet Registration</h2>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             Register your pets for HOA compliance and emergency situations
           </p>
         </div>
@@ -332,14 +332,14 @@ const PetsSection = () => {
 
       {/* Add/Edit Form */}
       {(isAddingPet || editingPet) && (
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               {editingPet ? 'Edit Pet Information' : 'Add New Pet'}
             </h3>
             <button
               onClick={handleCancel}
-              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -349,7 +349,7 @@ const PetsSection = () => {
             {/* Photo Upload */}
             <div className="flex items-center space-x-6">
               <div className="flex-shrink-0">
-                <div className="w-24 h-24 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center overflow-hidden">
                   {photoPreview ? (
                     <img 
                       src={photoPreview} 
@@ -357,7 +357,7 @@ const PetsSection = () => {
                       className="w-full h-full object-cover rounded-lg"
                     />
                   ) : (
-                    <Camera className="w-8 h-8 text-gray-400" />
+                    <Camera className="w-8 h-8 text-gray-400 dark:text-gray-500" />
                   )}
                 </div>
               </div>
@@ -373,12 +373,12 @@ const PetsSection = () => {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
                 >
                   <Upload className="w-4 h-4 mr-2" />
                   Upload Photo
                 </button>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Max file size: 5MB. Supported formats: JPEG, PNG, GIF, WebP
                 </p>
                 {errors.photo && (
@@ -390,7 +390,7 @@ const PetsSection = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Pet Name */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Pet Name *
                 </label>
                 <input
@@ -399,8 +399,8 @@ const PetsSection = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 ${
-                    errors.name ? 'border-red-300' : 'border-gray-300'
+                  className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    errors.name ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
                   placeholder="e.g., Buddy, Whiskers, Tweety"
                   maxLength={100}
@@ -412,7 +412,7 @@ const PetsSection = () => {
 
               {/* Pet Type */}
               <div>
-                <label htmlFor="pet_type" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="pet_type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Pet Type *
                 </label>
                 <select
@@ -420,8 +420,8 @@ const PetsSection = () => {
                   name="pet_type"
                   value={formData.pet_type}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 ${
-                    errors.pet_type ? 'border-red-300' : 'border-gray-300'
+                  className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    errors.pet_type ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
                 >
                   {petTypes.map(type => (
@@ -437,7 +437,7 @@ const PetsSection = () => {
 
               {/* Breed */}
               <div>
-                <label htmlFor="breed" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="breed" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Breed
                 </label>
                 <input
@@ -446,7 +446,7 @@ const PetsSection = () => {
                   name="breed"
                   value={formData.breed}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="e.g., Golden Retriever, Persian"
                   maxLength={100}
                 />
@@ -454,7 +454,7 @@ const PetsSection = () => {
 
               {/* Color */}
               <div>
-                <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="color" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Color
                 </label>
                 <input
@@ -463,7 +463,7 @@ const PetsSection = () => {
                   name="color"
                   value={formData.color}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="e.g., Brown, Black and White"
                   maxLength={50}
                 />
@@ -471,7 +471,7 @@ const PetsSection = () => {
 
               {/* Weight */}
               <div>
-                <label htmlFor="weight" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="weight" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Weight (lbs)
                 </label>
                 <input
@@ -483,8 +483,8 @@ const PetsSection = () => {
                   step="0.1"
                   min="0"
                   max="999"
-                  className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 ${
-                    errors.weight ? 'border-red-300' : 'border-gray-300'
+                  className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    errors.weight ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
                   placeholder="e.g., 15.5"
                 />
@@ -495,7 +495,7 @@ const PetsSection = () => {
 
               {/* Date of Birth */}
               <div>
-                <label htmlFor="date_of_birth" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="date_of_birth" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Date of Birth
                 </label>
                 <input
@@ -505,8 +505,8 @@ const PetsSection = () => {
                   value={formData.date_of_birth}
                   onChange={handleInputChange}
                   max={new Date().toISOString().split('T')[0]}
-                  className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 ${
-                    errors.date_of_birth ? 'border-red-300' : 'border-gray-300'
+                  className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    errors.date_of_birth ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
                 />
                 {errors.date_of_birth && (
@@ -516,7 +516,7 @@ const PetsSection = () => {
 
               {/* Microchip Number */}
               <div>
-                <label htmlFor="microchip_number" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="microchip_number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Microchip Number
                 </label>
                 <input
@@ -525,7 +525,7 @@ const PetsSection = () => {
                   name="microchip_number"
                   value={formData.microchip_number}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="15-digit microchip ID"
                   maxLength={50}
                 />
@@ -533,7 +533,7 @@ const PetsSection = () => {
 
               {/* Vaccination Expiry */}
               <div>
-                <label htmlFor="vaccination_expiry" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="vaccination_expiry" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Vaccination Expiry
                 </label>
                 <input
@@ -543,8 +543,8 @@ const PetsSection = () => {
                   value={formData.vaccination_expiry}
                   onChange={handleInputChange}
                   min={new Date().toISOString().split('T')[0]}
-                  className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 ${
-                    errors.vaccination_expiry ? 'border-red-300' : 'border-gray-300'
+                  className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    errors.vaccination_expiry ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
                 />
                 {errors.vaccination_expiry && (
@@ -555,22 +555,25 @@ const PetsSection = () => {
 
             {/* Vaccination Current */}
             <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="vaccination_current"
-                name="vaccination_current"
-                checked={formData.vaccination_current}
-                onChange={handleInputChange}
-                className="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded"
-              />
-              <label htmlFor="vaccination_current" className="ml-2 text-sm text-gray-700">
+              <label htmlFor="vaccination_current" className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="vaccination_current"
+                  name="vaccination_current"
+                  checked={formData.vaccination_current}
+                  onChange={handleInputChange}
+                  className="sr-only peer"
+                />
+                <div className="relative w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pink-300 dark:peer-focus:ring-pink-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600 dark:peer-checked:bg-pink-500"></div>
+              </label>
+              <label htmlFor="vaccination_current" className="ml-3 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 Vaccinations are current
               </label>
             </div>
 
             {/* Special Needs */}
             <div>
-              <label htmlFor="special_needs" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="special_needs" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Special Needs
               </label>
               <textarea
@@ -579,17 +582,17 @@ const PetsSection = () => {
                 value={formData.special_needs}
                 onChange={handleInputChange}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 placeholder="Any special care requirements, dietary restrictions, medications, etc."
               />
             </div>
 
             {/* Submit Buttons */}
-            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
               <button
                 type="button"
                 onClick={handleCancel}
-                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
               >
                 Cancel
               </button>
@@ -614,10 +617,10 @@ const PetsSection = () => {
       <div className="space-y-4">
         {pets.length > 0 ? (
           pets.map((pet) => (
-            <div key={pet.id} className="bg-white border border-gray-200 rounded-lg p-6">
+            <div key={pet.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-4">
-                  <div className="w-16 h-16 bg-pink-100 rounded-lg flex items-center justify-center">
+                  <div className="w-16 h-16 bg-pink-100 dark:bg-pink-900/20 rounded-lg flex items-center justify-center">
                     {pet.photo ? (
                       <img 
                         src={pet.photo} 
@@ -629,29 +632,29 @@ const PetsSection = () => {
                     )}
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold text-gray-900">{pet.name}</h4>
-                    <p className="text-sm text-gray-600">
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{pet.name}</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       {pet.breed ? `${pet.breed} ` : ''}{petTypes.find(t => t.value === pet.pet_type)?.label}
                       {pet.color && ` • ${pet.color}`}
                       {pet.weight && ` • ${pet.weight} lbs`}
                     </p>
                     {pet.date_of_birth && (
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         Age: {calculateAge(pet.date_of_birth)}
                       </p>
                     )}
                     <div className="flex items-center space-x-2 mt-2">
                       {pet.vaccination_current ? (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300">
                           Vaccinations Current
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300">
                           Vaccinations Needed
                         </span>
                       )}
                       {pet.microchip_number && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300">
                           Microchipped
                         </span>
                       )}
@@ -662,13 +665,13 @@ const PetsSection = () => {
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handleEdit(pet)}
-                    className="p-2 text-gray-400 hover:text-pink-600 transition-colors"
+                    className="p-2 text-gray-400 dark:text-gray-500 hover:text-pink-600 dark:hover:text-pink-400 transition-colors"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setDeleteConfirm(pet.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                    className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -676,8 +679,8 @@ const PetsSection = () => {
               </div>
               
               {pet.special_needs && (
-                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-800">
+                <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-300">
                     <strong>Special Needs:</strong> {pet.special_needs}
                   </p>
                 </div>
@@ -685,10 +688,10 @@ const PetsSection = () => {
             </div>
           ))
         ) : (
-          <div className="text-center py-12 bg-white border border-gray-200 rounded-lg">
-            <Heart className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No pets registered yet</h3>
-            <p className="text-gray-600 mb-4">Add your furry, feathered, or scaled family members to your profile.</p>
+          <div className="text-center py-12 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <Heart className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No pets registered yet</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">Add your furry, feathered, or scaled family members to your profile.</p>
             <button
               onClick={() => setIsAddingPet(true)}
               className="inline-flex items-center px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500"
@@ -703,18 +706,18 @@ const PetsSection = () => {
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 dark:bg-red-900/20 rounded-full">
               <AlertTriangle className="w-6 h-6 text-red-600" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 text-center mb-2">Remove Pet</h3>
-            <p className="text-gray-600 text-center mb-6">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white text-center mb-2">Remove Pet</h3>
+            <p className="text-gray-600 dark:text-gray-300 text-center mb-6">
               Are you sure you want to remove this pet from your profile? This action cannot be undone.
             </p>
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
               >
                 Cancel
               </button>

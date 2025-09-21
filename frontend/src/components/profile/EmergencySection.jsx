@@ -174,10 +174,10 @@ const EmergencySection = () => {
 
         {/* Success Message */}
         {successMessage && (
-          <div className="mx-6 mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="mx-6 mt-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
             <div className="flex items-center">
               <CheckCircle className="w-5 h-5 text-green-400 mr-3" />
-              <div className="text-sm text-green-700">
+              <div className="text-sm text-green-700 dark:text-green-300">
                 <p className="font-medium">{successMessage}</p>
               </div>
             </div>
@@ -186,10 +186,10 @@ const EmergencySection = () => {
 
         {/* General Error Message */}
         {errors.submit && (
-          <div className="mx-6 mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="mx-6 mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
             <div className="flex items-center">
               <AlertTriangle className="w-5 h-5 text-red-400 mr-3" />
-              <div className="text-sm text-red-700">
+              <div className="text-sm text-red-700 dark:text-red-300">
                 <p className="font-medium">{errors.submit}</p>
               </div>
             </div>
@@ -199,15 +199,15 @@ const EmergencySection = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Primary Emergency Contact */}
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
           <div className="flex items-center gap-3 mb-4">
-            <Phone className="w-5 h-5 text-red-600" />
-            <h4 className="text-lg font-medium text-gray-900">Primary Emergency Contact</h4>
+            <Phone className="w-5 h-5 text-red-600 dark:text-red-400" />
+            <h4 className="text-lg font-medium text-gray-900 dark:text-white">Primary Emergency Contact</h4>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label htmlFor="emergency_contact" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="emergency_contact" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Full Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -216,8 +216,8 @@ const EmergencySection = () => {
                 name="emergency_contact"
                 value={formData.emergency_contact}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                  errors.emergency_contact ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                  errors.emergency_contact ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                 }`}
                 placeholder="John Smith"
               />
@@ -227,7 +227,7 @@ const EmergencySection = () => {
             </div>
 
             <div>
-              <label htmlFor="emergency_phone" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="emergency_phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Phone Number
               </label>
               <input
@@ -236,8 +236,8 @@ const EmergencySection = () => {
                 name="emergency_phone"
                 value={formData.emergency_phone}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                  errors.emergency_phone ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                  errors.emergency_phone ? 'border-red-300 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                 }`}
                 placeholder="(555) 123-4567"
               />
@@ -247,7 +247,7 @@ const EmergencySection = () => {
             </div>
 
             <div>
-              <label htmlFor="emergency_relationship" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="emergency_relationship" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Relationship
               </label>
               <select
@@ -268,15 +268,15 @@ const EmergencySection = () => {
         </div>
 
         {/* Secondary Emergency Contact */}
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+        <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-6">
           <div className="flex items-center gap-3 mb-4">
-            <UserPlus className="w-5 h-5 text-orange-600" />
-            <h4 className="text-lg font-medium text-gray-900">Secondary Emergency Contact</h4>
+            <UserPlus className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+            <h4 className="text-lg font-medium text-gray-900 dark:text-white">Secondary Emergency Contact</h4>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label htmlFor="secondary_emergency_contact" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="secondary_emergency_contact" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Full Name
               </label>
               <input
@@ -285,13 +285,13 @@ const EmergencySection = () => {
                 name="secondary_emergency_contact"
                 value={formData.secondary_emergency_contact}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 placeholder="Jane Doe"
               />
             </div>
 
             <div>
-              <label htmlFor="secondary_emergency_phone" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="secondary_emergency_phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Phone Number
               </label>
               <input
@@ -300,13 +300,13 @@ const EmergencySection = () => {
                 name="secondary_emergency_phone"
                 value={formData.secondary_emergency_phone}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 placeholder="(555) 987-6543"
               />
             </div>
 
             <div>
-              <label htmlFor="secondary_emergency_relationship" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="secondary_emergency_relationship" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Relationship
               </label>
               <select
@@ -314,7 +314,7 @@ const EmergencySection = () => {
                 name="secondary_emergency_relationship"
                 value={formData.secondary_emergency_relationship}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 {relationshipOptions.map(option => (
                   <option key={option.value} value={option.value}>
@@ -327,12 +327,12 @@ const EmergencySection = () => {
         </div>
 
         {/* Medical Information */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">Medical Information</h4>
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+          <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Medical Information</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="medical_conditions" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="medical_conditions" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Medical Conditions
               </label>
               <textarea
@@ -341,13 +341,13 @@ const EmergencySection = () => {
                 value={formData.medical_conditions}
                 onChange={handleInputChange}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 placeholder="List any medical conditions, allergies, or important medical information..."
               />
             </div>
 
             <div>
-              <label htmlFor="special_needs" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="special_needs" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Special Needs / Accessibility
               </label>
               <textarea
@@ -356,7 +356,7 @@ const EmergencySection = () => {
                 value={formData.special_needs}
                 onChange={handleInputChange}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 placeholder="Any special needs, mobility requirements, or accessibility considerations..."
               />
             </div>
@@ -364,10 +364,10 @@ const EmergencySection = () => {
         </div>
 
         {/* Info Box */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
           <div className="flex">
-            <AlertTriangle className="w-5 h-5 text-yellow-400 mr-3 mt-0.5" />
-            <div className="text-sm text-yellow-700">
+            <AlertTriangle className="w-5 h-5 text-yellow-400 dark:text-yellow-400 mr-3 mt-0.5" />
+            <div className="text-sm text-yellow-700 dark:text-yellow-300">
               <p className="font-medium mb-1">Emergency Contact Information</p>
               <p>
                 This information is crucial for emergency situations. Please ensure your emergency 
@@ -378,7 +378,7 @@ const EmergencySection = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="flex justify-end pt-4 border-t border-gray-200">
+        <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="submit"
             disabled={isSubmitting || loading}
